@@ -1,0 +1,212 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Check out{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready( function () {
+    $('#list_table').DataTable( {
+    "lengthChange": false,
+    {% if not form.paginate %}
+        "paging": false,
+        "info": false,
+        "searching": false,
+    {% endif %}
+        "order": [],
+        "stateSave": true,
+        "stateDuration": -1,
+        "pageLength": 8,
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych..."
+        }
+    });
+} );
+</script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        {% if flight_type == '01' or flight_type == '02' or flight_type == '02H'%}
+            <h2>Otwarcie PDT - Wybór kontrahenta</h2>
+        {% elif flight_type == '01A' or flight_type == '03D' %}
+            <h2>Otwarcie PDT - Wybór vouchera</h2>
+        {% elif flight_type == '03A' or flight_type == '03B' or flight_type == '03C' or flight_type == '03E' %}
+            <h2>Otwarcie PDT - Wybór szkolenia</h2>
+        {% elif flight_type == '04' %}
+            <h2>Otwarcie PDT - Szczegóły wynajmu</h2>
+        {% endif %}
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+
+            <table>
+                <tr><th>Rodaj lotu:</th>
+                <td><b>{{ flight_type_name }}</b></td></tr>
+                <tr><th>Statek powietrzny:</th>
+                <td><b>{{ aircraft }} / {{ aircraft.type }}</b></td></tr>
+
+                {# Szablon dla lotów AOC i SPO #}
+                {% if flight_type == '01' or flight_type == '02' or flight_type == '02H' %}
+                    <tr>
+                        <th>Kontrahent:</th>
+                        <td>
+                        {% if form.contractors %}
+                            {% if form.contractors.errors %}
+                                {{ form.contractors.errors }}
+                            {% else %}
+                                <br>
+                            {% endif %}
+                            <table id="list_table" class="stripe hover cell-border compact">
+                                <thead><tr>
+                                    <th></th>
+                                    <th style="text-align: center">Symbol</th>
+                                    <th style="text-align: center">Nazwa</th>
+                                    <th style="text-align: center">NIP</th>
+                                    <th style="text-align: center">Regon</th>
+                                    {% if flight_type == '01' %}
+                                        <th style="text-align: center">Saldo AOC</th>
+                                    {% else %}
+                                        <th style="text-align: center">Saldo SPO</th>
+                                    {% endif %}
+                                    <th style="text-align: center">Uwagi</th>
+                                </tr></thead>
+                                <tbody>
+                                    {% for radio in form.contractors %}
+                                        <tr><td><label for="{{ radio.id_for_label }}">{{ radio.tag }}</label></td>{{ radio.choice_label|safe }}</tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <br>
+                        {% else %}
+                            Brak aktywnych kontahentów
+                        {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.service_remarks.label }}:</th>
+                        <td>{{ form.service_remarks }}</td>
+                    </tr>
+
+                {# Szablon dla lotów widokowych #}
+                {% elif flight_type == '01A' or flight_type == '03D' %}
+                    <tr>
+                        <th>Voucher SALT:</th>
+                        <td>
+                        {% if form.vouchers.errors %}
+                            {{ form.vouchers.errors }}
+                        {% else %}
+                            {% if form.vouchers %}
+                                <br>
+                            {% endif %}
+                        {% endif %}
+                        {% if form.vouchers %}
+                            <table id="list_table" class="stripe hover cell-border compact">
+                                <thead><tr>
+                                    <th></th>
+                                    <th style="text-align: center">Numer</th>
+                                    <th style="text-align: center">Kod</th>
+                                    <th style="text-align: center">Liczba osób</th>
+                                    <th style="text-align: center">Czas trwania</th>
+                                    <th style="text-align: center">Opis</th>
+                                    <th style="text-align: center">Data ważności</th>
+                                </tr></thead>
+                                <tbody>
+                                    {% for radio in form.vouchers %}
+                                        <tr><td><label for="{{ radio.id_for_label }}">{{ radio.tag }}</label></td>{{ radio.choice_label|safe }}</tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <br>
+                        {% else %}
+                            Brak zarejestrowanych voucherów
+                        {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.ext_voucher.label }}:</th>
+                        <td>{{ form.ext_voucher }}</td>
+                    </tr>
+
+                {# Szablon dla wynajmu #}
+                {% elif flight_type == '04' %}
+
+                    <tr><th>Cena cennikowa:</th><td><b>{{ normal_price }}</b></td></tr>
+                    {%  if special_price %}
+                        <tr><th>Cena specjalna:</th><td><b>{{ special_price }}</b></td></tr>
+                    {% endif %}
+                    <tr><th>Pakiety godzin:</th>
+                    <td>
+                    {% if packages %}
+                        {% for package in packages %}
+                            {{ package|safe }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Brak wykupionych pakietów
+                    {% endif %}
+                    </td></tr>
+                    <tr><th></th><td></td></tr>
+                    <tr>
+                        <th>{{ form.instructor.label }}:</th>
+                        <td>{{ form.instructor }}</td>
+                    </tr>
+
+                {# Szablon dla szkoleń #}
+                {% elif flight_type == '03A' or flight_type == '03B' or flight_type == '03C' or flight_type == '03E' %}
+
+                    <tr>
+                        <th>Szkolenie:</th>
+                        <td>
+                        {% if form.trainings %}
+                            {% if form.trainings.errors %}
+                                {{ form.trainings.errors }}
+                            {% else %}
+                                <br>
+                            {% endif %}
+                            <table id="list_table" class="stripe hover cell-border compact">
+                                <thead><tr>
+                                    <th></th>
+                                    <th style="text-align: center">Uczeń</th>
+                                    <th style="text-align: center">Szkolenie</th>
+                                    <th style="text-align: center">Instruktor</th>
+                                </tr></thead>
+                                <tbody>
+                                    {% for radio in form.trainings %}
+                                        <tr><td><label for="{{ radio.id_for_label }}">{{ radio.tag }}</label></td>{{ radio.choice_label|safe }}</tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <br>
+                        {% else %}
+                            Brak rozpoczętych szkoleń
+                        {% endif %}
+                        </td>
+                    </tr>
+
+                {% endif %}
+
+                <tr><th></th><td style="padding-top: 10px; padding-bottom: 0">{{ form.non_field_errors }}</td></tr>
+                <tr><th></th><td>
+                <a class="pure-button" style="margin-right: 10px" href={% url 'panel:pdt-open1' %}>Powrót</a>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Dalej</button>
+                <a class="pure-button" href={% url 'fbo:user-info' user.fbouser.pk %}>Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

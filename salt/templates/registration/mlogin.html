@@ -1,0 +1,43 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block header %}Logowanie{% endblock %}
+
+{% block content %}
+
+    <form method="POST" action="{% url 'login' %}" data-ajax="false">
+    
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+            <div class="fieldWrapper">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="fieldWrapper">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+
+            {% if form.errors %}
+                <div class="mobile-form-errors">
+                    <p>Błąd logowania...</p>
+                </div>
+            {% elif next and user.is_authenticated %}
+                <div class="mobile-form-errors">
+                    <p>Brak uprawnień...</p>
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            <button type="submit" class="ui-btn ui-btn-icon-right ui-icon-arrow-r" value="login">Zaloguj</button>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </div>
+
+    </form>
+
+{% endblock %}
+
+{% block footer %}<h2 style="font-size: 0.9em">SALT Aviation</h2>{% endblock %}

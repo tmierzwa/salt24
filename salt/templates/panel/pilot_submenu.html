@@ -1,0 +1,49 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-info' pilot.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ pilot.fbouser|truncatechars:19 }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'bookings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-info' pilot.pk %}" class="pure-menu-link pure-menu-disabled">Rezerwacje</a></li>
+            <li class="pure-menu-item {% if type == 'flights_pic' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-flights' 'pic' pilot.pk %}" class="pure-menu-link">Moje loty (PIC)</a></li>
+            <li class="pure-menu-item {% if type == 'flights_sic' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-flights' 'sic' pilot.pk %}" class="pure-menu-link">Moje loty (SIC)</a></li>
+            {% if pilot.employee %}
+                <li class="pure-menu-item {% if type == 'duties' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pilot-duties' pilot.pk %}" class="pure-menu-link">Czas pracy</a></li>
+            {% endif %}
+            <li class="pure-menu-item {% if type == 'ratings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-ratings' pilot.pk %}" class="pure-menu-link">Uprawnienia pilota</a></li>
+            <li class="pure-menu-item {% if type == 'aircraft' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-aircraft' pilot.pk %}" class="pure-menu-link">Dostępne SP</a></li>
+            <li class="pure-menu-item {% if type == 'flight_type' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pilot-types' pilot.pk %}" class="pure-menu-link">Dostępne rodzaje lotów</a></li>
+        </ul>
+    </div>
+
+    <br>
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="#" class="pure-menu-link pure-menu-title"><b>Przejdź do ...</b></a></li>
+        {% if pilot.instructor %}
+            <li class="pure-menu-item">
+                <a href="{% url 'ato:instr-info' pilot.instructor.pk %}" class="pure-menu-link">Profil instruktora</a></li>
+        {% endif %}
+        {% if pilot.student %}
+            <li class="pure-menu-item">
+                <a href="{% url 'ato:student-info' pilot.student.pk %}" class="pure-menu-link">Profil studenta</a></li>
+        {% endif %}
+        {% if pilot.fbouser.contractor %}
+            <li class="pure-menu-item">
+                <a href="{% url 'fin:contr-info' pilot.fbouser.contractor.pk %}" class="pure-menu-link">Profil kontrahenta</a></li>
+        {% endif %}
+        <li class="pure-menu-item">
+            <a href="{% url 'fbo:user-info' pilot.fbouser.pk %}" class="pure-menu-link">Profil użytkownika</a></li>
+        </ul>
+    </div>
+
+</div>

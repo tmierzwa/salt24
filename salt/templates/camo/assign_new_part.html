@@ -1,0 +1,28 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}Montaż {{ object }}{% endblock %}
+
+{% block submenu %}
+     {% include "camo/aircraft_submenu.html" %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u-5-6">
+
+        <h2>Montaż nowej części do {{ object }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Utwórz i zabuduj</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

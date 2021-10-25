@@ -1,0 +1,84 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var start = $('#id_duty_time_from');
+            var end = $('#id_duty_time_to');
+            var duration = $('#id_duty_time');
+
+            change_duration = function()
+            {
+                var d1 = new Date('2000-1-1 ' + start.val());
+                var d2 = new Date('2000-1-1 ' + end.val());
+
+                if (d1.getTime() > 0 && d2.getTime() > 0)
+                {
+                    var seconds = ((d2 - d1) / 1000);
+                    if (seconds < 0) {
+                        seconds = 0
+                    }
+                    var hours = parseInt( seconds / 3600 ) % 24;
+                    var minutes = parseInt( seconds / 60 ) % 60;
+
+                    var duration_str = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+                    duration.val(duration_str);
+                }
+            };
+
+            change_end = function()
+            {
+                var d1 = parseInt(start.val().substring(0,2))*60 + parseInt(start.val().substring(3,5));
+                var d2 = parseInt(duration.val().substring(0,2))*60 + parseInt(duration.val().substring(3,5));
+
+                if (!isNaN(d1) && !isNaN(d2) )
+                {
+                    var end_time = (d1 + d2);
+                    var hours = parseInt(end_time / 60) % 24;
+                    var minutes = end_time % 60;
+
+                    var end_str = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+                    end.val(end_str);
+                }
+            };
+
+            change_duration();
+            start.change(change_duration);
+            end.change(change_duration);
+            duration.change(change_end);
+
+            })
+    </script>
+
+    {% if submenu_template %}
+        <div class="pure-u-5-6">
+    {% else %}
+        <div class="pure-u-1-1">
+    {% endif %}
+
+        <h2>{{ header_text }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Zakończ</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+
+        </form>
+    </div>
+
+{% endblock %}

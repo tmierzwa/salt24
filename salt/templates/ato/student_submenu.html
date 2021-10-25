@@ -1,0 +1,35 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:student-info' student.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ student.pilot|truncatechars:19 }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'trainings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:student-trainings' 'open' student.pk %}" class="pure-menu-link">Aktualne szkolenia</a></li>
+            <li class="pure-menu-item {% if type == 'completed' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:student-trainings' 'closed' student.pk %}" class="pure-menu-link">Zakończone szkolenia</a></li>
+            <li class="pure-menu-item {% if type == 'flights' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:student-flights' student.pk %}" class="pure-menu-link">Loty szkoleniowe</a></li>
+            <li class="pure-menu-item {% if type == 'account' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:student-account' student.pk %}" class="pure-menu-link pure-menu-disabled">Konto finansowe</a></li>
+        </ul>
+    </div>
+
+    <br>
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="#" class="pure-menu-link pure-menu-title"><b>Przejdź do ...</b></a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'panel:pilot-info' student.pilot.pk %}" class="pure-menu-link">Profil pilota</a></li>
+            {% if student.pilot.fbouser.contractor %}
+                <li class="pure-menu-item">
+                    <a href="{% url 'fin:contr-info' student.pilot.fbouser.contractor.pk %}" class="pure-menu-link">Profil kontrahenta</a></li>
+            {% endif %}
+            <li class="pure-menu-item">
+                <a href="{% url 'fbo:user-info' student.pilot.fbouser.pk %}" class="pure-menu-link">Profil użytkownika</a></li>
+        </ul>
+    </div>
+
+</div>

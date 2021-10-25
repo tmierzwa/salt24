@@ -1,0 +1,70 @@
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'dataTables.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'buttons.dataTables.min.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'pure-nr.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+
+<link rel="shortcut icon" href="{% static 'images/salt-icon.gif' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/salt-icon.gif' %}" type="image/x-icon">
+
+<script type="text/javascript" charset="utf8" src="{% static 'scripts/jquery-2.1.4.js' %}"></script>
+<script type="text/javascript" charset="utf8" src="{% static 'scripts/datatables.min.js'%}"></script>
+
+{% block scripts %}{% endblock %}
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SALT{% endblock %}</title>
+</head>
+
+<body>
+    <header>
+        <div class="pure-g">
+            {% if mobile %}
+            <div class="pure-u">
+            {% else %}
+            <div class="pure-u-3-5">
+            {% endif %}
+                <div class="logo-header"><a href="{% url 'dispatcher' %}"><img src="{% static 'images/salt_aviation_big.png' %}"></a></div>
+                {# <span style="color:#d20000">SAMOUCZEK - </span> #}
+                <div class="title-header">{% block module %}SYSTEM{% endblock %}</div>
+                <div class="pure-menu pure-menu-horizontal">
+                    <ul class="pure-menu-list">
+                        {% block menu %}{% endblock %}
+                    </ul>
+                </div>
+            </div>
+            {% if not mobile %}
+                <div class="pure-u-2-5">
+                    {% if user.is_authenticated %}
+                        <div class="user-header">
+                            Użytkownik: <b>{{ user.username }}</b><br>
+                        </div>
+                        <div class="user-logout">
+                            <a class="local-menu" style="padding-top: 10px" href="{% url 'logout' %}">Wyloguj</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        <hr/>
+    </header>
+    <section>
+        <div class="pure-g">
+            {% block submenu %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
+    </section>
+    <footer>
+        <div class="pure-g">
+            {% block footer %}{% endblock %}
+        </div>
+    </footer>
+
+</body>
+
+</html>

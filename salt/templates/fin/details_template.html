@@ -1,0 +1,69 @@
+{% extends 'fin/fin_template.html' %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        function go_back(){
+            url = document.referrer;
+            if(url.indexOf('update')!= -1) {
+                history.go(-3);
+            }
+            else {
+                history.go(-1);
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Obiekt" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"fin/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    {% if submenu_template %}
+        <div class="pure-u-5-6">
+    {% else %}
+        <div class="pure-u-1-1">
+    {% endif %}
+
+        <h2>{{ header_text|default_if_none:"Szczegóły obiektu" }}</h2>
+
+        <p class="local-menu">
+            <a href="/" onClick="go_back()">Powrót</a>
+            {% if local_menu %}
+                {% for menu_item in local_menu %}
+                    |
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            {% endif %}
+        </p>
+
+        {% if field_list %}
+            <table id="data-table">
+                {% for field in field_list %}
+                    <tr>
+                        <th nowrap style="width: {{ header_width|default_if_none:"auto" }}">{{ field.header|linebreaks }}</th>
+                        <td style="background-color: {{ field.color }}">
+                            {% if field.bold or field.link %}<b>{% endif %}
+                            {% if field.link %}<a href="{{ field.link }}">{{ field.value|default_if_none:"" }}</a>
+                            {% else %}{{ field.value | default_if_none:"" | linebreaksbr }}{% endif %}
+                            {% if field.bold or field.link %}</b>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">{{ empty_text|default_if_none:"Brak informacji." }}</p>
+        {% endif %}
+
+        {% block subsection %}{% endblock %}
+
+        <br>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'ato/create_template.html' %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#id_user').change(function(){
+                $.ajax({
+                    url: '{% url "ato:instructor-create" %}',
+                    type: 'GET',
+                    data: {user_id: $(this).find("option:selected").val()},
+                    success: function(response){
+                        $("#id_first_name").val(response['first_name']);
+                        $("#id_name").val(response['name']);
+                        $("#id_email").val(response['email']);
+                    },
+                    error: function(response){
+                        $("#id_first_name").val('');
+                        $("#id_name").val('');
+                        $("#id_email").val('');
+                    }
+                });
+            });
+        });
+    </script>
+{%  endblock %}

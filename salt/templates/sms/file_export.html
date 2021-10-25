@@ -1,0 +1,22 @@
+{% extends 'sms/sms_template.html' %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>{{ title }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <button type="submit" class="pure-button" style="margin-right: 10px">Generuj</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+        </form>
+
+    </div>
+
+{% endblock %}

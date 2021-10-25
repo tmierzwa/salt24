@@ -1,0 +1,93 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}Check out{% endblock %}
+
+{% block header %}Otwarcie lotu{% endblock %}
+
+{% block content %}
+
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 10px">
+        <b>{{ pdt.aircraft }}</b> - {{ pdt.pdt_ref|stringformat:'06d' }} / {{ pdt.date|date:'SHORT_DATE_FORMAT' }}
+    </div>
+
+    <form action="" method="POST" data-ajax="false">
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+
+            <div class="fieldWrapper">
+                <fieldset class="ui-grid-a">
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.loc_start.id_for_label }}">{{ form.loc_start.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_start }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.fuel_refill.id_for_label }}">{{ form.fuel_refill.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.fuel_refill }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.fuel_source.id_for_label }}">{{ form.fuel_source.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.fuel_source }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.fuel_available.id_for_label }}">{{ form.fuel_available.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.fuel_available }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.oil_refill.id_for_label }}">{{ form.oil_refill.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.oil_refill }}</div>
+                {% if pdt.flight_type == '01' or pdt.flight_type == '01A' %}
+                    <div class="ui-block-a">
+                        <label style="margin-top: 15px" for="{{ form.pax.id_for_label }}">{{ form.pax.label }}:</label>
+                    </div>
+                    <div class="ui-block-b">{{ form.pax }}</div>
+                    <div class="ui-block-a">
+                        <label style="margin-top: 15px" for="{{ form.bags.id_for_label }}">{{ form.bags.label }}:</label>
+                    </div>
+                    <div class="ui-block-b">{{ form.bags }}</div>
+                {% endif %}
+                </fieldset>
+            </div>
+
+            <br>
+            <div class="fieldWrapper">
+                <label style="text-align: center; color: red" for="{{ form.pfi.id_for_label }}">Potwierdzam wykonanie PFI</label>
+                {{ form.pfi }}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            <fieldset class="ui-grid-a">
+                <div class=" ui-block-a"><a class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'dispatcher' %}>Anuluj</a></div>
+                <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Otwórz</button></div>
+            </fieldset>
+
+        </div>
+    </form>
+
+    <script type="text/javascript">
+
+        var refill = document.querySelector('#id_fuel_refill');
+        var available = document.querySelector('#id_fuel_available');
+
+        refill.addEventListener('input', function()
+        {
+            if (isNaN(parseInt(refill.value))) {
+                available.value = parseInt({{ fuel_volume }});
+            } else {
+                available.value = parseInt(refill.value) + parseInt({{ fuel_volume }});
+            }
+        });
+
+    </script>
+
+{% endblock %}

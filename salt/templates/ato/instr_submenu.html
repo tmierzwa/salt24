@@ -1,0 +1,29 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:instr-info' instructor.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ instructor.pilot|truncatechars:19 }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'trainings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:instr-trainings' 'open' instructor.pk %}" class="pure-menu-link">Aktualne szkolenia</a></li>
+            <li class="pure-menu-item {% if type == 'completed' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:instr-trainings' 'closed' instructor.pk %}" class="pure-menu-link">Zakończone szkolenia</a></li>
+            <li class="pure-menu-item {% if type == 'flights' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'ato:instr-flights' instructor.pk %}" class="pure-menu-link">Loty szkoleniowe</a></li>
+        </ul>
+    </div>
+
+    <br>
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="#" class="pure-menu-link pure-menu-title"><b>Przejdź do ...</b></a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'panel:pilot-info' instructor.pilot.pk %}" class="pure-menu-link">Profil pilota</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'fbo:user-info' instructor.pilot.fbouser.pk %}" class="pure-menu-link">Profil użytkownika</a></li>
+        </ul>
+    </div>
+
+</div>

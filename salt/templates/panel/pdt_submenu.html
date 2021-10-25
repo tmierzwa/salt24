@@ -1,0 +1,39 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pdt-info' pdt.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ pdt }}</b></a></li>
+            {% if pdt.flight_type == '01' %}
+                <li class="pure-menu-item {% if type == 'aoc' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-aoc' pdt.pk %}" class="pure-menu-link">Lot AOC</a></li>
+            {% elif pdt.flight_type == '01A' %}
+                <li class="pure-menu-item {% if type == 'view' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-view' pdt.pk %}" class="pure-menu-link">Lot widokowy</a></li>
+            {% elif pdt.flight_type == '02' or pdt.flight_type == '02H' %}
+                <li class="pure-menu-item {% if type == 'spo' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-spo' pdt.pk %}" class="pure-menu-link">Lot SPO</a></li>
+            {% elif pdt.flight_type == '03A' or pdt.flight_type == '03B' or pdt.flight_type == '03C' %}
+                <li class="pure-menu-item {% if type == 'ato' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-ato' pdt.pk %}" class="pure-menu-link">Lot szkolny</a></li>
+            {% elif pdt.flight_type == '03D' %}
+                <li class="pure-menu-item {% if type == 'intro' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-intro' pdt.pk %}" class="pure-menu-link">Lot zapoznawczy</a></li>
+            {% elif pdt.flight_type == '03E' %}
+                <li class="pure-menu-item {% if type == 'exam' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-exam' pdt.pk %}" class="pure-menu-link">Lot egzaminacyjny</a></li>
+            {% elif pdt.flight_type == '04' %}
+                <li class="pure-menu-item {% if type == 'rent' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'panel:pdt-rent' pdt.pk %}" class="pure-menu-link">Lot w wynajmie</a></li>
+            {% endif %}
+            {# <li class="pure-menu-item {% if type == 'oper' %}pure-menu-selected{% endif %}">         #}
+            {#    <a href="{% url 'panel:pdt-oper' pdt.pk %}" class="pure-menu-link">Operacje</a></li>  #}
+            <li class="pure-menu-item {% if type == 'fuel' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pdt-fuel' pdt.pk %}" class="pure-menu-link">Paliwo</a></li>
+            <li class="pure-menu-item {% if type == 'duties' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:pdt-duties' pdt.pk %}" class="pure-menu-link pure-menu-disabled">Czas pracy</a></li>
+        </ul>
+    </div>
+
+</div>

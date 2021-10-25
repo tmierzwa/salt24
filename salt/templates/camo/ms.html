@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+
+<html>
+<head lang="pl">
+    <meta charset="UTF-8">
+    <title>MS {{ object.ms_ref }}</title>
+</head>
+<body>
+
+<div class="noPrint">
+    <a href="{% url "camo:aircraft-ms" object.aircraft.pk %}"><button style="color: darkred" type="button">Powrót</button></a>
+    <button type="button" style="color: darkred" onclick="window.print()">Drukuj</button>
+</div>
+
+<table id="ms-table">
+    <tr>
+        <td style="border: none" colspan="2">
+        <div style="font-size: 18px"><b>SALT Aviation sp. z o.o.</b></div>
+        <div style="font-size: 14px">
+        Ul. Gen. Wiktora Thommee 1A<br>
+        05-102 Nowy Dwór Mazowiecki<br>
+        Tel. + 48 696 20 62 62<br>
+        Mail: camo@salt.aero</div>
+        </td>
+        <td style="text-align: center; border: none" colspan="2">
+            <div style="font-size: 22px"><b>
+            Świadectwo Ważności Obsługi<br>
+            M.S. nr	{{ object.ms_ref }}
+            </b></div>
+            <i>[maintenance statement]</i>
+        </td>
+    </tr>
+    <tr><td style="border: none; height: 50px" colspan="4">&nbsp;</td> </tr>
+    <tr>
+        <td class="ms-id-label">
+        Typ statku powietrznego:
+        <div class="ms-id"><b>{{ object.aircraft.type }}</b></div>
+        </td>
+        <td class="ms-id-label">
+        Znaki rejestracyjne:
+        <div class="ms-id"><b>{{ object.aircraft.registration }}</b></div>
+        </td>
+        <td class="ms-id-label">
+        Numer fabryczny płatowca:
+        <div class="ms-id"><b>{{ object.fuselage }}</b></div>
+        </td>
+        <td class="ms-id-label">
+        Numery fabryczne silników:
+        <div class="ms-id"><b>
+            {{ object.engine1 }}
+        {% if object.engine2 %}
+            <br>{{ object.engine2 }}
+        {% endif %}
+        </b></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="ms-id-label" colspan="2">
+        Data wystawienia M.S.:
+        <div class="ms-id"><b>{{ object.done_date|date:"SHORT_DATE_FORMAT" }}</b></div>
+        </td>
+        <td class="ms-id-label" colspan="2">
+        Nalot:
+        <div class="ms-id"><b>{{ object.done_hours|floatformat:2 }} h</b></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="ms-id-label" colspan="4">
+        Wystawiono na podstawie:
+        <div class="ms-id">Poświadczenia Obsługi nr: <b>{{ object.crs_ref|default_if_none:"" }}</b> z dn.: <b>{{ object.crs_date }}</b></div>
+        </td>
+    </tr>
+    <tr><td style="border: none; height: 30px" colspan="4">&nbsp;</td> </tr>
+    <tr>
+        <td class="ms-id" style="background-color: #cccccc" colspan="4">
+        <b>KOLEJNA OBSŁUGA PLANOWA NIE PÓŹNIEJ NIŻ</b><br>
+        <div style="font-size: smaller">(co nastąpi wczesniej):</div>
+        </td>
+    </tr>
+    <tr>
+        <td class="ms-lim-label" colspan="{% if use_landings or use_cycles %} 2 {% else %} 4 {% endif %}">
+        NALOT:
+        <div class="ms-lim">{{ object.next_hours|floatformat:2 }} FH</div>
+        </td>
+        {% if use_landings %}
+            <td class="ms-lim-label" colspan="{% if use_cycles %} 1 {% else %} 2 {% endif %}">
+            LĄDOWANIA:
+            <div class="ms-lim">{{ object.next_landings|default_if_none:"" }}</div>
+            </td>
+        {% endif %}
+        {% if use_cycles %}
+            <td class="ms-lim-label" colspan="{% if use_landings %} 1 {% else %} 2 {% endif %}">
+            CYKLE:
+            <div class="ms-lim">{{ object.next_cycles|default_if_none:"" }}</div>
+            </td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td class="ms-lim-label" colspan="4">
+        PRZED DNIEM:
+        <div class="ms-lim">{{ object.next_date|default_if_none:'' }}</div>
+        </td>
+    </tr>
+    <tr><td class="ms-rem-label" colspan="4"><b>Informacje dodatkowe dla użytkownika SP</b></td></tr>
+    <tr><td class="ms-rem" colspan="4">{{ object.remarks }}</td> </tr>
+    <tr><td class="ms-rem-label" colspan="4">
+    <div class="ms-underline"> Niniejsze świadectwo jest ważne pod warunkiem,<br>
+    że obsługa nieplanowa nie narusza jego ograniczeń.</div><br><br>
+    …………………………………………………………<br>
+    <small>Szef CAMO:</small><br>
+    <div style="font-size: 13px">Marek STANISŁAWSKI,	{% now "SHORT_DATETIME_FORMAT" %}</div>
+    </td> </tr>
+
+</table>
+<br>

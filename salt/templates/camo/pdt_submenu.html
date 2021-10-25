@@ -1,0 +1,16 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:pdt-info' pdt.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ pdt }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'oper' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:pdt-oper' pdt.pk %}" class="pure-menu-link">Operacje</a></li>
+            <li class="pure-menu-item {% if type == 'check' %}pure-menu-selected{% endif %}">
+                <a href="{% if pdt.status == 'open' %}.{% else %}{% url 'camo:pdt-check' pdt.pk %}{% endif %}"
+                   class="pure-menu-link {% if pdt.status == 'open' %}pure-menu-disabled{% endif %}">Zatwierdzenie</a></li>
+        </ul>
+    </div>
+
+</div>

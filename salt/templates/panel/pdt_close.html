@@ -1,0 +1,71 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Check in{% endblock %}
+
+{% block content %}
+
+    <style>
+    input, select {
+        width:160px;
+        border:10px solid #ccc;
+
+        -ms-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        -webkit-box-sizing: content-box;
+    }
+    </style>
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Zamknięcie PDT {{ pdt }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><th></th><td></td></tr>
+                <tr><th></th><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Dalej</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var flying = document.querySelector('#id_flying');
+        var failure = document.querySelector('#id_failure');
+
+        function findLabelForControl(element) {
+           var idVal = element.id;
+           labels = document.getElementsByTagName('label');
+           for( var i = 0; i < labels.length; i++ ) {
+              if (labels[i].htmlFor == idVal)
+                   return labels[i];
+           }
+        }
+
+        flying.addEventListener('change', function()
+        {
+            if (flying.value == 'tak')  {
+                if (!failure.value) {
+                    failure.style.display = 'none';
+                    findLabelForControl(failure).style.display = 'none'
+                }
+            } else {
+                failure.style.display = 'inline';
+                findLabelForControl(failure).style.display = 'inline'
+            }
+        });
+
+        if (flying.value == 'tak')  {
+            failure.style.display = 'none';
+            findLabelForControl(failure).style.display = 'none'
+        }
+
+    </script>
+
+{% endblock %}

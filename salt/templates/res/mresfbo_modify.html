@@ -1,0 +1,101 @@
+{% extends 'salt_mobile.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Rezerwacja{% endblock %}
+
+{% block content %}
+
+    <form action="" method="POST" data-ajax="false">
+
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+
+            <div style="display:none;">
+                <label for="{{ form.owner.id_for_label }}">{{ form.owner.label }}</label>
+                {{ form.owner }}
+            </div>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.resource.id_for_label }}">{{ form.resource.label }}</label>
+                {{ form.resource }}
+            </div>
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.participant.id_for_label }}">{{ form.participant.label }}</label>
+                {{ form.participant }}
+            </div>
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+            </div>
+            <fieldset class="ui-grid-a">
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.start_time }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.end_time }}</div>
+            </fieldset>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.remarks.id_for_label }}">{{ form.remarks.label }}</label>
+                {{ form.remarks }}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            {% if not update %}
+                <fieldset class="ui-grid-a">
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href="javascript:$.mobile.back()">Wróć</a></div>
+                    <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Dodaj</button></div>
+                </fieldset>
+            {% else %}
+                <fieldset class="ui-grid-b" style="font-size: 14px">
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href="javascript:$.mobile.back()">Wróć</a></div>
+                    <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Zmień</button></div>
+                    <div class=" ui-block-c"><a type="submit" class="ui-btn ui-btn-icon-right ui-icon-delete" href={% url 'res:resfbo-delete' pk %}>Usuń</a></div>
+                </fieldset>
+            {% endif %}
+
+        </div>
+
+    </form>
+
+    <script type="text/javascript">
+
+        $(document).on( "pageshow", function( event, ui ) {
+
+            var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
+
+            var start = $('#id_start_time', activePage);
+            var end = $('#id_end_time', activePage);
+
+            jQuery.datetimepicker.setLocale('pl');
+
+            picker_conf = {
+                format: 'd.m.Y H:i',
+                lang: 'pl',
+                step: 30
+            };
+
+            start.datetimepicker(picker_conf);
+            end.datetimepicker(picker_conf);
+
+        })
+
+    </script>
+
+{% endblock %}

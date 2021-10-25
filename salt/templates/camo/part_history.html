@@ -1,0 +1,38 @@
+{% extends 'camo/details_template.html' %}
+
+{% block subsection %}
+
+    <br>
+    <h2>{{ history_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+    {% if history_row_list %}
+        <table id="list-table" class="sortable" max-width="95%">
+        <tr>
+            {% for header in history_header_list %}
+                <th>{{ header.header|linebreaks }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in history_row_list %}
+            <tr
+            {% if forloop.counter|divisibleby:"2"  %}
+                class="alt"
+            {% endif %}
+            >
+                {% for field in row.fields %}
+                    <td style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                    {% if field.bold or field.link %}<b>{% endif %}
+                    {% if field.link %}<a href="{{ field.link }}">
+                    {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                        {{ field.value | default_if_none:"" |linebreaksbr}}
+                    {% if field.email or field.link %}</a>{% endif %}
+                    {% if field.bold or field.link %}</b>{% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p class="info-text">{{ history_empty_text|default_if_none:"Brak obiektów." }}</p>
+    {% endif %}
+
+{% endblock %}

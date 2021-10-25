@@ -1,0 +1,220 @@
+{% extends 'res/res_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+    <link rel='stylesheet' href="{% static 'fullcalendar.css' %}" />
+    <link rel='stylesheet' href="{% static 'scheduler.css' %}" />
+    <script src="{% static 'scripts/moment.min.js' %}"></script>
+    <script src="{% static 'scripts/fullcalendar.js' %}"></script>
+    <script src="{% static 'scripts/scheduler.js' %}"></script>
+    <script src="{% static 'scripts/pl.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+
+            // Przygotowanie cookie dla CSRF protection
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            // konfiguracja POST w Ajax na potrzeby CRSF protection
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('#calendar').fullCalendar({
+                // język
+                locale: 'pl',
+
+                // data startowa
+                {% if DefaultDate %}
+                defaultDate: "{{ DefaultDate }}",
+                {% endif %}
+
+                // ogólna konfiguracja wyglądu
+                dayNames: ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'],
+                {%  if not mobile %}
+                aspectRatio: 2.7,
+                {# contentHeight: "auto",#}
+                slotDuration: {minutes: 30},
+                slotWidth: 42,
+                titleFormat: 'dddd D MMMM',
+                slotLabelFormat: ['HH:mm'],
+                nowIndicator: true,
+                {% else %}
+                slotDuration: {hours: 1},
+                {% endif %}
+                allDaySlot: false,
+                scrollTime: '08:00:00',
+                header: {
+                    left: 'title',
+                    center: '',
+                    right: 'timelineDay, agendaWeek, today, prev, next'
+                },
+                defaultView: 'timelineDay',
+                navLinks: true,
+
+                // konfiguracja zasobów
+                resources: [
+                    {{ resources|safe|linebreaksbr }}
+                ],
+                resourceOrder: 'title',
+                resourceLabelText: 'Piloci',
+                {% if not mobile %}
+                resourceAreaWidth: '14%',
+                {% else %}
+                resourceAreaWidth: '6%',
+                {% endif %}
+                resourceRender: function(resourceObj, labelTds, bodyTds) {
+                    labelTds.css('font-size', '14px');
+                    labelTds.css('background-color', '#eeeeee');
+                    labelTds.find('.fc-cell-content').html('<span class="fc-cell-text"><a href="/panel/pilot/duties/' + resourceObj.id +
+                                  '">' + labelTds.text()+'</a></span>')
+                },
+
+                // konfiguracja zdarzeń
+                events: '/res/duty_feed/',
+                eventOverlap: false,
+
+                // konfiguracja wybierania zdarzeń
+                editable: false,
+                selectable: true,
+                selectOverlap: false,
+                select: function(start, end, allDay, ev, res) {
+                   window.location = '/panel/duty/create/'+res.id+'/?start='+start.format()+'&end='+end.format()
+                },
+                eventRender:function( event, element, view ) {
+                    if (view.name == 'agendaWeek') {
+                        aircraft = $('#calendar').fullCalendar('getResourceById', event.resourceId);
+                        if (aircraft) {
+                            $(element).find(".fc-content").append("<div>" + aircraft.title + "</div>");
+                        }
+                    }
+                },
+
+                // konfiguracja tooltipu z informacjami
+                eventMouseover: function (event, e, view) {
+                    var target = '#event-info';
+
+                    leftD = e.pageX;
+                    maxRight = leftD + $(target).outerWidth();
+                    windowLeft = $(window).width() - 40;
+                    windowRight = 0;
+                    maxLeft = e.pageX - ($(target).outerWidth() + 20);
+
+                    if (maxRight > windowLeft && maxLeft > windowRight) {
+                        leftD = maxLeft;
+                    }
+
+                    topD = e.pageY;
+                    maxBottom = topD + $(target).outerHeight();
+                    windowBottom = parseInt(parseInt($(document).scrollTop()) + parseInt($(window).height()));
+                    maxTop = topD;
+                    windowTop = parseInt($(document).scrollTop());
+                    if (maxBottom > windowBottom) {
+                        topD = windowBottom - $(target).outerHeight() - 20;
+                    } else if (maxTop < windowTop) {
+                        topD = windowTop + 20;
+                    }
+
+                    $('#event-aircraft').text(event.title);
+                    $('#event-owner').text(event.owner);
+                    $('#event-start').text(event.start.format("dd DD.MM HH:mm"));
+                    $('#event-end').text(event.end.format("dd DD.MM HH:mm"));
+                    if (event.type != '') {
+                        $('#event-type').text(event.type);
+                        $('#type-line').css('display', 'inline')
+                    } else {
+                        $('#type-line').css('display', 'none')
+                    }
+                    if (event.participant != '') {
+                        $('#event-part').text(event.participant);
+                        $('#part-line').css('display', 'inline')
+                    } else {
+                        $('#part-line').css('display', 'none')
+                    }
+                    if (event.notes != '') {
+                        $('#event-notes').html(event.notes);
+                        $('#notes-line').css('display', 'inline')
+                    } else {
+                        $('#notes-line').css('display', 'none')
+                    }
+
+                    $(target).stop().show();
+                    $(target).css('top', topD).css('left', leftD + 10);
+                },
+                eventMouseout: function (e) {
+                    $('#event-info').stop().hide();
+                },
+
+                // licencja
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
+            });
+
+            $("#event-info").mouseleave(function () {
+                $(this).hide();
+            });
+
+        });
+    </script>
+
+    <style>
+    .popbox {
+        display: none;
+        position: absolute;
+        z-index: 99999;
+        padding: 10px;
+        background: #EEEEEE;
+        color: #000000;
+        border: 1px solid #AAAAAA;
+        -webkit-box-shadow: 0 0 10px 0 rgba(164, 164, 164, 1);
+        box-shadow: 0 0 10px 0 rgba(164, 164, 164, 1);
+    }
+    .popbox p {
+        font-size: 13px;
+        margin: 5px;
+        margin-left: 0;
+    }
+    </style>
+
+{% endblock %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u-1-1">
+        <div id="event-info" class="popbox">
+            <h2 id="event-aircraft">Aircraft</h2>
+            <p><b>Właściciel: </b><span id="event-owner">Owner</span></p>
+            <div id="part-line"><p><b>Uczestnik: </b><span id="event-part">Participant</span></p></div>
+            <p><b>Rozpoczęcie: </b><span id="event-start">Start time</span></p>
+            <p><b>Zakończenie: </b><span id="event-end">End time</span></p>
+            <div id="type-line"><p><b>Rodzaj lotu: </b><span id="event-type">Flight type</span></p></div>
+            <div id="notes-line"><p style="padding-top: 5px"><b>Uwagi: </b></p><p><span id="event-notes" style="padding-top: 5px">Notes</span></p></div>
+        </div>
+
+        <div id='calendar'></div>
+    </div>
+
+{% endblock %}

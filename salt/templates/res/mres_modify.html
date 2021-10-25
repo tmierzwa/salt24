@@ -1,0 +1,145 @@
+{% extends 'salt_mobile.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Rezerwacja{% endblock %}
+
+{% block content %}
+
+    <form action="" method="POST" data-ajax="false">
+
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+
+            <div style="display:none;">
+                <label for="{{ form.owner.id_for_label }}">{{ form.owner.label }}</label>
+                {{ form.owner }}
+            </div>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.aircraft.id_for_label }}">{{ form.aircraft.label }}</label>
+                {{ form.aircraft }}
+            </div>
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.planned_type.id_for_label }}">{{ form.planned_type.label }}</label>
+                {{ form.planned_type }}
+            </div>
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.participant.id_for_label }}">{{ form.participant.label }}</label>
+                {{ form.participant }}
+            </div>
+            <fieldset class="ui-grid-a">
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.start_time }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.end_time }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.planned_time.id_for_label }}">{{ form.planned_time.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.planned_time }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.loc_start.id_for_label }}">{{ form.loc_start.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_start }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.loc_stop.id_for_label }}">{{ form.loc_stop.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_stop }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 10px" for="{{ form.loc_end.id_for_label }}">{{ form.loc_end.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_end }}</div>
+            </fieldset>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.remarks.id_for_label }}">{{ form.remarks.label }}</label>
+                {{ form.remarks }}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            {% if not update %}
+                <fieldset class="ui-grid-a">
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href="javascript:$.mobile.back()">Wróć</a></div>
+                    <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Dodaj</button></div>
+                </fieldset>
+            {% else %}
+                <fieldset class="ui-grid-b" style="font-size: 14px">
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href="javascript:$.mobile.back()">Wróć</a></div>
+                    <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Zmień</button></div>
+                    <div class=" ui-block-c"><a type="submit" class="ui-btn ui-btn-icon-right ui-icon-delete" href={% url 'res:reservation-delete' pk %}>Usuń</a></div>
+                </fieldset>
+            {% endif %}
+
+        </div>
+
+    </form>
+
+    <script type="text/javascript">
+
+        $(document).on( "pageshow", function( event, ui ) {
+
+            var activePage = $.mobile.pageContainer.pagecontainer( "getActivePage" );
+
+            var start = $('#id_start_time', activePage);
+            var end = $('#id_end_time', activePage);
+            var duration = $('#id_planned_time', activePage);
+
+            jQuery.datetimepicker.setLocale('pl');
+
+            picker_conf = {
+                format:'d.m.Y H:i',
+                lang:'pl',
+                step:30
+            };
+
+            change_duration = function()
+            {
+                var d1 = new Date(start.val().substring(6,10)+'-'+start.val().substring(3,5)+'-'+start.val().substring(0,2)+'T'+start.val().substring(11,16));
+                var d2 = new Date(end.val().substring(6,10)+'-'+end.val().substring(3,5)+'-'+end.val().substring(0,2)+'T'+end.val().substring(11,16));
+
+                if (d1.getTime() > 0 && d2.getTime() > 0)
+                {
+                    var seconds = ((d2 - d1) / 1000) - 30*60;
+                    if (seconds < 0) {
+                        seconds = 0
+                    }
+                    var hours = parseInt( seconds / 3600 ) % 24;
+                    var minutes = parseInt( seconds / 60 ) % 60;
+
+                    if (hours > 12) {
+                        hours = 12;
+                        minutes = 0;
+                    }
+
+                    var duration_str = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+                    duration.val(duration_str);
+                }
+            };
+
+            start.datetimepicker(picker_conf);
+            start.change(change_duration);
+
+            end.datetimepicker(picker_conf);
+            end.change(change_duration);
+
+            })
+
+    </script>
+
+{% endblock %}

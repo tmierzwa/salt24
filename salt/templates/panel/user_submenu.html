@@ -1,0 +1,54 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fbo:user-info' fbouser.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ fbouser.user.username|truncatechars:20 }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'bookings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fbo:user-info' fbouser.pk %}" class="pure-menu-link pure-menu-disabled">Rezerwacje</a></li>
+            <li class="pure-menu-item {% if type == 'events' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:smsevent-list' fbouser.pk %}" class="pure-menu-link">Zgłoszone zdarzenia</a></li>
+            <li class="pure-menu-item {% if type == 'reports' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'panel:smsreport-list' fbouser.pk %}" class="pure-menu-link">Zgłoszone raporty</a></li>
+            <li class="pure-menu-item {% if type == 'modules' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fbo:user-modules' fbouser.pk %}" class="pure-menu-link">Dostęp do modułów</a></li>
+            <li class="pure-menu-item {% if type == 'password' %}pure-menu-selected{% endif %}">
+                <a href="
+                {% if fbouser == logged %}
+                    {% url 'pwd-change' %}
+                {% else %}
+                    {% url 'admin-pwd-change' fbouser.pk %}
+                {% endif %}
+                " class="pure-menu-link">Zmiana hasła</a></li>
+        </ul>
+    </div>
+
+    {% if fbouser.pilot or fbouser.contractor %}
+        <br>
+        <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item">
+                    <a href="#" class="pure-menu-link pure-menu-title"><b>Przejdź do ...</b></a></li>
+                {% if fbouser.pilot %}
+                    <li class="pure-menu-item">
+                        <a href="{% url 'panel:pilot-info' fbouser.pilot.pk %}" class="pure-menu-link">Profil pilota</a></li>
+                {%  endif %}
+                {% if fbouser.pilot.instructor %}
+                    <li class="pure-menu-item">
+                        <a href="{% url 'ato:instr-info' fbouser.pilot.instructor.pk %}" class="pure-menu-link">Profil instruktora</a></li>
+                {%  endif %}
+                {% if fbouser.pilot.student %}
+                    <li class="pure-menu-item">
+                        <a href="{% url 'ato:student-info' fbouser.pilot.student.pk %}" class="pure-menu-link">Profil studenta</a></li>
+                {%  endif %}
+                {% if fbouser.contractor %}
+                    <li class="pure-menu-item">
+                        <a href="{% url 'fin:contr-info' fbouser.contractor.pk %}" class="pure-menu-link">Profil kontrahenta</a></li>
+                {% endif %}
+
+            </ul>
+        </div>
+    {% endif %}
+
+</div>

@@ -1,0 +1,27 @@
+{% extends 'sms/sms_template.html' %}
+
+{% block title %}{{ page_title|default_if_none:"Aktualizacja" }}{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>{{ header_text|default_if_none:"Aktualizacja obiektu" }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Aktualizuj</button>
+                {% if versions %}
+                    <button type="submit" class="pure-button" name="_revision" style="margin-right: 10px">Nowa rewizja</button>
+                {% endif %}
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

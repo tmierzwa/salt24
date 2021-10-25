@@ -1,0 +1,25 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-info' contractor.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ contractor.contractor_id }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'operations' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-operations' contractor.pk %}" class="pure-menu-link">Salda i operacje</a></li>
+            <li class="pure-menu-item {% if type == 'packages' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-packages' contractor.pk %}" class="pure-menu-link">Pakiety i ceny specjalne</a></li>
+            <li class="pure-menu-item {% if type == 'ato' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-flights' 'ato' contractor.pk %}" class="pure-menu-link">Loty szkoleniowe</a></li>
+            <li class="pure-menu-item {% if type == 'rent' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-flights' 'rent' contractor.pk %}" class="pure-menu-link">Loty w wynajmie</a></li>
+            <li class="pure-menu-item {% if type == 'aoc' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-flights' 'aoc' contractor.pk %}" class="pure-menu-link">Loty AOC</a></li>
+            <li class="pure-menu-item {% if type == 'spo' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-flights' 'spo' contractor.pk %}" class="pure-menu-link">Loty SPO</a></li>
+            <li class="pure-menu-item {% if type == 'fuelings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:contr-fuelings' contractor.pk %}" class="pure-menu-link">Tankowania poza SALT</a></li>
+        </ul>
+    </div>
+
+</div>

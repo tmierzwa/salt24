@@ -1,0 +1,45 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}Check out{% endblock %}
+
+{% block header %}Załoga{% endblock %}
+
+{% block content %}
+
+    <div style="text-align: center" class="ui-field-contain">
+        <b>{{ aircraft }}</b> / {{ flight_type_name }}
+    </div>
+
+    <form action="" method="POST" data-ajax="false">
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+            {% for field in form %}
+                <div class="fieldWrapper">
+                    <label style="display: none" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {%  endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            <fieldset class="ui-grid-a">
+                {% if flight_type == '05' or flight_type == '06' or flight_type == '06A' or flight_type == '07' %}
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'panel:mpdt-open1' %}>Powrót</a></div>
+                {% else %}
+                    <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'panel:mpdt-open2' %}>Powrót</a></div>
+                {% endif %}
+                <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Otwórz</button></div>
+            </fieldset>
+        </div>
+    </form>
+
+{% endblock %}

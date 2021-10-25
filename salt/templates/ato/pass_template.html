@@ -1,0 +1,32 @@
+{% extends 'ato/ato_template.html' %}
+
+{% block title %}{{ page_title|default_if_none:"Zaliczenie" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>{{ header_text|default_if_none:"Zaliczenie" }}</h2>
+
+        <p class="del-text">Potwierdź zaliczenie <b>{{ object }}</b></p>
+
+        {% if description  %}
+            <p class="del-info">{{ description|linebreaksbr }}</p>
+        {% endif %}
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="pure-button" style="margin-right: 10px">Potwierdź</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+        </form>
+
+    </div>
+
+{% endblock %}

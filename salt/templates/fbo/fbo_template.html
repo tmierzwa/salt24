@@ -1,0 +1,14 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}ADMINISTRACJA{% endblock %}
+
+{% block module %}ADMINISTRACJA SYSTEMU{% endblock %}
+
+{% block menu %}
+    {% if user.is_staff %}
+        <li class="pure-menu-item"><a href="{% url 'fbo:user-list' %}" class="pure-menu-link">Lista użytkowników</a></li>
+        <li class="pure-menu-item"><a href="{% url 'fbo:pilot-list' %}" class="pure-menu-link">Lista pilotów</a></li>
+        <li class="pure-menu-item"><a href="{% url 'panel:pdt-active' %}" class="pure-menu-link">Lista PDT</a></li>
+        <li class="pure-menu-item"><a href="{% url 'fbo:parameters' %}" class="pure-menu-link">Parametry systemu</a></li>
+    {% endif %}
+{% endblock %}

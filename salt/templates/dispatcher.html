@@ -1,0 +1,51 @@
+{% extends 'salt_template.html' %}
+
+{% load staticfiles %}
+
+{% block title %}Strona główna{% endblock %}
+
+{% block module %}SYSTEM ZARZĄDZANIA FIRMĄ{% endblock %}
+
+{% block menu %}
+    {% if not user.fbouser %}
+        <li class="pure-menu-item"><a href="/login" class="pure-menu-link">Logowanie</a></li>
+    {% endif %}
+    <li class="pure-menu-item"><a href="{% url 'fbo:user-list' %}" class="pure-menu-link">Administracja</a></li>
+{% endblock %}
+
+{% block submenu %}
+    {% if mobile %}
+    <div class="pure-u">
+    {% else %}
+    <div class="pure-u-1-2">
+    {% endif %}
+        {% if user.fbouser %}
+            <a href="{% url 'panel:panel-home' %}">
+        {% else %}
+            <a href="/login">
+        {% endif %}
+        <img class="tint" src="{% static 'images/icon_pilot.png' %}"></a>
+        <a href="{% url 'res:reservation-list' %}"><img class="tint" src="{% static 'images/icon_pdt.png' %}"></a>
+        <a href="{% url 'camo:aircraft-list' %}"><img class="tint" src="{% static 'images/icon_camo.png' %}"></a>
+        {% if perms.sms.sms_ncr and not perms.sms.sms_admin %}
+            <a href="{% url 'sms:ncr-list' %}"><img class="tint" src="{% static 'images/icon_sms.png' %}"></a>
+        {% else %}
+            <a href="{% url 'sms:hazard-list' %}"><img class="tint" src="{% static 'images/icon_sms.png' %}"></a>
+        {% endif %}
+        <a href="{% url 'ato:training-inst-list' %}"><img class="tint" src="{% static 'images/icon_ato.png' %}"></a>
+        <a href="{% url 'fin:contr-list' %}"><img class="tint" src="{% static 'images/icon_money.png' %}"></a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% if not mobile %}
+        <div class="pure-u-1-2">
+            <div class="info-header">Informacje SALT</div>
+            <div class="info-priority">{{ infopriority|default:""|linebreaks }}</div>
+            <div class="info-body">{{ info|safe|linebreaks|default_if_none:"Brak aktualnych informacji." }}</div>
+            <div class="info-body"><a href="/static/files/SALT24.pdf"> >>> Instrukcja systemu <<< </a></div>
+            <div class="info-body"><a href="http://34.244.74.106/"> >>> Samouczek systemu <<< </a></div>
+            <div class="info-body">{{ infocontact|safe|linebreaks }}</div>
+        </div>
+    {% endif %}
+{% endblock %}

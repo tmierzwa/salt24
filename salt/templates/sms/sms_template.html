@@ -1,0 +1,13 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}SMS{% endblock %}
+
+{% block module %}SAFETY MANAGEMENT SYSTEM{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="{% url 'sms:hazard-list' %}" class="pure-menu-link">Rejestr zagrożeń</a></li>
+    <li class="pure-menu-item"><a href="{% url 'sms:smsevent-list' %}" class="pure-menu-link">Rejestr zdarzeń</a></li>
+    <li class="pure-menu-item"><a href="{% url 'sms:failure-list' %}" class="pure-menu-link">Rejestr usterek</a></li>
+    <li class="pure-menu-item"><a href="{% url 'sms:smsreport-list' %}" class="pure-menu-link">Rejestr dobrowolnych raportów</a></li>
+    <li class="pure-menu-item"><a href="{% url 'sms:ncr-list' %}" class="pure-menu-link">Rejestr NCR</a></li>
+{% endblock %}

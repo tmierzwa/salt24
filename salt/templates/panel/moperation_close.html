@@ -1,0 +1,100 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}Check in{% endblock %}
+
+{% block header %}Zamknięcie lotu{% endblock %}
+
+{% block content %}
+
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 10px">
+        <b>{{ operation.pdt.aircraft }}</b> - {{ operation.pdt.pdt_ref|stringformat:'06d' }} / {{ operation.pdt.date|date:'SHORT_DATE_FORMAT' }}
+    </div>
+
+    <form action="" method="POST" data-ajax="false">
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+            <div class="fieldWrapper">
+                <fieldset class="ui-grid-a">
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.loc_start.id_for_label }}">{{ form.loc_start.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_start }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.loc_end.id_for_label }}">{{ form.loc_end.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.loc_end }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.time_start.id_for_label }}">{{ form.time_start.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.time_start }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.time_end.id_for_label }}">{{ form.time_end.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.time_end }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.tth_start.id_for_label }}">{{ form.tth_start.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.tth_start }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.tth_end.id_for_label }}">{{ form.tth_end.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.tth_end }}</div>
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.landings.id_for_label }}">{{ form.landings.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.landings }}</div>
+                {% if operation.pdt.aircraft.use_cycles %}
+                    <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.cycles.id_for_label }}">{{ form.cycles.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.cycles }}</div>
+                {% endif %}
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.fuel_used.id_for_label }}">{{ form.fuel_used.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.fuel_used }}</div>
+                </fieldset>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            <fieldset class="ui-grid-a">
+                <div class=" ui-block-a"><a class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'dispatcher' %}>Anuluj</a></div>
+                <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Zamknij</button></div>
+            </fieldset>
+        </div>
+
+        <script type="text/javascript">
+
+            var tth_start = document.querySelector('#id_tth_start');
+            var tth_end = document.querySelector('#id_tth_end');
+            var used = document.querySelector('#id_fuel_used');
+
+            tth_end.addEventListener('input', function()
+            {
+                if (isNaN(parseFloat(tth_start.value)) || isNaN(parseFloat(tth_end.value.replace(',', '.')))) {
+                    used.value = 0;
+                } else {
+                    if (parseFloat(tth_start.value) > parseFloat(tth_end.value.replace(',', '.'))) {
+                        used.value = 0;
+                    } else {
+                        used.value = Math.round((parseFloat(tth_end.value.replace(',', '.')) - parseFloat(tth_start.value))
+                                                * parseFloat({{ fuel_consumption }}));
+                    }
+                }
+            });
+
+        </script>
+
+    </form>
+
+{% endblock %}

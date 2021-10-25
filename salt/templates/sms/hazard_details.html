@@ -1,0 +1,158 @@
+{% extends 'sms/details_template.html' %}
+
+{% load staticfiles %}
+
+{% block subsection %}
+
+    <div class="pure-u-1" style="margin-top: 10px">
+
+        <h2>{{ risk_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if risk_create_path %}
+            <p class="local-menu"><a href="{{ risk_create_path }}">{{ risk_create_text }}</a></p>
+        {%  endif %}
+
+        {% if risk_row_list %}
+            <table id="list-table" class="sortable" width="95%">
+            <tr>
+                {% for header in risk_header_list %}
+                    <th>{{ header|safe }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in risk_row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                        {% if field.bold or field.link %}<b>{% endif %}
+                        {% if field.link %}<a href="{{ field.link }}">
+                        {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                            {{ field.value | default_if_none:"" |linebreaksbr}}
+                        {% if field.email or field.link %}</a>{% endif %}
+                        {% if field.bold or field.link %}</b>{% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="hazard-empty">{{ risk_empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+
+    </div>
+
+    <div class="pure-u-1" style="margin-top: 10px">
+
+        <h2>{{ event_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if event_row_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                {% for header in event_header_list %}
+                    <th>{{ header|safe }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in event_row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                        {% if field.bold or field.link %}<b>{% endif %}
+                        {% if field.link %}<a href="{{ field.link }}">
+                        {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                            {{ field.value | default_if_none:"" | linebreaksbr }}
+                        {% if field.email or field.link %}</a>{% endif %}
+                        {% if field.bold or field.link %}</b>{% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="hazard-empty">{{ event_empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+
+    </div>
+
+    <div class="pure-u-1" style="margin-top: 10px">
+
+        <h2>{{ failure_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if failure_row_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                {% for header in failure_header_list %}
+                    <th>{{ header|safe }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in failure_row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                        {% if field.bold or field.link %}<b>{% endif %}
+                        {% if field.link %}<a href="{{ field.link }}">
+                        {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                            {{ field.value | default_if_none:"" | linebreaksbr}}
+                        {% if field.email or field.link %}</a>{% endif %}
+                        {% if field.bold or field.link %}</b>{% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="hazard-empty">{{ failure_empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+
+    </div>
+
+    <div class="pure-u-1" style="margin-top: 10px">
+
+        <h2>{{ report_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if report_row_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                {% for header in report_header_list %}
+                    <th>{{ header|safe }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in report_row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                        {% if field.bold or field.link %}<b>{% endif %}
+                        {% if field.link %}<a href="{{ field.link }}">
+                        {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                            {{ field.value | default_if_none:"" | linebreaksbr }}
+                        {% if field.email or field.link %}</a>{% endif %}
+                        {% if field.bold or field.link %}</b>{% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+            <br>
+        {% else %}
+            <p class="hazard-empty">{{ report_empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+
+        <br>
+
+    </div>
+
+{% endblock %}

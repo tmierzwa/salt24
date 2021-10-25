@@ -1,0 +1,80 @@
+{% extends 'ato/details_template.html' %}
+
+{% load staticfiles %}
+
+{% block subsection %}
+
+    <div class="pure-u-1">
+
+        <h2>{{ exercise_header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if exercise_create_path %}
+            <p class="local-menu">
+                {% if exercise_card_path %}
+                    <a href="{{ exercise_card_path }}">{{ exercise_card_text }}</a>
+                    |
+                {%  endif %}
+                <a href="{{ exercise_create_path }}">{{ exercise_create_text }}</a>
+            </p>
+        {%  endif %}
+
+        {% if exercise_row_list %}
+            <table id="list-table" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in exercise_header_list %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+            <tbody>
+            {% for row in exercise_row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td nowrap style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                            {% if field.view_link or field.edit_link or field.delete_link or field.report_link %}
+                                {% if field.view_link %}
+                                    <a href="{{ field.view_link }}"><img src="{% static 'images/view.png' %}" title='Pokaż'></a>
+                                    {% if field.edit_link or field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {%  endif %}
+                                {% if field.edit_link %}
+                                    <a href="{{ field.edit_link }}"><img src="{% static 'images/pen.png' %}" title='Zmień'></a>
+                                    {% if field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.delete_link %}
+                                    <a href="{{ field.delete_link }}"><img src="{% static 'images/trash.png' %}" title='Usuń'></a>
+                                    {% if field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.report_link %}
+                                    <a href="{{ field.report_link }}"><img src="{% static 'images/report.png' %}" title='Raport'></a>
+                                {% endif %}
+                            {% else %}
+                                {% if field.bold or field.link %}<b>{% endif %}
+                                {% if field.link %}<a href="{{ field.link }}">
+                                {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                                    {{ field.value | default_if_none:"" | linebreaksbr | truncatechars:120 }}
+                                {% if field.email or field.link %}</a>{% endif %}
+                                {% if field.bold or field.link %}</b>{% endif %}
+                            {%  endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        {% else %}
+            <p class="info-text">{{ exercise_empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+        <br>
+
+    </div>
+
+{% endblock %}

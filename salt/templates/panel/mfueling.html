@@ -1,0 +1,61 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Tankowanie{% endblock %}
+
+{% block content %}
+
+    <form action="" method="POST">
+
+        {% csrf_token %}
+
+        <div class="ui-field-contain">
+
+            <div style="display:none;">
+                <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+                {{ form.date }}
+                <label for="{{ form.person.id_for_label }}">{{ form.person.label }}</label>
+                {{ form.person }}
+            </div>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.aircraft.id_for_label }}">{{ form.aircraft.label }}</label>
+                {{ form.aircraft }}
+            </div>
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.fueltank.id_for_label }}">{{ form.fueltank.label }}</label>
+                {{ form.fueltank }}
+            </div>
+
+            <fieldset class="ui-grid-a">
+                <div class="ui-block-a">
+                    <label style="margin-top: 15px" for="{{ form.fuel_volume.id_for_label }}">{{ form.fuel_volume.label }}:</label>
+                </div>
+                <div class="ui-block-b">{{ form.fuel_volume }}</div>
+            </fieldset>
+
+            <div class="fieldWrapper">
+                <label style="display: none" for="{{ form.remarks.id_for_label }}">{{ form.remarks.label }}</label>
+                {{ form.remarks }}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mobile-form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <br>
+            {% endif %}
+
+            <fieldset class="ui-grid-a">
+                <div class=" ui-block-a"><a class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'dispatcher' %}>Anuluj</a></div>
+                <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-check">Zapisz</button></div>
+            </fieldset>
+
+        </div>
+    </form>
+
+{% endblock %}

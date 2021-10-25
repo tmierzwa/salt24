@@ -1,0 +1,121 @@
+{% extends 'panel/panel_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready( function () {
+
+    $('#list_table').DataTable( {
+        "stateSave": true,
+        "processing": true,
+        "serverSide": true,
+        "ajax": "{% url 'panel:pdt-active-feed' %}",
+        "order": [],
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych...",
+            "processing": "Czekaj..."
+        },
+        "columns": [
+            {data: 'aircraft', className: 'mytab_center'},
+            {data: 'pdt_ref',
+             render: function (data, type, row) {
+                        return '<a href="'+row.info_link+'">'+data+'</a>'
+                     },
+             className: 'mytab_center mytab_bold'},
+            {data: 'date', className: 'mytab_center'},
+            {data: 'flight_type', className: 'mytab_nowrap'},
+            {data: 'pic', className: 'mytab_nowrap'},
+            {data: 'sic', className: 'mytab_nowrap'},
+            {data: 'remarks', className: 'mytab_nowrap'},
+            {data: 'status', className: 'mytab_nowrap',
+                   'createdCell': function (td, cellData, rowData, row, col) {
+                        $(td).css('background-color', rowData.color)
+                    }},
+            {data: null,
+             orderable: false,
+             render: function (data, type, row) {
+                        if (row.print_link) {
+                            result = '<a href="' + row.print_link + '"><img src="{% static 'images/report.png' %}" title="Wydruk"></a>'
+                        } else {
+                            result = ''
+                        }
+                        if (row.tool_link) {
+                            if (result != '') {
+                                result += '&nbsp;&nbsp;'
+                            }
+                            result += '<a href="' + row.tool_link + '"><img src="{% static 'images/cogwheel.png' %}" title="Sprawdź"></a>'
+                        }
+                        return result
+                     }
+            }
+        ]
+    });
+} );
+</script>
+<script type="text/javascript">
+    function go_back(){
+        url = document.referrer;
+        if(url.indexOf('update')!= -1) {
+            history.go(-3);
+        }
+        else {
+            history.go(-1);
+        }
+    }
+</script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Lista" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>{{ header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% block topsection %}{% endblock %}
+
+        <p class="local-menu">
+            <a href="/" onClick="go_back()">Powrót</a>
+            {% if local_menu %}
+                {% for menu_item in local_menu %}
+                    |
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            {% endif %}
+        </p>
+
+        <table id="list_table" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in header_list %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+        </table>
+
+        {% block subsection %}{% endblock %}
+
+        <br>
+
+    </div>
+
+{% endblock %}

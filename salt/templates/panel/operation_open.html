@@ -1,0 +1,98 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Operacja PDT{% endblock %}
+
+{% block content %}
+
+    <style>
+    input, select {
+        width:160px;
+        border:10px solid #ccc;
+
+        -ms-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        -webkit-box-sizing: content-box;
+    }
+    </style>
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Nowa operacja na {{ pdt }}</h2>
+
+        <form name="operation" class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <table>
+                <tr>
+                    <th><label for="{{ form.loc_start.id_for_label }}">{{ form.loc_start.label }}:</label></th>
+                    <td>{{ form.loc_start.errors }}{{ form.loc_start }}</td>
+                    <th><label for="{{ form.oil_refill.id_for_label }}">{{ form.oil_refill.label }}:</label></th>
+                    <td>{{ form.oil_refill.errors }}{{ form.oil_refill }}</td>
+                    {% if pdt.flight_type == '01' or pdt.flight_type == '01A' %}
+                        <th><label for="{{ form.pax.id_for_label }}">{{ form.pax.label }}:</label></th>
+                        <td>{{ form.pax.errors }}{{ form.pax }}</td>
+                    {% else %}
+                        <th></th><td></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th><label for="{{ form.fuel_refill.id_for_label }}">{{ form.fuel_refill.label }}:</label></th>
+                    <td>{{ form.fuel_refill.errors }}{{ form.fuel_refill }}</td>
+                    <th><label for="{{ form.trans_oil_refill.id_for_label }}">{{ form.trans_oil_refill.label }}:</label></th>
+                    <td>{{ form.trans_oil_refill.errors }}{{ form.trans_oil_refill }}</td>
+                    {% if pdt.flight_type == '01' or pdt.flight_type == '01A' %}
+                        <th><label for="{{ form.bags.id_for_label }}">{{ form.bags.label }}:</label></th>
+                        <td>{{ form.bags.errors }}{{ form.bags }}</td>
+                    {% else %}
+                        <th></th><td></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th><label for="{{ form.fuel_source.id_for_label }}">{{ form.fuel_source.label }}:</label></th>
+                    <td>{{ form.fuel_source.errors }}{{ form.fuel_source }}</td>
+                    <th><label for="{{ form.hydr_oil_refill.id_for_label }}">{{ form.hydr_oil_refill.label }}:</label></th>
+                    <td>{{ form.hydr_oil_refill.errors }}{{ form.hydr_oil_refill }}</td>
+                    <th></th><td></td>
+                </tr>
+                <tr>
+                    <th><label for="{{ form.fuel_available.id_for_label }}">{{ form.fuel_available.label }}:</label></th>
+                    <td>{{ form.fuel_available.errors }}{{ form.fuel_available }}</td>
+                </tr>
+                <tr><td><br></td></tr>
+                <tr>
+                    <th colspan="
+                        {% if pdt.flight_type == '01' or pdt.flight_type == '01A' %}03{% else %}02{% endif %}"
+                        style="color:darkred"><label for="{{ form.pfi.id_for_label }}"><b>Potwierdzam wykonanie PFI:</b></label></th>
+                    <td>{{ form.pfi.errors }}{{ form.pfi }}</td>
+                    <th></th><td></td>
+                </tr>
+
+                <tr><th colspan="{% if pdt.flight_type == '01' or pdt.flight_type == '01A' %}03{% else %}02{% endif %}"></th><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Utwórz</button>
+                <a class="pure-button" href="{% url "panel:pdt-oper" pdt.pk %}">Anuluj</a>
+                </td></tr>
+            </table>
+
+            <script type="text/javascript">
+
+                var refill = document.querySelector('#id_fuel_refill');
+                var available = document.querySelector('#id_fuel_available');
+
+                refill.addEventListener('input', function()
+                {
+                    if (isNaN(parseInt(refill.value))) {
+                        available.value = parseInt({{ fuel_volume }});
+                    } else {
+                        available.value = parseInt(refill.value) + parseInt({{ fuel_volume }});
+                    }
+                });
+
+            </script>
+
+        </form>
+
+    </div>
+
+{% endblock %}

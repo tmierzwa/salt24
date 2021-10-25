@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+
+<html>
+<head lang="pl">
+    <meta charset="UTF-8">
+    <title>Karta szkolenia</title>
+</head>
+<body>
+
+<div class="noPrint">
+    <a href="{% url "ato:card-entry-list" training_inst.pk %}"><button style="color: darkred" type="button">Powrót</button></a>
+    <button type="button" style="color: darkred" onclick="window.print()">Drukuj</button>
+</div>
+
+<br>
+<h3>KARTA PRZEBIEGU SZKOLENIA PRAKTYCZNEGO<br>{{ training_inst }}</h3>
+
+{% if row_list %}
+    <table id="ato-card-table">
+        <tr>
+            <th rowspan="2">Data</th>
+            <th rowspan="2">Instruktor</th>
+            <th rowspan="2">Zad / Faza</th>
+            <th rowspan="2">Ćwiczenie</th>
+            <th colspan="2">Dwuster</th>
+            <th colspan="2">Samodzielnie</th>
+            <th rowspan="2">Zaliczenie</th>
+            <th rowspan="2">Uwagi</th>
+        </tr>
+        <tr>
+            <th>Powt.</th>
+            <th>Czas</th>
+            <th>Powt.</th>
+            <th>Czas</th>
+        </tr>
+
+        {% for row in row_list %}
+            <tr>
+                {% for field in row.fields %}
+                    <td nowrap style="text-align: {{ field.just }}"
+                        {% if forloop.counter < 5 or forloop.counter > 8 %}
+                            rowspan = "2"
+                        {% endif %}
+                    >
+                        {{ field.value | default:"&nbsp" | linebreaksbr | truncatechars:40 }}
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for sum in row.sums %}
+                    <td style="text-align: center">{{ sum.value }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+
+{% else %}
+    <p class="info-text">{{ empty_text|default_if_none:"Brak wpisów." }}</p>
+{% endif %}
+
+<br>

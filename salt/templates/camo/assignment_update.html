@@ -1,0 +1,32 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}{{ aircraft }}{% endblock %}
+
+{% block submenu %}
+    {% include submenu_template|default:"camo/empty_submenu.html" with object=aircraft %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u-5-6">
+
+        <h2>Zmiana informacji o montażu części do {{ aircraft }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                <tr>
+                    <th>Zamontowana część:</th>
+                    <td><input id="id_part" type="text" name="description" value="{{ part }}" readonly size="69"></td>
+                </tr>
+                {{ form.as_table }}
+                <tr><td></td><td>
+                    <button type="submit" class="pure-button">Aktualizuj</button>
+                    <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

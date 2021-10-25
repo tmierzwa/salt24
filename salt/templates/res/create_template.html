@@ -1,0 +1,122 @@
+{% extends 'res/res_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+
+    <style>
+        select {
+            width:250px;
+            border:10px solid #ccc;
+
+            -ms-box-sizing: content-box;
+            -moz-box-sizing: content-box;
+            box-sizing: content-box;
+            -webkit-box-sizing: content-box;
+        }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'jquery.datetimepicker.min.css' %}" >
+    <script src="{% static 'scripts/jquery.datetimepicker.full.min.js' %}"></script>
+    <link href="{% static 'select2.min.css' %}" rel="stylesheet" />
+    <script src="{% static 'scripts/select2.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_owner').select2();
+            $('#id_participant').select2();
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var aircraft = $('#id_aircraft');
+            var start = $('#id_start_time');
+            var end = $('#id_end_time');
+            var duration = $('#id_planned_time');
+
+            jQuery.datetimepicker.setLocale('pl');
+
+            picker_conf = {
+                format:'d.m.Y H:i',
+                lang:'pl',
+                step:30
+            };
+
+            change_duration = function()
+            {
+                var d1 = new Date(start.val().substring(6,10)+'-'+start.val().substring(3,5)+'-'+start.val().substring(0,2)+'T'+start.val().substring(11,16));
+                var d2 = new Date(end.val().substring(6,10)+'-'+end.val().substring(3,5)+'-'+end.val().substring(0,2)+'T'+end.val().substring(11,16));
+
+                if (d1.getTime() > 0 && d2.getTime() > 0)
+                {
+                    var seconds = ((d2 - d1) / 1000) - 30*60;
+                    if (seconds < 0) {
+                        seconds = 0
+                    }
+                    var hours = parseInt( seconds / 3600 ) % 24;
+                    var minutes = parseInt( seconds / 60 ) % 60;
+
+                    if (hours > 12) {
+                        hours = 12;
+                        minutes = 0;
+                    }
+
+                    var duration_str = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+                    duration.val(duration_str);
+                }
+            };
+
+            start.datetimepicker(picker_conf);
+            start.change(change_duration);
+
+            end.datetimepicker(picker_conf);
+            end.change(change_duration);
+
+            $('#my_table > tbody > tr').eq(0).after('<tr><td></td><td id="aircraft_info"></td></tr>');
+            if (aircraft.val()) {
+                $('#aircraft_info').html($('input#id__info_' + aircraft.val()).val().replace(/\r?\n/g, '<br />'));
+            }
+
+            aircraft.change(function()
+            {
+                $('#aircraft_info').html($('input#id__info_' + $(this).val()).val().replace(/\r?\n/g, '<br />'));
+            });
+
+            })
+    </script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Rejestacja" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"res/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    {% if submenu_template %}
+        <div class="pure-u-5-6">
+    {% else %}
+        <div class="pure-u-1-1">
+    {% endif %}
+
+        <h2>{{ header_text|default_if_none:"Rejestracja nowego obiektu" }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table id="my_table">
+                {{ form.as_table }}
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Utwórz</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

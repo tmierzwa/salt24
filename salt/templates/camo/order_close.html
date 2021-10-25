@@ -1,0 +1,22 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}Anuluj {{ order }}{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>Anulowanie zlecenia</h2>
+
+        <p class="del-text">Potwierdź anulowanie zlecenia <b>{{ order }}</b> dla <b>{{ order.aircraft }}</b></p>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="pure-button" style="margin-right: 10px">Anuluj zlecenie</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Powrót</a>
+        </form>
+
+    </div>
+
+{% endblock %}

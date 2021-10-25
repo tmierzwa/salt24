@@ -1,0 +1,95 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Operacja PDT{% endblock %}
+
+{% block content %}
+
+    <style>
+    input, select {
+        width:160px;
+        border:10px solid #ccc;
+
+        -ms-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        -webkit-box-sizing: content-box;
+    }
+    </style>
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Zamknięcie operacji {{ operation }}</h2>
+
+        <form name="operation" class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <table>
+                <tr>
+                    <th><label for="{{ form.loc_start.id_for_label }}">{{ form.loc_start.label }}:</label></th>
+                    <td>{{ form.loc_start.errors }}{{ form.loc_start }}</td>
+                    <th><label for="{{ form.loc_end.id_for_label }}">{{ form.loc_end.label }}:</label></th>
+                    <td>{{ form.loc_end.errors }}{{ form.loc_end }}</td>
+                </tr>
+                <tr>
+                    <th><label for="{{ form.time_start.id_for_label }}">{{ form.time_start.label }}:</label></th>
+                    <td>{{ form.time_start.errors }}{{ form.time_start }}</td>
+                    <th><label for="{{ form.time_end.id_for_label }}">{{ form.time_end.label }}:</label></th>
+                    <td>{{ form.time_end.errors }}{{ form.time_end }}</td>
+                </tr>
+                <tr>
+                    <th><label for="{{ form.tth_start.id_for_label }}">{{ form.tth_start.label }}:</label></th>
+                    <td>{{ form.tth_start.errors }}{{ form.tth_start }}</td>
+                    <th><label for="{{ form.tth_end.id_for_label }}">{{ form.tth_end.label }}:</label></th>
+                    <td>{{ form.tth_end.errors }}{{ form.tth_end }}</td>
+                </tr>
+                <tr>
+                    <th><label for="{{ form.landings.id_for_label }}">{{ form.landings.label }}:</label></th>
+                    <td>{{ form.landings.errors }}{{ form.landings }}</td>
+                    <th><label for="{{ form.fuel_used.id_for_label }}">{{ form.fuel_used.label }}:</label></th>
+                    <td>{{ form.fuel_used.errors }}{{ form.fuel_used }}</td>
+                </tr>
+                {% if operation.pdt.aircraft.use_cycles %}
+                    <tr>
+                        <th><label for="{{ form.cycles.id_for_label }}">{{ form.cycles.label }}:</label></th>
+                        <td>{{ form.cycles.errors }}{{ form.cycles }}</td>
+                        <th></th>
+                        <td></td>
+                    </tr>
+                {% endif %}
+
+                <tr><th></th><td colspan="3">
+                <button type="submit" class="pure-button"  style="margin-right: 10px">Zamknij</button>
+                <button type="submit" class="pure-button" name='_close_' style="margin-right: 10px">Zamknij PDT</button>
+                <button type="submit" class="pure-button" name='_next_' style="margin-right: 10px">Następna operacja</button>
+                <a class="pure-button" href="{% url "panel:pdt-oper" operation.pdt.pk %}">Anuluj</a>
+                </td></tr>
+            </table>
+
+            <script type="text/javascript">
+
+                var tth_start = document.querySelector('#id_tth_start');
+                var tth_end = document.querySelector('#id_tth_end');
+                var used = document.querySelector('#id_fuel_used');
+
+                tth_end.addEventListener('input', function()
+                {
+                    if (isNaN(parseFloat(tth_start.value)) || isNaN(parseFloat(tth_end.value.replace(',', '.')))) {
+                        used.value = 0;
+                    } else {
+                        if (parseFloat(tth_start.value) > parseFloat(tth_end.value.replace(',', '.'))) {
+                            used.value = 0;
+                        } else {
+                            used.value = Math.round((parseFloat(tth_end.value.replace(',', '.')) - parseFloat(tth_start.value))
+                                                    * parseFloat({{ fuel_consumption }}));
+                        }
+                    }
+                });
+
+            </script>
+
+        </form>
+
+    </div>
+
+{% endblock %}

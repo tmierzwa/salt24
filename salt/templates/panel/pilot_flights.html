@@ -1,0 +1,75 @@
+{% extends 'pdt/pilot_template.html' %}
+
+{% block subcontent %}
+
+    <div style="float: left; margin-right: 7%">
+
+        <h2>Zarejestrowane naloty (pierwszy pilot)</h2>
+
+        {% if pic_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>Rejestracja</th>
+                <th>PDT ref</th>
+                <th>Data</th>
+                <th>Suma<br>TTH</th>
+                <th>Suma<br>czasu</th>
+                <th>Liczba<br>lądowań</th>
+            </tr>
+            {% for pdt in pic_list %}
+                <tr style="text-align: center"
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td>{{ pdt.aircraft }}</td>
+                    <td><b><a href="{% url 'pdt:pdt-details' pdt.pk %}">{{ pdt.pdt_ref|stringformat:'06d' }}</a></b></td>
+                    <td>{{ pdt.date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td>{{ pdt.tth_sum|floatformat:1 }}</td>
+                    <td>{{ pdt.hours_sum.1|stringformat:'02d' }}:{{ pdt.hours_sum.2|stringformat:'02d' }}</td>
+                    <td>{{ pdt.pdt_sum.landings__sum|floatformat:0 }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak zarejestrowanych PDT.</p>
+        {% endif %}
+
+    </div>
+
+    <div>
+
+        <h2>Zarejestrowane naloty (drugi pilot)</h2>
+
+        {% if sic_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>Rejestracja</th>
+                <th>PDT ref</th>
+                <th>Data</th>
+                <th>Suma<br>TTH</th>
+                <th>Suma<br>czasu</th>
+                <th>Liczba<br>lądowań</th>
+            </tr>
+            {% for pdt in sic_list %}
+                <tr style="text-align: center"
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td>{{ pdt.aircraft }}</td>
+                    <td><b><a href="{% url 'pdt:pdt-details' pdt.pk %}">{{ pdt.pdt_ref|stringformat:'06d' }}</a></b></td>
+                    <td>{{ pdt.date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td>{{ pdt.tth_sum|floatformat:1 }}</td>
+                    <td>{{ pdt.hours_sum.1|stringformat:'02d' }}:{{ pdt.hours_sum.2|stringformat:'02d' }}</td>
+                    <td>{{ pdt.pdt_sum.landings__sum|floatformat:0 }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak zarejestrowanych PDT.</p>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

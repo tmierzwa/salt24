@@ -1,0 +1,311 @@
+{% extends 'panel/panel_template.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <style>
+        select, input {
+            width:185px;
+        }
+    </style>
+
+    <div class="pure-u" style="margin-left: 20px">
+
+        <h2>{{ header_text }}</h2>
+
+        <form id="myForm" class="pure-form pure-form-aligned" action="" method="POST">
+
+            {% csrf_token %}
+
+            <div style="display: none;">
+                {{ form.status }}
+            </div>
+
+            <div class="pdt_form_block">
+                <table>
+                    <tr>
+                        <td class='oper_form_label' nowrap>Operacja na PDT:</td>
+                        <td><input id="id_pdt" name="pdt" type="text" value="{{ form.pdt }} / {{ form.operation_no.initial }}" disabled></td>
+                        <td class='oper_form_label' nowrap>Rodzaj lotu:</td>
+                        <td><input id="id_flight_type" name="flight_type" type="text" value="{{ form.pdt.flight_type_name }}" disabled></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="pdt_form_block">
+                <table>
+                    {% if form.pdt.flight_type == '01' or form.pdt.flight_type == '01A' %}
+                        <tr>
+                            <td class='oper_form_label' nowrap>{{ form.pax.label }}:</td>
+                            <td>{{ form.pax }}</td>
+                            <td class='oper_form_label' nowrap>{{ form.bags.label }}:</td>
+                            <td>{{ form.bags }}</td>
+                            <td class='oper_form_label' nowrap></td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class='oper_form_label'>{{ form.fuel_refill.label }}:</td>
+                        <td>{{ form.fuel_refill }}</td>
+                        <td class='oper_form_label'>{{ form.fuel_source.label }}:</td>
+                        <td>{{ form.fuel_source }}</td>
+                        <td class='oper_form_label'>{{ form.fuel_available.label }}:</td>
+                        <td>{{ form.fuel_available }}</td>
+                    </tr>
+                    <tr>
+                        <td class='oper_form_label'>{{ form.oil_refill.label }}:</td>
+                        <td>{{ form.oil_refill }}</td>
+                        <td class='oper_form_label'>{{ form.trans_oil_refill.label }}:</td>
+                        <td>{{ form.trans_oil_refill }}</td>
+                        <td class='oper_form_label'>{{ form.hydr_oil_refill.label }}:</td>
+                        <td>{{ form.hydr_oil_refill }}</td>
+                    </tr>
+                    {% if form.do_pfi %}
+                        <tr>
+                            <td class='oper_form_label'>{{ form.pfi.label }}:</td>
+                            <td>{{ form.pfi }}</td>
+                            <td colspan="2" style="padding-top: 10px">
+                                {% if form.pfi.errors %}
+                                    {{ form.pfi.errors }}
+                                {% endif %}
+                            </td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+                </table>
+
+            </div>
+
+            {% if not camo and form.status.value != 'closed' %}
+                <table>
+                    <tr style="height: 70px"><th></th>
+                        <td>
+                            <button id="openOper" type="submit" class="pure-button" style="margin-right: 10px">
+                                {% if form.do_pfi %}
+                                    Otwórz operację
+                                {% else %}
+                                    Pozostaw otwartą
+                                {% endif %}
+                            </button>
+                        </td>
+                        <td style="color: darkgreen; padding-top: 15px">
+                            Jeśli operacja została już wykonana, możesz od razu uzupełnić pozostałe dane i zamknąć ją przyciskiem poniżej.
+                        </td>
+                    </tr>
+                </table>
+            {% endif %}
+
+            <div id="pdt_options" class="pdt_form_block">
+                <table>
+                    <tr>
+                        <td class='oper_form_label'>{{ form.loc_start.label }}:</td>
+                        <td>{{ form.loc_start }}</td>
+                        <td class='oper_form_label'>{{ form.time_start.label }}:</td>
+                        <td>{{ form.time_start }}</td>
+                        <td class='oper_form_label'>{{ form.tth_start.label }}:</td>
+                        <td>{{ form.tth_start }}</td>
+                    </tr>
+                    <tr>
+                        <td class='oper_form_label'>{{ form.loc_end.label }}:</td>
+                        <td>{{ form.loc_end }}</td>
+                        <td class='oper_form_label'>{{ form.time_end.label }}:</td>
+                        <td>{{ form.time_end }}</td>
+                        <td class='oper_form_label'>{{ form.tth_end.label }}:</td>
+                        <td>{{ form.tth_end }}</td>
+                    </tr>
+                    <tr>
+                        <td class='oper_form_label'>{{ form.fuel_used.label }}:</td>
+                        <td>{{ form.fuel_used }}</td>
+                        <td class='oper_form_label'>Czas operacji:</td>
+                        <td><input id="id_oper_time" name="oper_time" type="text" disabled></td>
+                        <td class='oper_form_label'>TTH operacji:</td>
+                        <td><input id="id_oper_tth" name="oper_tth" type="text" disabled></td>
+                    </tr>
+                    <tr>
+                        <td class='oper_form_label'>{{ form.landings.label }}:</td>
+                        <td>{{ form.landings }}</td>
+                        {% if form.pdt.aircraft.use_cycles %}
+                            <td class='oper_form_label'>{{ form.cycles.label }}:</td>
+                            <td>{{ form.cycles }}</td>
+                        {% else %}
+                            <td class='oper_form_label'></td>
+                            <td></td>
+                        {% endif %}
+                        <td class='oper_form_label'></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <table>
+                <tr><th></th><td>&nbsp;</td></tr>
+                {% for field in form %}
+                    {% if field.name != 'pfi' and field.errors %}
+                        <tr><th></th><td>
+                        {{ field.errors }}
+                        </td></tr>
+                    {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    <tr><th></th><td style="padding-bottom: 0">{{ form.non_field_errors }}</td></tr>
+                {% endif %}
+                <tr><th></th><td>
+                <button id="closeOper" type="submit" class="pure-button" name="_close_oper_" style="margin-right: 10px">
+                    {% if form.status.value != 'closed' %}
+                        Zamknij operację
+                    {% else %}
+                        Modyfikuj operację
+                    {% endif %}
+                </button>
+                <a class="pure-button" href="{% url 'panel:pdt-update' form.pdt.pk %}{% if camo %}?camo=1{% endif %}">Anuluj</a>
+            </table>
+
+        </form>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var start = $('#id_time_start');
+        var end = $('#id_time_end');
+        var duration = $('#id_oper_time');
+
+        var tth_start = $('#id_tth_start');
+        var tth_end = $('#id_tth_end');
+        var tth = $('#id_oper_tth');
+
+        var used = $('#id_fuel_used');
+        var refill = $('#id_fuel_refill');
+        var available = $('#id_fuel_available');
+
+        change_available_fuel = function()
+        {
+            if (isNaN(parseInt(refill.val()))) {
+                available.val(parseInt({{ form.fuel_available.value }}));
+            } else {
+                available.val(Math.min(parseInt(refill.val()) + parseInt({{ form.fuel_available.value }}),
+                              parseInt({{ form.pdt.aircraft.fuel_capacity }})));
+            }
+        };
+
+        change_duration = function()
+        {
+
+            if (start.val().match(/\d\d.\d\d/)) {
+                start.val(start.val().substring(0,2) + ":" + start.val().substring(3,5));
+            } else if (start.val().match(/\d\d\d\d/)) {
+                start.val(start.val().substring(0,2) + ":" + start.val().substring(2,4));
+            }
+            if (end.val().match(/\d\d.\d\d/)) {
+                end.val(end.val().substring(0,2) + ":" + end.val().substring(3,5));
+            } else if (end.val().match(/\d\d\d\d/)) {
+                end.val(end.val().substring(0,2) + ":" + end.val().substring(2,4));
+            }
+
+            var d1 = new Date('2000-01-01T'+start.val());
+            var d2 = new Date('2000-01-01T'+end.val());
+
+            if (d1.getTime() > 0 && d2.getTime() > 0)
+            {
+                var seconds = ((d2 - d1) / 1000);
+                if (seconds < 0) {
+                    seconds = 24*60*60 - ((d1 - d2) / 1000)
+                }
+                var hours = parseInt( seconds / 3600 ) % 24;
+                var minutes = parseInt( seconds / 60 ) % 60;
+
+                var duration_str = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes);
+                duration.val(duration_str);
+            } else {
+                duration.val('');
+            }
+        };
+
+        change_used_fuel = function()
+        {
+            if (!isNaN(parseInt(tth.val())) && !used.val()) {
+                used.val(Math.min(Math.round(parseFloat(tth.val()) * parseFloat({{ form.pdt.aircraft.fuel_consumption }})),
+                         parseFloat({{ form.pdt.aircraft.fuel_capacity }})));
+            }
+        };
+
+        change_tth_sum = function()
+        {
+            var d1 = Number(tth_start.val());
+            var d2 = Number(tth_end.val());
+
+            if (!isNaN(d1) && !isNaN(d2))
+            {
+                if (d1 > 0 && d2 > 0) {
+                    var tth_delta = (d2 - d1);
+                    if (tth_delta < 0) {
+                        tth_delta = 0
+                    }
+                    tth.val(parseFloat(Math.round(tth_delta * 100) / 100).toFixed(2));
+                } else {
+                    tth.val('');
+                }
+            } else {
+                tth.val('');
+            }
+        };
+
+        change_tth = function()
+        {
+            change_tth_sum();
+            change_used_fuel();
+        };
+
+        start.change(change_duration);
+        end.change(change_duration);
+
+        tth_start.change(change_tth);
+        tth_end.change(change_tth);
+
+        refill.change(change_available_fuel);
+
+        change_duration();
+        change_tth_sum();
+
+        if (!used.val()) {
+            change_used_fuel();
+        }
+
+        $('#openOper').click(function() {
+            $('#id_loc_start').removeAttr('required');
+            $('#id_loc_end').removeAttr('required');
+            $('#id_time_start').removeAttr('required');
+            $('#id_time_end').removeAttr('required');
+            $('#id_tth_start').removeAttr('required');
+            $('#id_tth_end').removeAttr('required');
+            $('#id_fuel_used').removeAttr('required');
+            $('#id_landings').removeAttr('required');
+            return true;
+        });
+
+        $('#closeOper').click(function() {
+            $('#id_loc_start').attr('required', '');
+            $('#id_loc_end').attr('required', '');
+            $('#id_time_start').attr('required', '');
+            $('#id_time_end').attr('required', '');
+            $('#id_tth_start').attr('required', '');
+            $('#id_tth_end').attr('required', '');
+            $('#id_fuel_used').attr('required', '');
+            $('#id_landings').attr('required', '');
+            return true;
+        });
+
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}REZERWACJE{% endblock %}
+
+{% block module %}REZERWACJE I GRAFIKI{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="{% url 'res:reservation-calendar' %}" class="pure-menu-link">Kalendarz rezerwacji</a></li>
+    <li class="pure-menu-item"><a href="{% url 'res:reservation-list' %}" class="pure-menu-link">
+    {% if perms.res.res_admin %}
+        Lista rezerwacji
+    {% else %}
+        Moje rezerwacje
+    {% endif %}
+    </a></li>
+    {% if user.fbouser.infos %}
+        <li class="pure-menu-item"><a href="{% url 'res:duty-calendar' %}" class="pure-menu-link">Grafik pilotów</a></li>
+    {% endif %}
+    {% if perms.res.res_admin %}
+        <li class="pure-menu-item"><a href="{% url 'res:blackout-list' %}" class="pure-menu-link">Blokady SP</a></li>
+        <li class="pure-menu-item"><a href="{% url 'res:resource-list' %}" class="pure-menu-link">Zasoby</a></li>
+        <li class="pure-menu-item"><a href="{% url 'res:params-list' %}" class="pure-menu-link">Parametry SP</a></li>
+    {% endif %}
+{% endblock %}

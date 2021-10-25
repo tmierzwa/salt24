@@ -1,0 +1,68 @@
+{% extends 'fin/fin_template.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'jquery.datetimepicker.min.css' %}" >
+    <script src="{% static 'scripts/jquery.datetimepicker.full.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            jQuery.datetimepicker.setLocale('pl');
+            picker_conf = {
+                format:'d.m.Y',
+                lang:'pl',
+                timepicker: false
+            };
+            $('#id_report_start').datetimepicker(picker_conf);
+            $('#id_report_end').datetimepicker(picker_conf);
+        })
+    </script>
+
+    <div class="pure-u">
+
+        <h2>{{ title }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <button type="submit" class="pure-button" style="margin-right: 10px">Generuj</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+        </form>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var report_year = $('#id_report_year');
+        var report_month = $('#id_report_month');
+        var report_start = $('#id_report_start');
+        var report_end = $('#id_report_end');
+
+        function getFormattedDate(date) {
+            var year = date.getFullYear();
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return day + '.' + month + '.' + year;
+        }
+        function set_dates() {
+            report_start.val(getFormattedDate(new Date(report_year.val(), report_month.val()-1)));
+            report_end.val(getFormattedDate(new Date(report_year.val(), report_month.val(), 0)));
+        }
+
+        report_year.change(set_dates);
+        report_month.change(set_dates);
+
+    </script>
+
+
+{% endblock %}

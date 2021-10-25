@@ -1,0 +1,23 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-info' tank.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ tank.tank_ref }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'deliveries' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-deliveries' tank.pk %}" class="pure-menu-link">Dostawy paliwa</a></li>
+            <li class="pure-menu-item {% if type == 'intrans' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-transfers' 'in' tank.pk %}" class="pure-menu-link">Wydania do zbiornika</a></li>
+            <li class="pure-menu-item {% if type == 'outtrans' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-transfers' 'out' tank.pk %}" class="pure-menu-link">Wydania ze zbiornika</a></li>
+            <li class="pure-menu-item {% if type == 'corrections' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-corrections' tank.pk %}" class="pure-menu-link">Potokoły różnic</a></li>
+            <li class="pure-menu-item {% if type == 'pdtfuelings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-pdt-fuelings' tank.pk %}" class="pure-menu-link">Tankowania SP</a></li>
+            <li class="pure-menu-item {% if type == 'fuelings' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'fin:tank-fuelings' tank.pk %}" class="pure-menu-link">Tankowania bez PDT</a></li>
+        </ul>
+    </div>
+
+</div>

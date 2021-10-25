@@ -1,0 +1,74 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}Utwórz SP{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>Nowy statek powietrzny</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table style="border-collapse: collapse">
+                <tr><td style="padding: 20px; border: solid 1px black"><table style="margin: auto">
+                <tr><td colspan="2" style="text-align: center"><h3>Dane podstawowe</h3></td></tr>
+                {% for field in form %}
+                    {% if not field.html_name|slice:':2' in prefixes  %}
+                        <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field.errors }}{{ field }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </table></td>
+                <td style="padding: 20px; border: solid 1px black;"><table>
+                {% for prefix, label in airframe %}
+                    <tr><td colspan="2" style="text-align: center"><h3>{{ label }}</h3></td></tr>
+                    {% for field in form %}
+                        {% if field.html_name|slice:':2' == prefix  %}
+                            <tr>
+                            <td>{{ field.label_tag }}</td>
+                            <td>{{ field.errors }}{{ field }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                </table></td></tr>
+                <tr>{% for prefix, label in lh %}
+                    <td style="padding: 20px; border: solid 1px black"><table>
+                    <tr><td colspan="2" style="text-align: center"><h3>{{ label }}</h3></td></tr>
+                    {% for field in form %}
+                        {% if field.html_name|slice:':2' == prefix  %}
+                            <tr>
+                            <td>{{ field.label_tag }}</td>
+                            <td>{{ field.errors }}{{ field }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </table></td>
+                {% endfor %}</tr>
+                <tr>{% for prefix, label in rh %}
+                    <td style="padding: 20px; border: solid 1px black"><table>
+                    <tr><td colspan="2" style="text-align: center"><h3>{{ label }}</h3></td></tr>
+                    {% for field in form %}
+                        {% if field.html_name|slice:':2' == prefix  %}
+                            <tr>
+                            <td>{{ field.label_tag }}</td>
+                            <td>{{ field.errors }}{{ field }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </table></td>
+                {% endfor %}</tr>
+            </table>
+
+            <p style="padding-left: 20px; padding-top: 10px">
+                <button type="submit" class="pure-button" style="margin-right: 10px">Utwórz</button>
+                <a class="pure-button" href="{% url "camo:aircraft-list" %}">Anuluj</a>
+            </p>
+        </form>
+
+    </div>
+
+{% endblock %}

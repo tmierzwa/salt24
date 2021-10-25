@@ -1,0 +1,352 @@
+{% extends 'panel/panel_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+    <script type="text/javascript">
+    $(document).ready( function () {
+        $('#list_table1').DataTable( {
+        {% if row_list1|length <= 5 or no_paging %}
+            "paging": false,
+        {% endif %}
+            "info": false,
+            "lengthChange": false,
+            "lengthMenu": [ 5, 10 ],
+            "order": [],
+            "language": {
+                "paginate": {
+                    "first": "Początek",
+                    "last":"Koniec",
+                    "previous": "<< ",
+                    "next":" >>"
+                },
+                "search": "Wyszukaj:",
+                "zeroRecords": "Brak pasujących rekordów...",
+                "info": "Liczba rekordów _TOTAL_",
+                "infoEmpty": "Brak rekordów",
+                "infoFiltered": "(spośród _MAX_)",
+                "lengthMenu": "Pokaż _MENU_ rekordów",
+                "emptyTable": "Brak danych..."
+            }
+        });
+        $('#list_table2').DataTable( {
+        {% if row_list2|length <= 5 or no_paging %}
+            "paging": false,
+        {% endif %}
+            "info": false,
+            "lengthChange": false,
+            "lengthMenu": [ 5, 10 ],
+            "order": [],
+            "language": {
+                "paginate": {
+                    "first": "Początek",
+                    "last":"Koniec",
+                    "previous": "<< ",
+                    "next":" >>"
+                },
+                "search": "Wyszukaj:",
+                "zeroRecords": "Brak pasujących rekordów...",
+                "info": "Liczba rekordów _TOTAL_",
+                "infoEmpty": "Brak rekordów",
+                "infoFiltered": "(spośród _MAX_)",
+                "lengthMenu": "Pokaż _MENU_ rekordów",
+                "emptyTable": "Brak danych..."
+            }
+        });
+        $('#list_table3').DataTable( {
+        {% if row_list3|length <= 5 or no_paging %}
+            "paging": false,
+        {% endif %}
+            "info": false,
+            "lengthChange": false,
+            "lengthMenu": [ 5, 10 ],
+            "order": [],
+            "language": {
+                "paginate": {
+                    "first": "Początek",
+                    "last":"Koniec",
+                    "previous": "<< ",
+                    "next":" >>"
+                },
+                "search": "Wyszukaj:",
+                "zeroRecords": "Brak pasujących rekordów...",
+                "info": "Liczba rekordów _TOTAL_",
+                "infoEmpty": "Brak rekordów",
+                "infoFiltered": "(spośród _MAX_)",
+                "lengthMenu": "Pokaż _MENU_ rekordów",
+                "emptyTable": "Brak danych..."
+            }
+        });
+    } );
+    </script>
+{% endblock %}
+
+{% block title %}Panel użytkownika{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u-1-2">
+
+        <div class="panel-box">
+
+            <h2>Moje ostatnie PDT</h2>
+
+            {% if local_menu2 %}
+                <p class="local-menu">
+                    {% for menu_item in local_menu2 %}
+                        {% if forloop.counter > 1 %}
+                            |
+                        {% endif %}
+                        <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                    {% endfor %}
+                </p>
+            {%  endif %}
+
+            {% if row_list2 %}
+                <table id="list_table2" class="stripe hover cell-border compact">
+                <thead><tr>
+                    {% for header in header_list2 %}
+                        <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                    {% endfor %}
+                </tr></thead>
+                <tbody>
+                {% for row in row_list2 %}
+                    <tr
+                    {% if forloop.counter|divisibleby:"2"  %}
+                        class="alt"
+                    {% endif %}
+                    >
+                        {% for field in row.fields %}
+                            <td nowrap style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                                {% if field.view_link or field.edit_link or field.delete_link or field.report_link %}
+                                    {% if field.view_link %}
+                                        <a href="{{ field.view_link }}"><img src="{% static 'images/view.png' %}" title='Pokaż'></a>
+                                        {% if field.edit_link or field.delete_link or field.report_link %}
+                                            &nbsp;
+                                        {% endif %}
+                                    {%  endif %}
+                                    {% if field.edit_link %}
+                                        <a href="{{ field.edit_link }}"><img src="{% static 'images/pen.png' %}" title='Zmień'></a>
+                                        {% if field.delete_link or field.report_link %}
+                                            &nbsp;
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if field.delete_link %}
+                                        <a href="{{ field.delete_link }}"><img src="{% static 'images/trash.png' %}" title='Usuń'></a>
+                                        {% if field.report_link %}
+                                            &nbsp;
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if field.report_link %}
+                                        <a href="{{ field.report_link }}"><img src="{% static 'images/report.png' %}" title='Pokaż PDT'></a>
+                                    {% endif %}
+
+                                {% else %}
+                                    {% if field.bold or field.link %}<b>{% endif %}
+                                    {% if field.link %}<a href="{{ field.link }}">
+                                    {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                                        {{ field.value | default_if_none:"" | linebreaksbr | truncatechars:100 }}
+                                    {% if field.email or field.link %}</a>{% endif %}
+                                    {% if field.bold or field.link %}</b>{% endif %}
+                                {%  endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            {% else %}
+                <p style="min-height: 50px; min-width: 400px;" class="info-text">Brak zarejestrowanych PDT.</p>
+            {% endif %}
+
+        </div>
+        <div class="panel-box">
+
+        <h2>Moje szkolenia</h2>
+
+        {% if local_menu3 %}
+            <p class="local-menu">
+                {% for menu_item in local_menu3 %}
+                    {% if forloop.counter > 1 %}
+                        |
+                    {% endif %}
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            </p>
+        {%  endif %}
+
+        {% if row_list3 %}
+            <table id="list_table3" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in header_list3 %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+            <tbody>
+            {% for row in row_list3 %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td nowrap style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                            {% if field.view_link or field.edit_link or field.delete_link or field.report_link %}
+                                {% if field.view_link %}
+                                    <a href="{{ field.view_link }}"><img src="{% static 'images/view.png' %}" title='Pokaż'></a>
+                                    {% if field.edit_link or field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {%  endif %}
+                                {% if field.edit_link %}
+                                    <a href="{{ field.edit_link }}"><img src="{% static 'images/pen.png' %}" title='Zmień'></a>
+                                    {% if field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.delete_link %}
+                                    <a href="{{ field.delete_link }}"><img src="{% static 'images/trash.png' %}" title='Usuń'></a>
+                                    {% if field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.report_link %}
+                                    <a href="{{ field.report_link }}"><img src="{% static 'images/report.png' %}" title='Pokaż'></a>
+                                {% endif %}
+
+                            {% else %}
+                                {% if field.bold or field.link %}<b>{% endif %}
+                                {% if field.link %}<a href="{{ field.link }}">
+                                {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                                    {{ field.value | default_if_none:"" | linebreaksbr | truncatechars:100 }}
+                                {% if field.email or field.link %}</a>{% endif %}
+                                {% if field.bold or field.link %}</b>{% endif %}
+                            {%  endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        {% else %}
+            <p style="min-height: 50px; min-width: 400px;" class="info-text">Brak otwartych szkoleń.</p>
+        {% endif %}
+
+    </div>
+
+    </div>
+
+    <div class="pure-u-1-2">
+
+        <div class="panel-box">
+
+        <h2>Moje rezerwacje SP</h2>
+
+        {% if local_menu1 %}
+            <p class="local-menu">
+                {% for menu_item in local_menu1 %}
+                    {% if forloop.counter > 1 %}
+                        |
+                    {% endif %}
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            </p>
+        {%  endif %}
+
+        {% if row_list1 %}
+            <table id="list_table1" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in header_list1 %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+            <tbody>
+            {% for row in row_list1 %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td nowrap style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                            {% if field.view_link or field.edit_link or field.delete_link or field.report_link or field.no_report_msg%}
+                                {% if field.view_link %}
+                                    <a href="{{ field.view_link }}"><img src="{% static 'images/view.png' %}" title='Pokaż'></a>
+                                    {% if field.edit_link or field.delete_link or field.report_link %}
+
+                                    {% endif %}
+                                {%  endif %}
+                                {% if field.edit_link %}
+                                    <a href="{{ field.edit_link }}"><img src="{% static 'images/pen.png' %}" title='Zmień'></a>
+                                    {% if field.delete_link or field.report_link %}
+
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.delete_link %}
+                                    <a href="{{ field.delete_link }}"><img src="{% static 'images/trash.png' %}" title='Usuń'></a>
+                                    {% if field.report_link %}
+
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.report_link %}
+                                    <a href="{{ field.report_link }}"><img src="{% static 'images/report.png' %}" title='Otwórz PDT'></a>
+                                {% elif field.no_report_msg %}
+                                    <img src="{% static 'images/no_report.png' %}" title='Nie można otworzyć PDT'
+                                    onclick="alert('{{ field.no_report_msg }}');">
+                                {% endif %}
+                            {% else %}
+                                {% if field.bold or field.link %}<b>{% endif %}
+                                {% if field.link %}<a href="{{ field.link }}">
+                                {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                                    {{ field.value | default_if_none:"" | linebreaksbr | truncatechars:100 }}
+                                {% if field.email or field.link %}</a>{% endif %}
+                                {% if field.bold or field.link %}</b>{% endif %}
+                            {%  endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        {% else %}
+            <p style="min-height: 50px; min-width: 400px;" class="info-text">Brak aktualnych rezerwacji.</p>
+        {% endif %}
+
+    </div>
+        <div class="panel-box">
+
+        <h2>Przydatne linki</h2>
+
+        <table id="list-table">
+            <thead>
+                <tr>
+                    <th style="font-size: 15px">Informacja</th>
+                    <th style="font-size: 15px">Planowanie</th>
+                    <th style="font-size: 15px">Pogoda</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <br>
+                        <a class="info-link" href="http://ais.pansa.pl/aip/">AIP</a><br><br>
+                        <a class="info-link" href="http://ais.pansa.pl/vfr/">AIP VFR</a><br><br>
+                        <a class="info-link" href="http://ais.pansa.pl/mil/">AIP MIL</a><br><br>
+                    </td>
+                    <td>
+                        <a class="info-link" href="http://www.amc.pansa.pl/?menu_lewe=aup&opis=amc_aup&lang=_pl">AUP</a><br><br>
+                        <a class="info-link" href="http://euro.wx.propilots.net/">NOTAM</a>
+                    </td>
+                    <td>
+                        <a class="info-link" href="http://awiacja.imgw.pl/">METEO</a><br><br>
+                        <a class="info-link" href="http://pl.sat24.com/pl">Pogoda Sat</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'fin/list_template.html' %}
+
+{% load staticfiles %}
+
+{% block presection %}
+
+    <div class="pure-u">
+
+        <h2>Aktualne salda dla {{ contractor.name }}</h2>
+
+        <table id="data-table">
+            <tr>
+                <th>Saldo szkoleń</th>
+                <td class="balance {% if contractor.ato_balance < 0 %} negative{% endif %}">{{ contractor.ato_balance|floatformat:2 }} PLN</td>
+            </tr>
+            <tr>
+                <th>Saldo wynajmu</th>
+                <td class="balance {% if contractor.rent_balance < 0 %} negative{% endif %}">{{ contractor.rent_balance|floatformat:2 }} PLN</td>
+            </tr>
+            <tr>
+                <th>Saldo AOC</th>
+                <td class="balance {% if contractor.aoc_balance < 0 %} negative{% endif %}">{{ contractor.aoc_balance|floatformat:2 }} PLN</td>
+            </tr>
+            <tr>
+                <th>Saldo usług</th>
+                <td class="balance {% if contractor.spo_balance < 0 %} negative{% endif %}">{{ contractor.spo_balance|floatformat:2 }} PLN</td>
+            </tr>
+        </table>
+        <br>
+
+    </div>
+
+{% endblock %}

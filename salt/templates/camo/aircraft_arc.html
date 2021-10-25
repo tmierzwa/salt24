@@ -1,0 +1,659 @@
+{% extends 'camo/camo_template.html' %}
+
+{% load staticfiles %}
+
+{% block title %}Raport ARC{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"camo/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u-5-6">
+
+        <h2>{{ "Raport ARC" }}</h2>
+
+        {% if local_menu %}
+            <p class="local-menu">
+                {% for menu_item in local_menu %}
+                    {% if forloop.counter > 1 %}
+                        |
+                    {% endif %}
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            </p>
+        {%  endif %}
+
+        <h3>1. Status zgodności z programem obsługi technicznej</h3>
+
+        {% if oth_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>POT ref.</th>
+                <th>Paczka zadań</th>
+                <th>Limit<br>FH</th>
+                <th>Limit<br>msc.</th>
+                {% if use_landings %}
+                    <th>Limit<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Limit<br>cycl.</th>
+                {% endif %}
+                <th>Wykon.<br>data</th>
+                <th>Wykon.<br>TTH</th>
+                {% if use_landings %}
+                    <th>Wykon.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Wykon.<br>cycl.</th>
+                {% endif %}
+                <th>Wykon.<br>CRS</th>
+                <th>Nast.<br>data</th>
+                <th>Nast.<br>TTH</th>
+                {% if use_landings %}
+                    <th>Nast.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Nast.<br>cycl.</th>
+                {% endif %}
+                <th>Pozost.<br>FH</th>
+                <th>Pozost.<br>dni</th>
+                {% if use_landings %}
+                    <th>Pozost.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Pozost.<br>cycl.</th>
+                {% endif %}
+            </tr>
+            {% for group in oth_list %}
+                <tr class = "
+                {% if forloop.counter|divisibleby:"2" %}
+                    alt
+                {% endif %}
+                {% if group.left_hours <= 0 or group.left_days <= 0 or group.left_landings <= 0 or group.left_cycles <= 0 %}
+                    overdue
+                {% endif %}
+                ">
+                    <td nowrap>{{ group.POT_ref|default_if_none:""|truncatechars:30 }}</td>
+                    <td nowrap><a href="{% url 'camo:pot-group-info' group.pk %}">{{ group.name|truncatechars:40 }}</a></td>
+                    <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>
+                    <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td>{{ group.done_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.done_hours|floatformat:2 }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.done_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.done_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td>{{ group.done_crs|default_if_none:"" }}</td>
+                    <td>{{ group.next_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.next_hours|floatformat:2 }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.next_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.next_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>
+                    <td style="text-align: center">{{ group.left_days|floatformat:0 }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak zdefiniowanych czynności obsługowych.</p>
+        {% endif %}
+
+        <br>
+        <h3>2. Status podzespołów o ograniczonej żywotności</h3>
+
+        {% if llp_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>POT ref</th>
+                <th>Nazwa</th>
+                <th>P/N</th>
+                <th>S/N</th>
+                <th>Limit<br>FH</th>
+                <th>Limit<br>msc.</th>
+                {% if use_landings %}
+                    <th>Limit<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Limit<br>cycl.</th>
+                {% endif %}
+                <th>Instal.<br>data</th>
+                <th>Instal.<br>TTH</th>
+                <th>CRS ref</th>
+                <th>Data<br>produkcji</th>
+                <th>TTH<br>początkowe</th>
+                <th>Data<br>żywotności</th>
+                <th>Pozost.<br>FH</th>
+                <th>Pozost.<br>dni</th>
+                {% if use_landings %}
+                    <th>Pozost.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Pozost.<br>cycl.</th>
+                {% endif %}
+            </tr>
+            {% for group in llp_list %}
+                <tr class = "
+                {% if forloop.counter|divisibleby:"2" %}
+                    alt
+                {% endif %}
+                {% if group.left_hours <= 0 or group.left_days <= 0 or group.left_landings <= 0 or group.left_cycles <= 0 %}
+                    overdue
+                {% endif %}
+                ">
+                    <td nowrap>{{ group.POT_ref|default_if_none:""|truncatechars:20 }}</td>
+                    <td nowrap><a href="{% url 'camo:part-pots' group.part.pk %}">{{ group.part.name|truncatechars:50 }}</a></td>
+                    <td>{{ group.part.part_no|default_if_none:"" }}</td>
+                    <td>{{ group.part.serial_no|default_if_none:"" }}</td>
+                    <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>
+                    <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td>{{ group.part.current_assignment.from_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.from_hours|floatformat:2 }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.crs|default_if_none:"" }}</td>
+                    <td>{{ group.part.production_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.install_tth|floatformat:2 }}</td>
+                    <td>{{ group.next_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>
+                    <td style="text-align: center">{{ group.left_days|default_if_none:"" }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak zdefiniowanych czynności obsługowych.</p>
+        {% endif %}
+
+        <br>
+        <h3>3. Status podzespołów o ograniczonej żywotności podlegających remontowi</h3>
+
+        {% if ovh_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>POT ref</th>
+                <th>Nazwa</th>
+                <th>P/N</th>
+                <th>S/N</th>
+                <th>Limit<br>FH</th>
+                <th>Limit<br>msc.</th>
+                {% if use_landings %}
+                    <th>Limit<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Limit<br>cycl.</th>
+                {% endif %}
+                <th>Data<br>instalacji</th>
+                <th>TTH<br>instalacji</th>
+                <th>CRS ref</th>
+                <th>Data<br>produkcji</th>
+                <th>TTH<br>początkowe</th>
+                <th>Data<br>żywotności</th>
+                <th>Pozos.<br>FH</th>
+                <th>Pozost.<br>dni</th>
+                {% if use_landings %}
+                    <th>Pozost.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Pozost.<br>cycl.</th>
+                {% endif %}
+
+            </tr>
+            {% for group in ovh_list %}
+                <tr class = "
+                {% if forloop.counter|divisibleby:"2" %}
+                    alt
+                {% endif %}
+                {% if group.left_hours <= 0 or group.left_days <= 0  or group.left_landings <= 0 or group.left_cycles <= 0%}
+                    overdue
+                {% endif %}
+                ">
+                    <td nowrap>{{ group.POT_ref|default_if_none:""|truncatechars:20 }}</td>
+                    <td nowrap><a href="{% url 'camo:part-pots' group.part.pk %}">{{ group.part.name|truncatechars:50 }}</a></td>
+                    <td>{{ group.part.part_no|default_if_none:"" }}</td>
+                    <td>{{ group.part.serial_no|default_if_none:"" }}</td>
+                    <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>
+                    <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td>{{ group.part.current_assignment.from_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.from_hours|floatformat:2 }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.crs|default_if_none:"" }}</td>
+                    <td>{{ group.part.production_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.part.current_assignment.install_tth|floatformat:2 }}</td>
+                    <td>{{ group.next_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>
+                    <td style="text-align: center">{{ group.left_days|default_if_none:"" }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak zdefiniowanych czynności obsługowych.</p>
+        {% endif %}
+
+        <br>
+        <h3>4. Status dyrektyw i biuletynów</h3>
+
+        {% if part_list %}
+
+            {% for part in part_list %}
+
+                <h4>{{ part.0 }}</h4>
+
+                {% if part.2 %}
+                    <table id="list-table" class="sortable">
+                        <tr>
+                            <th>AD/SB</th>
+                            <th>Numer</th>
+                            <th>Treść AD/SB</th>
+                            <th>Organ</th>
+                            <th>Data</th>
+                            <th>Limit<br>TTH</th>
+                            <th>Limit<br>Msc.</th>
+                            {% if use_landings %}
+                                <th>Limit<br>ldg.</th>
+                            {% endif %}
+                            {% if use_cycles %}
+                                <th>Limit<br>cycl.</th>
+                            {% endif %}
+                            <th>Cykl</th>
+                            <th>Wykon.<br>dnia</th>
+                            <th>Wykon.<br>TTH</th>
+                            {% if use_landings %}
+                                <th>Wykon.<br>ldg.</th>
+                            {% endif %}
+                            {% if use_cycles %}
+                                <th>Wykon.<br>cycl.</th>
+                            {% endif %}
+                            <th>Wykon.<br>ASO</th>
+                            <th>Wykon.<br>CRS</th>
+                            <th>Pozost.<br>FH</th>
+                            <th>Pozost.<br>dni</th>
+                            {% if use_landings %}
+                                <th>Pozost.<br>ldg.</th>
+                            {% endif %}
+                            {% if use_cycles %}
+                                <th>Pozost.<br>cycl.</th>
+                            {% endif %}
+                        </tr>
+                        {% for group in part.2 %}
+                            <tr class = "
+                            {% if forloop.counter|divisibleby:"2" %}
+                                alt
+                            {% endif %}
+                            {% if group.left_hours <= 0 or group.left_days <= 0 or group.left_landings <= 0 or group.left_cycles <= 0 %}
+                                overdue
+                            {% endif %}
+                            ">
+                                <td style="text-align: center">{{ group.type|upper }}</td>
+                                <td nowrap>{{ group.adsb_no|default_if_none:""|truncatechars:20 }}</td>
+                                <td nowrap><a href="{% url 'camo:pot-group-info' group.pk %}">{{ group.name|truncatechars:40 }}</a></td>
+                                <td>{{ group.adsb_agency|default_if_none:"" }}</td>
+                                <td>{{ group.adsb_date|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>
+                                <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>
+                                {% if use_landings %}
+                                    <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>
+                                {% endif %}
+                                {% if use_cycles %}
+                                    <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>
+                                {% endif %}
+                                <td>{{ group.cyclic|yesno:"TAK,NIE" }}</td>
+                                <td>{{ group.done_date|date:"SHORT_DATE_FORMAT"}}</td>
+                                <td style="text-align: center">{{ group.done_hours|floatformat:2 }}</td>
+                                {% if use_landings %}
+                                    <td style="text-align: center">{{ group.done_landings|default_if_none:"" }}</td>
+                                {% endif %}
+                                {% if use_cycles %}
+                                    <td style="text-align: center">{{ group.done_cycles|default_if_none:"" }}</td>
+                                {% endif %}
+                                <td nowrap>{{ group.done_aso|default_if_none:''|truncatechars:20 }}</td>
+                                <td nowrap>{{ group.done_crs|default_if_none:'' }}</td>
+                                <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>
+                                <td style="text-align: center">{{ group.left_days|default_if_none:"" }}</td>
+                                {% if use_landings %}
+                                    <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>
+                                {% endif %}
+                                {% if use_cycles %}
+                                    <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p class="info-text">Brak dyrektyw i biuletynów.</p>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="info-text">Brak dyrektyw i biuletynów.</p>
+        {% endif %}
+
+        <br>
+{#        <h3>5. Status AD i SB dla silników</h3>#}
+{##}
+{#        {% if adsb_en_list %}#}
+{#            <table id="list-table" class="sortable">#}
+{#                <tr>#}
+{#                    <th>AD/SB</th>#}
+{#                    <th>Numer</th>#}
+{#                    <th>Data</th>#}
+{#                    <th>Treść AD/SB</th>#}
+{#                    <th>Organ</th>#}
+{#                    <th>Limit<br>TTH</th>#}
+{#                    <th>Limit<br>Msc.</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Limit<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Limit<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                    <th>Cykl</th>#}
+{#                    <th>Wykon.<br>dnia</th>#}
+{#                    <th>Wykon.<br>TTH</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Wykon.<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Wykon.<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                    <th>Wykon.<br>ASO</th>#}
+{#                    <th>Wykon.<br>CRS</th>#}
+{#                    <th>Pozost.<br>dni</th>#}
+{#                    <th>Pozost.<br>FH</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Pozost.<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Pozost.<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                </tr>#}
+{#                {% for group in adsb_en_list %}#}
+{#                    <tr class = "#}
+{#                    {% if forloop.counter|divisibleby:"2" %}#}
+{#                        alt#}
+{#                    {% endif %}#}
+{#                    {% if group.left_hours <= 0 or group.left_days <= 0 or group.left_landings <= 0 or group.left_cycles <= 0 %}#}
+{#                        overdue#}
+{#                    {% endif %}#}
+{#                    ">#}
+{#                        <td style="text-align: center">{{ group.type|upper }}</td>#}
+{#                        <td nowrap>{{ group.adsb_no|default_if_none:""|truncatechars:30 }}</td>#}
+{#                        <td>{{ group.adsb_date|date:"SHORT_DATE_FORMAT" }}</td>#}
+{#                        <td nowrap><a href="{% url 'camo:pot-group-info' group.pk %}">{{ group.name|truncatechars:40 }}</a></td>#}
+{#                        <td>{{ group.adsb_agency|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        <td>{{ group.cyclic|yesno:"TAK,NIE" }}</td>#}
+{#                        <td>{{ group.done_date|date:"SHORT_DATE_FORMAT"}}</td>#}
+{#                        <td style="text-align: center">{{ group.done_hours|floatformat:2 }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.done_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.done_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        <td nowrap>{{ group.done_aso|default_if_none:''|truncatechars:20 }}</td>#}
+{#                        <td nowrap>{{ group.done_crs|default_if_none:'' }}</td>#}
+{#                        <td style="text-align: center">{{ group.left_days|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                    </tr>#}
+{#                {% endfor %}#}
+{#            </table>#}
+{#        {% else %}#}
+{#            <p class="info-text">Brak dyrektyw i biuletynów.</p>#}
+{#        {% endif %}#}
+{##}
+{#        <br>#}
+{#        <h3>6. Status AD i SB dla śmigieł</h3>#}
+{##}
+{#        {% if adsb_pr_list %}#}
+{#            <table id="list-table" class="sortable">#}
+{#                <tr>#}
+{#                    <th>AD/SB</th>#}
+{#                    <th>Numer</th>#}
+{#                    <th>Data</th>#}
+{#                    <th>Treść AD/SB</th>#}
+{#                    <th>Organ</th>#}
+{#                    <th>Limit<br>TTH</th>#}
+{#                    <th>Limit<br>Msc.</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Limit<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Limit<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                    <th>Cykl</th>#}
+{#                    <th>Wykon.<br>dnia</th>#}
+{#                    <th>Wykon.<br>TTH</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Wykon.<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Wykon.<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                    <th>Wykon.<br>ASO</th>#}
+{#                    <th>Wykon.<br>CRS</th>#}
+{#                    <th>Pozost.<br>dni</th>#}
+{#                    <th>Pozost.<br>FH</th>#}
+{#                    {% if use_landings %}#}
+{#                        <th>Pozost.<br>ldg.</th>#}
+{#                    {% endif %}#}
+{#                    {% if use_cycles %}#}
+{#                        <th>Pozost.<br>cycl.</th>#}
+{#                    {% endif %}#}
+{#                </tr>#}
+{#                {% for group in adsb_pr_list %}#}
+{#                    <tr class = "#}
+{#                    {% if forloop.counter|divisibleby:"2" %}#}
+{#                        alt#}
+{#                    {% endif %}#}
+{#                    {% if group.left_hours <= 0 or group.left_days <= 0 or group.left_landings <= 0 or group.left_cycles <= 0 %}#}
+{#                        overdue#}
+{#                    {% endif %}#}
+{#                    ">#}
+{#                        <td style="text-align: center">{{ group.type|upper }}</td>#}
+{#                        <td nowrap>{{ group.adsb_no|default_if_none:""|truncatechars:30 }}</td>#}
+{#                        <td>{{ group.adsb_date|date:"SHORT_DATE_FORMAT" }}</td>#}
+{#                        <td nowrap><a href="{% url 'camo:pot-group-info' group.pk %}">{{ group.name|truncatechars:40 }}</a></td>#}
+{#                        <td>{{ group.adsb_agency|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.due_hours|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.due_months|default_if_none:"" }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.due_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.due_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        <td>{{ group.cyclic|yesno:"TAK,NIE" }}</td>#}
+{#                        <td>{{ group.done_date|date:"SHORT_DATE_FORMAT"}}</td>#}
+{#                        <td style="text-align: center">{{ group.done_hours|floatformat:2 }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.done_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.done_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        <td nowrap>{{ group.done_aso|default_if_none:''|truncatechars:20 }}</td>#}
+{#                        <td nowrap >{{ group.done_crs|default_if_none:'' }}</td>#}
+{#                        <td style="text-align: center">{{ group.left_days|default_if_none:"" }}</td>#}
+{#                        <td style="text-align: center">{{ group.left_hours|floatformat:2 }}</td>#}
+{#                        {% if use_landings %}#}
+{#                            <td style="text-align: center">{{ group.left_landings|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                        {% if use_cycles %}#}
+{#                            <td style="text-align: center">{{ group.left_cycles|default_if_none:"" }}</td>#}
+{#                        {% endif %}#}
+{#                    </tr>#}
+{#                {% endfor %}#}
+{#            </table>#}
+{#        {% else %}#}
+{#            <p class="info-text">Brak dyrektyw i biuletynów.</p>#}
+{#        {% endif %}#}
+{##}
+{#        <br>#}
+
+        <h3>5. Status wykonania modyfikacji i napraw</h3>
+
+        {% if mods_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>Opis</th>
+                <th>Wykon.<br>data</th>
+                <th>Wykon.<br>TTH</th>
+                {% if use_landings %}
+                    <th>Wykon.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Wykon.<br>cycl.</th>
+                {% endif %}
+                <th>Organizacja</th>
+                <th>CRS Ref.</th>
+            </tr>
+            {% for modification in mods_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td nowrap><a href="{% url "camo:modification-details" modification.pk %}">{{ modification.description|truncatechars:50 }}</a></td>
+                    <td>{{ modification.done_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td style="text-align: center">{{ modification.done_hours|floatformat:2 }}</td>
+                    {% if use_landings %}
+                        <td style="text-align: center">{{ modification.done_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td style="text-align: center">{{ modification.done_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td nowrap>{{ modification.aso|default_if_none:''|truncatechars:20 }}</td>
+                    <td>{{ modification.done_crs|default_if_none:'' }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak modyfikacji i napraw.</p>
+        {% endif %}
+
+        <br>
+        <h3>6. Raporty z ważenia i wyważenia </h3>
+
+        {% if wbs_list %}
+            <table id="list-table" class="sortable">
+            <tr>
+                <th>Opis</th>
+                <th>Doc ref.</th>
+                <th>Zmiana<br>masy</th>
+                <th>Całk,<br>zmiana masy</th>
+                <th>Zmiana<br>% MTOW</th>
+                <th>Masa pustego</th>
+                <th>Lon.<br>C.G.</th>
+                <th>Lat.<br>C.G.</th>
+                <th>Lon.<br>moment</th>
+                <th>Lat.<br>moment</th>
+                <th>Wykon.<br>data</th>
+                <th>Wykon.<br>TTH</th>
+                {% if use_landings %}
+                    <th>Wykon.<br>ldg.</th>
+                {% endif %}
+                {% if use_cycles %}
+                    <th>Wykon.<br>cycl.</th>
+                {% endif %}
+                <th>Organizacja</th>
+                <th>Dokument</th>
+            </tr>
+            {% for wb in wbs_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td nowrap><a href="{% url "camo:wb-details" wb.id %}">{{ wb.description|truncatechars:50 }}</a></td>
+                    <td nowrap>{{ wb.doc_ref|default_if_none:''|truncatechars:30 }}</td>
+                    <td nowrap style="text-align: center">{{ wb.mass_change|floatformat:2 }}{% if wb.unit == 'USA' %} lb{% else %} kg{% endif %}</td>
+                    <td nowrap style="text-align: center">{{ wb.tot_mass_change|floatformat:2 }}{% if wb.unit == 'USA' %} lb{% else %} kg{% endif %}</td>
+                    <td nowrap style="text-align: center">{{ wb.pct_mass_change|floatformat:2 }} %</td>
+                    <td nowrap style="text-align: center">{{ wb.empty_weight|floatformat:2 }}{% if wb.unit == 'USA' %} lb{% else %} kg{% endif %}</td>
+                    {% if wb.lon_cg %}
+                        <td nowrap style="text-align: center">{{ wb.lon_cg|floatformat:2 }}{% if wb.unit == 'USA' %} in{% else %} m{% endif %}</td>
+                    {% else %}<td></td>{% endif %}
+                    {% if wb.lat_cg %}
+                        <td nowrap style="text-align: center">{{ wb.lat_cg|floatformat:2 }}{% if wb.unit == 'USA' %} in{% else %} m{% endif %}</td>
+                    {% else %}<td></td>{% endif %}
+                    {% if wb.lon_moment %}
+                        <td nowrap style="text-align: center">{{ wb.lon_moment|floatformat:2 }}{% if wb.unit == 'USA' %} lb*in{% else %} kg*m{% endif %}</td>
+                    {% else %}<td></td>{% endif %}
+                    {% if wb.lat_moment %}
+                        <td nowrap style="text-align: center">{{ wb.lat_moment|floatformat:2 }}{% if wb.unit == 'USA' %} lb*in{% else %} kg*m{% endif %}</td>
+                    {% else %}<td></td>{% endif %}
+                    <td>{{ wb.done_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td nowrap style="text-align: center">{{ wb.done_hours|floatformat:2 }}</td>
+                    {% if use_landings %}
+                        <td nowrap style="text-align: center">{{ wb.done_landings|default_if_none:"" }}</td>
+                    {% endif %}
+                    {% if use_cycles %}
+                        <td nowrap style="text-align: center">{{ wb.done_cycles|default_if_none:"" }}</td>
+                    {% endif %}
+                    <td nowrap>{{ wb.aso|default_if_none:""|truncatechars:20 }}</td>
+                    <td nowrap>{{ wb.done_doc|default_if_none:'' }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="info-text">Brak raportów W&B.</p>
+        {% endif %}
+
+        <br>
+
+    </div>
+
+{% endblock %}

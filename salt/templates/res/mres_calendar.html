@@ -1,0 +1,135 @@
+{% extends 'salt_mobile.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Rezerwacje{% endblock %}
+
+{% block content %}
+
+    <div id='calendar'></div>
+
+    <link rel='stylesheet' href="{% static 'fullcalendar.css' %}" />
+    <link rel='stylesheet' href="{% static 'scheduler.css' %}" />
+    <script src="{% static 'scripts/moment.min.js' %}"></script>
+    <script src="{% static 'scripts/fullcalendar.js' %}"></script>
+    <script src="{% static 'scripts/scheduler.js' %}"></script>
+    <script src="{% static 'scripts/pl.js' %}"></script>
+
+    <style>
+        .fc-toolbar h2 {
+            font-size: 22px;
+            padding-top: 4px;
+        }
+    </style>
+
+    <script>
+
+        $(document).on('pageshow', function(){
+
+            $('#calendar').fullCalendar({
+                // język
+                locale: 'pl',
+
+                // data startowa
+                {% if DefaultDate %}
+                defaultDate: "{{ DefaultDate }}",
+                {% endif %}
+
+                // ogólna konfiguracja wyglądu
+                aspectRatio: $(window).innerWidth() / ($(window).innerHeight() - 80),
+                dayNames: ['Niedziela', 'Poniedz.', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'],
+                titleFormat: 'dddd DD.MM',
+                slotDuration: {hours: 1},
+                allDaySlot: false,
+                scrollTime: '08:00:00',
+                customButtons: {
+                    add: {
+                        text: '+',
+                        click: function() {
+                            var moment = $('#calendar').fullCalendar('getDate');
+                            window.location = '/res/reservation/create/?start=' + moment.startOf('day').format() + '&end=' + moment.startOf('day').format()
+                        }
+                    }
+                },
+                header: {
+                    left: 'title',
+                    center: '',
+                    right: 'add, prev, next'
+                },
+                defaultView: 'timelineDay',
+                navLinks: true,
+
+                // przeładowanie przy zmianie widoku
+                eventAfterAllRender: function(view, element) {
+                    $('#calendar').find('.fc-icon-down-triangle').each(function(i,icon){
+                        $(icon).click();
+                    });
+                },
+
+                // konfiguracja zasobów
+                resources: [
+                    {{ resources|safe|linebreaksbr }}
+                ],
+                resourceOrder: 'order',
+                resourceLabelText: 'SP',
+                resourceRender: function(resourceObj, labelTds, bodyTds) {
+                    labelTds.css('font-size', '12px');
+                    reg = labelTds.eq(0).find('.fc-cell-content');
+
+                    if (resourceObj.order <= 1) {
+                        reg.parent().css('background-color', '#eeeeee');
+                    } else if (resourceObj.order == 2) {
+                        reg.parent().css('background-color', '#ccffcc');
+                    } else if (resourceObj.order == 3) {
+                        reg.parent().css('background-color', '#e6ffff');
+                    } else {
+                        reg.parent().css('background-color', '#ffe6e6');
+                    }
+                },
+
+                // konfiguracja zdarzeń
+                events: '/res/res_feed/',
+                eventOverlap: false,
+
+                // konfiguracja wybierania zdarzeń
+                editable: false,
+                selectable: true,
+                selectOverlap: false,
+                select: function(start, end, allDay, ev, res) {
+                   if ((res.id == 'infos') || (res.id.substring(0,3) == 'usr')) {
+                        window.location = '/res/resfbo/create/?res=infos&start=' + start.format() + '&end=' + end.format()
+                   } else if (res.id.substring(0,3) == 'fbo') {
+                        window.location = '/res/resfbo/create/?res=' + res.id.substring(3) + '&start=' + start.format() + '&end=' + end.format()
+                   } else {
+                        window.location = '/res/reservation/create/?res=' + res.id + '&start=' + start.format() + '&end=' + end.format()
+                   }
+                },
+                eventRender:function( event, element, view ) {
+                    if (event.rendering == 'background'){
+                        if (view.name == 'timelineDay') {
+                           html = "<div style='height: 30px; overflow:hidden; line-height:30px'>"
+                        } else {
+                           html = "<div>"
+                        }
+                        html += "<b>" + event.title + "</b>";
+                        html += event.notes + "</div>";
+                        element.append(html);
+                    }
+                },
+
+                // licencja
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
+            });
+        });
+
+        $(window).on("orientationchange", function(event) {
+            calendar = $('#calendar');
+            calendar.fullCalendar('option', 'aspectRatio', $(window).innerWidth() / ($(window).innerHeight() - 80));
+            calendar.fullCalendar('render');
+        });
+
+    </script>
+
+{% endblock %}

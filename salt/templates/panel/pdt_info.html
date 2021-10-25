@@ -1,0 +1,331 @@
+{% extends 'panel/panel_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        function go_back(){
+            url = document.referrer;
+            if(url.indexOf('update')!= -1) {
+                history.go(-3);
+            }
+            else {
+                history.go(-1);
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Obiekt" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u-5-6">
+
+        <p class="local-menu" style="padding-top: 10px">
+            <a href="/" onClick="go_back()">Powrót</a>
+            {% if local_menu %}
+                {% for menu_item in local_menu %}
+                    |
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            {% endif %}
+        </p>
+
+        <table id="pdt-table">
+            <tr>
+                <td width="40%" style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 15px"><b><i>Pokładowy Dziennik Techniczny<br>Dziennik Podróży</i></b></div>
+                </td>
+                <td width="10%" class="pdt_field">
+                    <div class="pdt_label">DATA:</div>
+                    <div class="pdt_value">{{ object.date|date:"SHORT_DATE_FORMAT" }}</div>
+                </td>
+                <td width="10%" class="pdt_field">
+                    <div class="pdt_label">TYP ST. POW.:</div>
+                    <div class="pdt_value">{{ object.aircraft.type }}</div>
+                </td>
+                <td width="10%" class="pdt_field">
+                    <div class="pdt_label">ZNAKI REJ.:</div>
+                    <div class="pdt_value">{{ object.aircraft.registration }}</div>
+                </td>
+                <td width="20%" class="pdt_field">
+                    <div class="pdt_label">WAŻNOŚĆ MS [nalot / data]:</div>
+                    <div class="pdt_value">{{ object.ms_report.next_hours|floatformat:2 }}/{{ object.ms_report.next_date|date:"SHORT_DATE_FORMAT" }}</div>
+                </td>
+                <td width="10%" class="pdt_field">
+                    <div class="pdt_label">Nr PDT:</div>
+                    <div class="pdt_value">{{ object.pdt_ref|stringformat:"06d" }}</div>
+                </td>
+            </tr>
+        </table>
+
+        <table id="pdt-table">
+            <tr>
+                <td colspan="2" style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 12px"><b>DOWÓDCA SP/ INSTRUKTOR</b></div>
+                </td>
+                <td colspan="2" style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 12px"><b>DRUGI PILOT / UCZEŃ PILOT</b></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="pdt_field">
+                    <div class="pdt_label">IMIĘ I NAZWISKO:</div>
+                    <div class="pdt_value">{{ object.pic|default_if_none:'' }}</div>
+                </td>
+                <td class="pdt_field">
+                    <div class="pdt_label">NUMER UPOWAŻNIENIA:</div>
+                    {% if object.pic.upowaznienie %}
+                        <div class="pdt_value">{{ object.pic.upowaznienie }}</div>
+                    {% else %}
+                        <div class="pdt_value">{{ object.pic.clearance|default_if_none:'' }}</div>
+                    {% endif %}
+                </td>
+                <td class="pdt_field">
+                    <div class="pdt_label">IMIĘ I NAZWISKO:</div>
+                    <div class="pdt_value"><div class="pdt_value">{{ object.sic|default_if_none:'' }}</div></div>
+                </td>
+                <td class="pdt_field">
+                    <div class="pdt_label">NUMER UPOWAŻNIENIA:</div>
+                    {% if object.sic.upowaznienie %}
+                        <div class="pdt_value">{{ object.sic.upowaznienie }}</div>
+                    {% else %}
+                        <div class="pdt_value">{{ object.sic.clearance|default_if_none:'' }}</div>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <table id="pdt-table">
+            <tr>
+                <td colspan="22" style="font-size: 12px; text-align: center" class="pdt_gray"><b>DANE OPERACYJNO TECHNICZNE</b></td>
+            </tr>
+            <tr>
+                <td class="pdt_head">Lp.</td>
+                <td class="pdt_head">Nr. rejsu</td>
+                <td class="pdt_head">Rodzaj lotu</td>
+                <td class="pdt_head">PAX</td>
+                <td class="pdt_head">BAGS</td>
+                <td class="pdt_head">Paliwo<br>uzup.</td>
+                <td class="pdt_head" width="6%">Paliwo stan do lotu</td>
+                <td class="pdt_head">Paliwo<br>zużyto</td>
+                <td class="pdt_head">Olej<br>uzup.</td>
+                <td class="pdt_head">Olej w<br>normie</td>
+                <td class="pdt_head">Olej<br>przekł.</td>
+                <td class="pdt_head">Olej<br>hydr.</td>
+                <td class="pdt_head" style="font-size: 12px" width="8%">PFI</td>
+                <td class="pdt_head">Miejsce startu</td>
+                <td class="pdt_head">Off-Block</td>
+                <td class="pdt_head">Licznik początkowy</td>
+                <td class="pdt_head">Miejsce lądow.</td>
+                <td class="pdt_head">On-Block</td>
+                <td class="pdt_head">Licznik końcowy</td>
+                <td class="pdt_head">Liczba lądowań</td>
+                <td class="pdt_head">Czas lotu</td>
+                <td class="pdt_head">Czas wg licznika</td>
+            </tr>
+
+            {% for operation in object.operation_set.all %}
+                <tr style="text-align: center"
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td class="pdt_oper pdt_gray">{{ forloop.counter }}.</td>
+                    <td class="pdt_oper">{{ operation.operation_no }}</td>
+                    <td class="pdt_oper">{{ operation.pdt.flight_type|default_if_none:'' }}</td>
+                    <td class="pdt_oper">{{ operation.pax|default_if_none:'-' }}</td>
+                    <td class="pdt_oper">{{ operation.bags|default_if_none:'-' }}</td>
+                    <td class="pdt_oper">{{ operation.fuel_refill|default_if_none:'' }}</td>
+                    <td class="pdt_oper">{{ operation.fuel_available|default_if_none:'' }}</td>
+                    <td class="pdt_oper">{{ operation.fuel_used|default_if_none:'' }}</td>
+                    <td class="pdt_oper">{{ operation.oil_refill|default_if_none:'-' }}</td>
+                    <td class="pdt_oper">&#9989</td>
+                    <td class="pdt_oper">&#9989</td>
+                    <td class="pdt_oper">&#9989</td>
+                    <td class="pdt_oper">&#9989</td>
+                    <td class="pdt_oper">{{ operation.loc_start|default_if_none:"" }}</td>
+                    {% if operation.status == 'closed' %}
+                        <td class="pdt_oper">{{ operation.time_start|time:"H:i" }}</td>
+                        <td class="pdt_oper">{{ operation.tth_start|floatformat:2 }}</td>
+                        <td class="pdt_oper">{{ operation.loc_end|default_if_none:"" }}</td>
+                        <td class="pdt_oper">{{ operation.time_end|time:"H:i" }}</td>
+                        <td class="pdt_oper">{{ operation.tth_end|floatformat:2 }}</td>
+                        <td class="pdt_oper">{{ operation.landings|floatformat:0 }}</td>
+                        <td class="pdt_oper">{{ operation.hours.1|stringformat:'02d' }}:{{ operation.hours.2|stringformat:'02d' }}</td>
+                        <td class="pdt_oper">{{ operation.tth|floatformat:2 }}</td>
+                    {% else %}
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+
+            {% if object.fuel_after %}
+                <tr>
+                    <td class="pdt_oper pdt_gray">{{ operations|add:1 }}.</td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper">{{ object.fuel_after|default_if_none:'' }}</td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                </tr>
+            {% endif %}
+
+            {% for empty in add_empty %}
+                <tr style="text-align: center"
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    <td class="pdt_oper pdt_gray">{{ empty }}.</td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                </tr>
+            {% endfor %}
+
+            <tr style="font-weight: bold">
+                <td colspan="3" class="pdt_oper pdt_gray" style="text-align: right">Razem:</td>
+                {% if object.operation_set.all %}
+                    <td class="pdt_oper">{{ object.pdt_sum.pax__sum|default_if_none:'-' }}</td>
+                    <td class="pdt_oper">{{ object.pdt_sum.bags__sum|default_if_none:'-' }}</td>
+                    <td class="pdt_oper">{{ object.fuel_sum|default_if_none:'' }}</td>
+                    <td class="pdt_oper pdt_gray"></td>
+                    <td class="pdt_oper">{{ object.pdt_sum.fuel_used__sum|default_if_none:'' }}</td>
+                    <td class="pdt_oper">{{ object.pdt_sum.oil_refill__sum|floatformat:1 }}</td>
+                    <td colspan="10" class="pdt_oper pdt_gray"></td>
+                    {% if object.operation_set.last.status == 'closed' %}
+                        <td class="pdt_oper">{{ object.landings_sum|default_if_none:'' }}</td>
+                        <td class="pdt_oper">{{ object.hours_sum.1|stringformat:'02d' }}:{{ object.hours_sum.2|stringformat:'02d' }}</td>
+                        <td class="pdt_oper">{{ object.tth_sum|floatformat:2 }}</td>
+                    {% else %}
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                        <td class="pdt_oper"></td>
+                    {% endif %}
+                {% else %}
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper">{{ object.fuel_sum|default_if_none:'' }}</td>
+                    <td class="pdt_oper pdt_gray"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td colspan="10" class="pdt_oper pdt_gray"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                    <td class="pdt_oper"></td>
+                {% endif %}
+            </tr>
+
+            <tr>
+                <td colspan="17" class="pdt_oper pdt_empty"></td>
+                <td colspan="2" class="pdt_oper pdt_gray" style="font-size: 9px; text-align: right">Z przeniesienia:</td>
+                <td class="pdt_oper">{{ object.prev_landings|default_if_none:'' }}</td>
+                <td class="pdt_oper pdt_gray"></td>
+                <td class="pdt_oper">{{ object.tth_start|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="17" class="pdt_oper pdt_empty"></td>
+                <td colspan="2" class="pdt_oper pdt_gray" style="font-size: 9px; text-align: right">Do przeniesienia:</td>
+                {% if object.operation_set.last.status == 'closed' %}
+                    <td class="pdt_oper">{{ landings_total }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                <td class="pdt_oper pdt_gray"></td>
+                {% if object.operation_set.last.status == 'closed' %}
+                    <td class="pdt_oper">{{ tth_total|floatformat:2 }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            </tr>
+
+        </table>
+
+        <table id="pdt-table">
+            <tr>
+                <td style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 12px"><b>OPIS NIESPRAWNOŚCI</b></div>
+                </td>
+                <td style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 12px"><b>SPOSÓB USUNIĘCIA NIESPRAWNOŚCI</b></div>
+                </td>
+                <td style="text-align: center" class="pdt_gray">
+                    <div style="font-size: 12px"><b>UWAGI</b></div>
+                </td>
+            </tr>
+            <tr>
+                <td width="35%" class="pdt_label" style="text-align: center; vertical-align: bottom">
+                    <p style="font-size: 10px">{{ object.failure_desc|default:"&nbsp;" }}</p>
+                </td>
+                <td width="37%" class="pdt_label" style="text-align: center; vertical-align: bottom">
+                    <p style="font-size: 10px">{{ object.repair_desc|default:"&nbsp;" }}</p>
+                </td>
+                <td width="28%" class="pdt_label" style="font-size: 7px; text-align: center">
+                    <p style="font-size: 10px">{{ object.remarks|default:"&nbsp;" }}</p>
+                </td>
+            </tr>
+        </table>
+
+        <div class="pdt_label">
+            <br>
+            Otwarty przez: {{ object.open_user }} / {{ object.open_time }} <br>
+            {% if object.close_user %}
+                Zamknięty przez: {{ object.close_user }} / {{ object.close_time }} <br>
+            {% endif %}
+            {% if object.check_user %}
+                Sprawdzony przez: {{ object.check_user }} / {{ object.check_time }}
+            {% endif %}
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}PDT Check{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"camo/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Zatwierdzenie PDT {{ pdt }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><th>Czy zatwierdzić informacje na PDT?</th><td></td></tr>
+                <tr><th></th><td></td></tr>
+                <tr><th>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Zatwiedź</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </th><td></td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

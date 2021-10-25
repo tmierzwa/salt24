@@ -1,0 +1,52 @@
+<div class="pure-u-1-6">
+
+    {% if object.current_assignment %}
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-info' object.current_assignment.aircraft.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ object.current_assignment.aircraft }}</b></a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-parts' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Zabudowane części</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-pots' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Najbliższe obsługi</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-orders' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Wystawione zlecenia</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-opers' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Lista operacji</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-mods' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Modyfikacje i naprawy</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-wbs' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Raporty W&B</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-ms' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Świadectwa MS</a></li>
+            <li class="pure-menu-item">
+                <a href="{% url 'camo:aircraft-arc' object.current_assignment.aircraft.pk %}" class="pure-menu-link">Raport ARC</a></li>
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:part-info' object.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ object.serial_no|truncatechars:15 }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'history' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:part-history' object.pk %}" class="pure-menu-link">Historia montażu</a></li>
+            <li class="pure-menu-item {% if type == 'pots' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:part-pots' object.pk %}" class="pure-menu-link">Obsługi wg. POT</a></li>
+            <li class="pure-menu-item {% if type == 'dirs' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:part-dirs' object.pk %}" class="pure-menu-link">Dyrektywy</a></li>
+            <li class="pure-menu-item {% if type == 'sbs' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:part-sbs' object.pk %}" class="pure-menu-link">Biuletyny</a></li>
+            {% if object.lifecycle == 'ovh' %}
+                <li class="pure-menu-item {% if type == 'ovhs' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'camo:part-ovhs' object.pk %}" class="pure-menu-link">Remonty</a></li>
+            {% elif object.lifecycle == 'llp' %}
+                <li class="pure-menu-item {% if type == 'llp' %}pure-menu-selected{% endif %}">
+                    <a href="{% url 'camo:part-llp' object.pk %}" class="pure-menu-link">Planowy demontaż</a></li>
+            {%  endif %}
+        </ul>
+    </div>
+
+</div>

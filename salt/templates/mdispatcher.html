@@ -1,0 +1,29 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}SALT Aviation{% endblock %}
+
+{% block header %}SALT Aviation{% endblock %}
+
+{% block content %}
+
+    <div class="ui-field-contain">
+        {% if user.fbouser.pilot %}
+            <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url "res:mobile-res" %}>Rezerwacje</a>
+            {% if user.fbouser.open_pdt %}
+                {% if user.fbouser.open_operation %}
+                    <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url 'panel:moperation-close' user.fbouser.open_operation.pk %}>Zakończ lot</a>
+                {% else %}
+                    <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url 'panel:moperation-open' user.fbouser.open_pdt.pk %}>Otwórz lot</a>
+                    <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url 'panel:mpdt-close' user.fbouser.open_pdt.pk %}>Zamknij PDT</a>
+                {% endif %}
+            {% else %}
+                <a class="ui-btn ui-btn-corner-all ui-shadow" href="{% url 'panel:mpdt-open0' %}" data-ajax="false">Otwórz PDT</a>
+            {% endif %}
+        {% else %}
+            <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url 'login' %}>Rezerwacje</a>
+            <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url 'login' %}>PDT</a>
+        {% endif %}
+        <a class="ui-btn ui-btn-corner-all ui-shadow" href={% url "panel:fueling-create" %}>Tankowanie</a>
+    </div>
+
+{% endblock %}

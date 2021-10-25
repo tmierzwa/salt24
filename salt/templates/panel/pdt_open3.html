@@ -1,0 +1,44 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Check out{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Otwarcie PDT - Załoga</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                <tr><th>Rodaj lotu:</th>
+                <td><b>{{ flight_type_name }}</b></td></tr>
+                <tr><th>Statek powietrzny:</th>
+                <td><b>{{ aircraft }} / {{ aircraft.type }}</b></td></tr>
+                <tr><th></th><td></td></tr>
+
+                <tr>
+                    <th>{{ form.pic.label }}:</th>
+                    <td>{{ form.pic }}</td>
+                </tr>
+                <tr>
+                    <th>{{ form.sic.label }}:</th>
+                    <td>{{ form.sic }}</td>
+                </tr>
+
+                <tr><th></th><td style="padding-top: 10px; padding-bottom: 0">{{ form.non_field_errors }}</td></tr>
+                <tr><th></th><td>
+                {% if flight_type == '05' or flight_type == '06' or flight_type == '06A' or flight_type == '07' %}
+                    <a class="pure-button" style="margin-right: 10px" href={% url 'panel:pdt-open1' %}>Powrót</a>
+                {% else %}
+                    <a class="pure-button" style="margin-right: 10px" href={% url 'panel:pdt-open2' %}>Powrót</a>
+                {% endif %}
+                <button type="submit" class="pure-button" style="margin-right: 10px">Otwórz PDT</button>
+                <a class="pure-button" href={% url 'fbo:user-info' user.fbouser.pk %}>Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

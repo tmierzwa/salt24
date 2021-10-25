@@ -1,0 +1,37 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Rezerwacje{% endblock %}
+
+{% block content %}
+
+    <fieldset class="ui-grid-a">
+        <div class=" ui-block-a"><a data-role="button" class="ui-btn ui-btn-icon-left ui-icon-clock" href="{{ local_menu.create_path }}" data-ajax="false">Rezerwuj</a></div>
+        <div class=" ui-block-b"><a data-role="button" class="ui-btn ui-btn-icon-right ui-icon-calendar" href="{{ local_menu.cal_path }}" data-ajax="false">Kalendarz</a></div>
+    </fieldset>
+
+    {% if row_list %}
+        <table id="mobile-table">
+            {% for row in row_list %}
+                <tr>
+                    <td>
+                        {{ row.fields.line1 | safe }}<br>
+                        {{ row.fields.line2 | safe }}<br>
+                        {% if row.fields.line3 %}{{ row.fields.line3 }}<br>{% endif %}
+                        {% if row.fields.line4 %}<i>{{ row.fields.line4 }}</i>{% endif %}
+                    </td>
+                    <td>
+                        {% if row.fields.pdt_link %}
+                            <a data-role="button" class="ui-res" href="{{ row.fields.pdt_link }}" data-ajax="false">PDT</a>
+                        {% endif %}
+                        <a data-role="button" class="ui-res" href="{{ row.fields.edit_link }}" data-ajax="false">Zmień</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="info-text" style="text-align: center"><br><i>{{ empty_text|default_if_none:"Brak obiektów." }}</i></p>
+    {% endif %}
+
+{% endblock %}

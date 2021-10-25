@@ -1,0 +1,375 @@
+{% extends 'res/res_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+    <link rel='stylesheet' href="{% static 'fullcalendar.css' %}" />
+    <link rel='stylesheet' href="{% static 'scheduler.css' %}" />
+    <script src="{% static 'scripts/moment.min.js' %}"></script>
+    <script src="{% static 'scripts/fullcalendar.js' %}"></script>
+    <script src="{% static 'scripts/scheduler.js' %}"></script>
+    <script src="{% static 'scripts/pl.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+
+            // Przygotowanie cookie dla CSRF protection
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            // konfiguracja POST w Ajax na potrzeby CRSF protection
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('#calendar').fullCalendar({
+                // język
+                locale: 'pl',
+
+                // data startowa
+                {% if DefaultDate %}
+                defaultDate: "{{ DefaultDate }}",
+                {% endif %}
+
+                // ogólna konfiguracja wyglądu
+                dayNames: ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'],
+                aspectRatio: 2.8,
+                slotDuration: {minutes: 30},
+                slotWidth: 42,
+                titleFormat: 'dddd D MMMM',
+                slotLabelFormat: ['HH:mm'],
+                nowIndicator: true,
+                allDaySlot: true,
+                scrollTime: '08:00:00',
+                header: {
+                    left: 'title',
+                    center: '',
+                    right: 'timelineDay, agendaWeek, today, prev, next'
+                },
+                defaultView: 'timelineDay',
+                navLinks: true,
+
+                // przeładowanie przy zmianie widoku
+                eventAfterAllRender: function(view, element) {
+                    $('#calendar').find('.fc-icon-down-triangle').each(function(i,icon){
+                        $(icon).click();
+                    })
+                },
+
+                // konfiguracja zasobów
+                resources: [
+                    {{ resources|safe|linebreaksbr }}
+                ],
+                resourceOrder: 'order',
+                resourceLabelText: 'Zasoby',
+                resourceAreaWidth: '15%',
+                resourceColumns: [
+                    {
+                        labelText: 'Nazwa',
+                        field: 'title',
+                        width: '55%'
+                    },
+                    {
+                        labelText: 'Status',
+                        field: 'status',
+                        width: '45%'
+                    }
+                ],
+
+                resourceRender: function(resourceObj, labelTds, bodyTds) {
+
+                    labelTds.css('font-size', '14px');
+                    reg = labelTds.eq(0).find('.fc-cell-content');
+                    reg_label = reg.find('.fc-cell-text');
+
+                    if (resourceObj.info) {
+                        reg_label.html(reg_label.html() + '<sup style="color:red"> info</sup>');
+                        reg.addClass('res-name');
+                        reg.parent().data("resourceId", resourceObj.id);
+                    }
+
+                    stat = labelTds.eq(1);
+                    stat_html = '<div class="';
+                    if (resourceObj.info) {
+                        stat_html += 'res-name ';
+                    }
+                    stat_html += 'fc-cell-content"><span class="fc-cell-text">' + stat.text() + '</span></div>';
+                    stat.html(stat_html);
+                    stat.data("resourceId", resourceObj.id);
+
+                    if (resourceObj.order <= 1) {
+                        reg.parent().css('background-color', '#eeeeee');
+                        stat.css('background-color', '#eeeeee');
+                    } else if (resourceObj.order == 2) {
+                        reg.parent().css('background-color', '#ccffcc');
+                        stat.css('background-color', '#ccffcc');
+                    } else if (resourceObj.order == 3) {
+                        reg.parent().css('background-color', '#e6ffff');
+                        stat.css('background-color', '#e6ffff');
+                    } else {
+                        reg.parent().css('background-color', '#ffe6e6');
+                        stat.css('background-color', '#ffe6e6');
+                    }
+
+                },
+
+                // konfiguracja zdarzeń
+                events: '/res/res_feed/',
+                eventOverlap: false,
+
+                // konfiguracja wybierania zdarzeń
+                editable: true,
+                selectable: true,
+                selectOverlap: false,
+                select: function(start, end, allDay, ev, res) {
+                   if ((res.id == 'infos') || (res.id.substring(0,3) == 'usr')) {
+                        window.location = '/res/resfbo/create/?res=infos&start=' + start.format() + '&end=' + end.format()
+                   } else if (res.id.substring(0,3) == 'fbo') {
+                        window.location = '/res/resfbo/create/?res=' + res.id.substring(3) + '&start=' + start.format() + '&end=' + end.format()
+                   } else {
+                        window.location = '/res/reservation/create/?res=' + res.id + '&start=' + start.format() + '&end=' + end.format()
+                   }
+                },
+                eventRender:function( event, element, view ) {
+                    if (event.rendering == 'background'){
+                        if (view.name == 'timelineDay') {
+                           html = "<div style='height: 30px; overflow:hidden; line-height:30px'>"
+                        } else {
+                           html = "<div>"
+                        }
+                        html += "<b>" + event.title + "</b>";
+                        if (view.name == 'agendaWeek') {
+                            html += "<br>"
+                        } else {
+                            html += " - "
+                        }
+                        html += event.notes + "</div>";
+                        element.append(html);
+                    }
+                    if (view.name == 'agendaWeek') {
+                        resource = $('#calendar').fullCalendar('getResourceById', event.resourceId);
+                        if (resource) {
+                            if (event.allDay) {
+                                $(element).find(".fc-content").append("<div>" + event.subtitle + "</div>");
+                            } else {
+                                $(element).find(".fc-content").append("<div>" + resource.title + "</div>");
+                            }
+                        }
+                        if ((event.resourceId == 'infos') || (event.resourceId.substring(0,3) == 'usr') || event.rendering == 'background') {
+                            $(element).css('display', 'none')
+                        }
+                    } else {
+                        $(element).css('display', 'inline')
+                    }
+                },
+                eventDrop: function(event, delta, revertFunc) {
+                    $.ajax({
+                        url: '/res/res_move/',
+                        data: {
+                            reservation: event.id,
+                            newResource: event.resourceId,
+                            newStart: event.start.format(),
+                            newEnd: event.end.format()
+                        },
+                        type: 'POST',
+                        success: function (data) {
+                        },
+                        error: function (xhr, status, error) {
+                            revertFunc();
+                        }
+                    })
+                },
+                eventResize: function(event, delta, revertFunc) {
+                    $.ajax({
+                        url: '/res/res_move/',
+                        data: {
+                            reservation: event.id,
+                            newResource: event.resourceId,
+                            newStart: event.start.format(),
+                            newEnd: event.end.format()
+                        },
+                        type: 'POST',
+                        success: function (data) {
+                        },
+                        error: function (xhr, status, error) {
+                            revertFunc();
+                        }
+                    })
+                },
+
+                // konfiguracja tooltipu z informacjami
+                eventMouseover: function (event, e, view) {
+                    var target = '#event-info';
+
+                    leftD = e.pageX;
+                    maxRight = leftD + $(target).outerWidth();
+                    windowLeft = $(window).width() - 40;
+                    windowRight = 0;
+                    maxLeft = e.pageX - ($(target).outerWidth() + 20);
+
+                    if (maxRight > windowLeft && maxLeft > windowRight) {
+                        leftD = maxLeft;
+                    }
+
+                    topD = e.pageY;
+                    maxBottom = topD + $(target).outerHeight();
+                    windowBottom = parseInt(parseInt($(document).scrollTop()) + parseInt($(window).height()));
+                    maxTop = topD;
+                    windowTop = parseInt($(document).scrollTop());
+                    if (maxBottom > windowBottom) {
+                        topD = windowBottom - $(target).outerHeight() - 20;
+                    } else if (maxTop < windowTop) {
+                        topD = windowTop + 20;
+                    }
+
+                    resource = $('#calendar').fullCalendar('getResourceById', event.resourceId);
+                    $('#event-aircraft').text(resource.title);
+                    $('#event-owner').text(event.owner);
+                    $('#event-start').text(event.start.format("dd DD.MM HH:mm"));
+                    $('#event-end').text(event.end.format("dd DD.MM HH:mm"));
+                    if (event.title != '') {
+                        $('#event-title').text(event.type);
+                        $('#title-line').css('display', 'inline')
+                    } else {
+                        $('#title-line').css('display', 'none')
+                    }
+                    if (event.participant != '') {
+                        $('#event-part').text(event.participant);
+                        $('#part-line').css('display', 'inline')
+                    } else {
+                        $('#part-line').css('display', 'none')
+                    }
+                    if (event.notes != '') {
+                        $('#event-notes').html(event.notes);
+                        $('#notes-line').css('display', 'inline')
+                    } else {
+                        $('#notes-line').css('display', 'none')
+                    }
+
+                    $(target).stop().show();
+                    $(target).css('top', topD).css('left', leftD + 10);
+                },
+                eventMouseout: function (e) {
+                    $('#event-info').stop().hide();
+                },
+
+                // licencja
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
+            });
+
+            var res_name = $(".res-name");
+            var res_info = $("#res-info");
+
+            res_name.bind({
+
+                mouseenter: function (e) {
+                    leftD = e.pageX;
+                    maxRight = leftD + res_info.outerWidth();
+                    windowLeft = $(window).width() - 40;
+                    windowRight = 0;
+                    maxLeft = e.pageX - (res_info.outerWidth() + 20);
+
+                    if (maxRight > windowLeft && maxLeft > windowRight) {
+                        leftD = maxLeft;
+                    }
+
+                    topD = e.pageY;
+                    maxBottom = topD + res_info.outerHeight();
+                    windowBottom = parseInt(parseInt($(document).scrollTop()) + parseInt($(window).height()));
+                    maxTop = topD;
+                    windowTop = parseInt($(document).scrollTop());
+                    if (maxBottom > windowBottom) {
+                        topD = windowBottom - res_info.outerHeight() - 20;
+                    } else if (maxTop < windowTop) {
+                        topD = windowTop + 20;
+                    }
+
+                    resource = $('#calendar').fullCalendar('getResourceById', $(this).parent().data("resourceId"));
+                    $('#res-aircraft').text(resource.title);
+                    $('#res-msg').html(resource.info);
+
+                    res_info.show();
+                    res_info.css('top', topD).css('left', leftD + 10);
+                },
+
+                mouseleave: function () {
+                    res_info.hide();
+                }
+            });
+
+            res_info.mouseleave(function () {
+                res_info.hide();
+            });
+
+            $("#event-info").mouseleave(function () {
+                $(this).hide();
+            });
+
+        });
+    </script>
+
+    <style>
+    .popbox {
+        display: none;
+        position: absolute;
+        z-index: 99999;
+        padding: 10px;
+        background: #EEEEEE;
+        color: #000000;
+        border: 1px solid #AAAAAA;
+        -webkit-box-shadow: 0 0 10px 0 rgba(164, 164, 164, 1);
+        box-shadow: 0 0 10px 0 rgba(164, 164, 164, 1);
+    }
+    .popbox p {
+        font-size: 13px;
+        margin: 5px;
+        margin-left: 0;
+    }
+    </style>
+
+{% endblock %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u-1-1">
+        <div id="event-info" class="popbox">
+            <h2 id="event-aircraft">Aircraft</h2>
+            <div id="title-line"><p style="padding-bottom: 5px"><span id="event-title">Title</span></p></div>
+            <p><b>Właściciel: </b><span id="event-owner">Owner</span></p>
+            <div id="part-line"><p><b>Uczestnik: </b><span id="event-part">Participant</span></p></div>
+            <p><b>Rozpoczęcie: </b><span id="event-start">Start time</span></p>
+            <p><b>Zakończenie: </b><span id="event-end">End time</span></p>
+            <div id="notes-line"><p style="padding-top: 5px"><span id="event-notes">Notes</span></p></div>
+        </div>
+        <div id="res-info" class="popbox">
+            <h2 id="res-aircraft">Aircraft</h2>
+            <div id="msg-line"><p><b>Informacje: </b></p>
+            <p><span id="res-msg" style="padding-top: 5px">Info</span></p></div>
+        </div>
+
+        <div id='calendar'></div>
+    </div>
+
+{% endblock %}

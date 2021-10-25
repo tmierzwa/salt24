@@ -1,0 +1,31 @@
+<div class="pure-u-1-6">
+
+    <div class="pure-menu custom-restricted-width" style="margin-right: 20%; margin-top: 5%">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item {% if type == 'info' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-info' object.pk %}" class="pure-menu-link pure-menu-title">
+                    <b>{{ object }}</b></a></li>
+            <li class="pure-menu-item {% if type == 'msg' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-msg' object.pk %}" class="pure-menu-link">Informacje dla pilotów</a></li>
+            <li class="pure-menu-item {% if type == 'parts' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-parts' object.pk %}" class="pure-menu-link">Zabudowane części</a></li>
+            <li class="pure-menu-item {% if type == 'pots' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-pots' object.pk %}" class="pure-menu-link">Najbliższe obsługi</a></li>
+            <li class="pure-menu-item {% if type == 'orders' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-orders' object.pk %}" class="pure-menu-link">Wystawione zlecenia</a></li>
+            <li class="pure-menu-item {% if type == 'opers' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-opers' object.pk %}" class="pure-menu-link">Lista operacji</a></li>
+            <li class="pure-menu-item {% if type == 'mods' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-mods' object.pk %}" class="pure-menu-link">Modyfikacje i naprawy</a></li>
+            <li class="pure-menu-item {% if type == 'wbs' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-wbs' object.pk %}" class="pure-menu-link">Raporty W&B</a></li>
+            <li class="pure-menu-item {% if type == 'ms' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-ms' object.pk %}" class="pure-menu-link">Świadectwa MS</a></li>
+            <li class="pure-menu-item {% if type == 'arc' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-arc' object.pk %}" class="pure-menu-link">Raport ARC</a></li>
+            <li class="pure-menu-item {% if type == 'fuel' %}pure-menu-selected{% endif %}">
+                <a href="{% url 'camo:aircraft-fuel' object.pk %}" class="pure-menu-link">Paliwo</a></li>
+        </ul>
+    </div>
+
+</div>

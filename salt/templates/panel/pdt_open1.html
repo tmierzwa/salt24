@@ -1,0 +1,46 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Check out{% endblock %}
+
+{% block content %}
+
+    <style>
+    input, select {
+        width:205px;
+        border:10px solid #ccc;
+
+        -ms-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        -webkit-box-sizing: content-box;
+    }
+    </style>
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Otwarcie PDT - Informacje podstawowe</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><th></th><td></td></tr>
+                <tr><th></th><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Dalej</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+    <script type="text/javascript">
+
+        $('select#id_aircraft').change(function()
+        {
+            $('input#id_pdt_ref').val($('input#id_pdt_ref' + $(this).val()).val());
+        });
+
+    </script>
+
+{% endblock %}

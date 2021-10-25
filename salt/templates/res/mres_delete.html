@@ -1,0 +1,29 @@
+{% extends 'salt_mobile.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block header %}Rezerwacje{% endblock %}
+
+{% block content %}
+
+    <p class="del-text" style="font-size: 18px"><b>Potwierdź usunięcie:</b></p>
+
+    <p style="color: darkred; padding-left: 20px">
+    <b>{{ object_name }}</b><br>
+    Od: {{ object.start_time }}<br>
+    Do: {{ object.end_time }}</p>
+
+    {% if description  %}
+        <p class="del-info" style="padding-left: 20px"><i>{{ description|linebreaksbr }}</i></p>
+    {% endif %}
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <fieldset class="ui-grid-a">
+            <div class=" ui-block-a"><a type="submit" class="ui-btn ui-btn-icon-left ui-icon-arrow-l" href={% url 'res:mobile-res' %}>Powrót</a></div>
+            <div class=" ui-block-b"><button type="submit" class="ui-btn ui-btn-icon-right ui-icon-delete">Usuń</button></div>
+        </fieldset>
+    </form>
+
+{% endblock %}

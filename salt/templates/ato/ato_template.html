@@ -1,0 +1,14 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}ATO{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+{% block module %}SZKOLENIA LOTNICZE{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="{% url 'ato:training-inst-list' %}" class="pure-menu-link">Szkolenia</a></li>
+    <li class="pure-menu-item"><a href="{% url 'ato:student-list' %}" class="pure-menu-link">Studenci</a></li>
+    <li class="pure-menu-item"><a href="{% url 'ato:instr-list' %}" class="pure-menu-link">Instruktorzy</a></li>
+    <li class="pure-menu-item"><a href="{% url 'ato:training-list' %}" class="pure-menu-link">Programy szkoleń</a></li>
+{% endblock %}

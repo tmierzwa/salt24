@@ -1,0 +1,57 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block module %}SYSTEM ZARZĄDZANIA FIRMĄ{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="/admin" class="pure-menu-link">Administracja</a></li>
+{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>Logowanie użytkownika</h2>
+
+        <form class="pure-form pure-form-aligned" method="post" action="{% url 'login' %}">
+
+            {% csrf_token %}
+            <table>
+            {% if next %}
+                <tr><td colspan="2" class="errorlist" style="padding-bottom: 20px">
+                {% if user.is_authenticated %}
+                <div>Nie masz uprawnień do tej funkcjonalności.<br>
+                Zaloguj się na konto z odpowiednimi uprawnieniami.</div>
+                {% else %}
+                <div>Moduł dostępny jedynie dla zalogowanych użytkowników.</div>
+                {% endif %}
+                </td></tr>
+            {% endif %}
+            {% if form.errors %}
+                <tr><td colspan="2" class="errorlist" style="padding-bottom: 20px">Błąd logowania - spróbuj ponownie...</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>{{ form.username.label_tag }}</th>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <th>{{ form.password.label_tag }}</th>
+                <td>{{ form.password }}</td>
+            </tr>
+            <tr>
+                <th></th>
+                <td>
+                    <button type="submit" class="pure-button" style="margin-right: 10px" value="Submit">Zaloguj</button>
+                    <a class="pure-button" href="javascript:history.go(-1)">Powrót</a>
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </td>
+            </tr>
+            </table>
+
+        </form>
+
+    </div>
+
+{% endblock %}

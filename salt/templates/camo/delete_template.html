@@ -1,0 +1,28 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}{{ page_title|default_if_none:"Usuwanie" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"camo/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>{{ header_text|default_if_none:"Usunięcie obiektu" }}</h2>
+
+        <p class="del-text">Potwierdź usunięcie <b>{{ object }}</b></p>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="pure-button" style="margin-right: 10px">Usuń</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+        </form>
+
+    </div>
+
+{% endblock %}

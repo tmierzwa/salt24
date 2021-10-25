@@ -1,0 +1,24 @@
+{% extends 'camo/camo_template.html' %}
+
+{% block title %}Klonuj SP{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        <h2>Sklonuj statek powietrzny</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Sklonuj</button>
+                <a class="pure-button" href="{% url "camo:aircraft-list" %}">Anuluj</a>
+                </td></tr>
+            </table>
+        </form>
+
+    </div>
+
+{% endblock %}

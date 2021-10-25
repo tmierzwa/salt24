@@ -1,0 +1,102 @@
+{% extends 'fin/fin_template.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready( function () {
+    $('#list_table').DataTable( {
+    {% if row_list|length <= 10 %}
+        "paging": false,
+        "lengthChange": false,
+        "info": false,
+        "searching": false,
+    {% endif %}
+        "order": [],
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych..."
+        }
+    });
+} );
+</script>
+{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"fin/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    {% if submenu_template %}
+        <div class="pure-u-5-6">
+    {% else %}
+        <div class="pure-u-1-1">
+    {% endif %}
+
+        <h2>{{ header_text }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+            <table>
+                <tr><th>Saldo środków na wynajem:</th>
+                <td><b>{{ contractor.rent_balance|floatformat:2 }} PLN</b></td></tr>
+            </table>
+
+            {% if form.packages.errors %}
+                {{ form.packages.errors }}
+            {% else %}
+                <br>
+            {% endif %}
+
+            <table id="list_table" class="stripe hover cell-border compact">
+                <thead><tr>
+                    <th></th>
+                    <th style="text-align: center">Id<br>pakietu</th>
+                    <th style="text-align: center">Nazwa<br>pakietu</th>
+                    <th style="text-align: center">Typ SP</th>
+                    <th style="text-align: center">Liczba<br>godzin</th>
+                    <th style="text-align: center">Cena<br>godziny</th>
+                    <th style="text-align: center">Uwagi</th>
+                </tr></thead>
+                <tbody>
+                    {% for radio in form.packages %}
+                        <tr><td><label for="{{ radio.id_for_label }}">{{ radio.tag }}</label></td>{{ radio.choice_label|safe }}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <th><label for="date">Data zakupu:</label></th>
+                    <td>{{ form.date.errors }}{{ form.date }}</td>
+                </tr>
+                <tr>
+                    <th><label for="date">Uwagi:</label></th>
+                    <td>{{ form.remarks.errors }}{{ form.remarks }}</td>
+                </tr>
+                <tr><td></td><td>
+                <button type="submit" class="pure-button" style="margin-right: 10px">Potwierdź</button>
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+                </td></tr>
+            </table>
+
+            <br>
+        </form>
+
+    </div>
+
+{% endblock %}

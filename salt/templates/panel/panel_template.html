@@ -1,0 +1,27 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}PANEL{% endblock %}
+
+{% block module %}PANEL UŻYTKOWNIKA{% endblock %}
+
+{% block menu %}
+    {% if user.fbouser.pilot %}
+        {% if user.fbouser.open_pdt %}
+            <li class="pure-menu-item"><a href="{% url 'panel:pdt-update' user.fbouser.open_pdt.pk %}" class="pure-menu-link">Zamknij PDT</a></li>
+        {% else %}
+            <li class="pure-menu-item"><a href="{% url 'res:reservation-list' %}" class="pure-menu-link">Rezerwacje</a></li>
+        {% endif %}
+    {% endif %}
+    <li class="pure-menu-item"><a href="{% url 'panel:pdt-active' %}" class="pure-menu-link">Lista PDT</a></li>
+    <li class="pure-menu-item"><a href="{% url 'panel:smsevent-pkbwl' %}" class="pure-menu-link">Zgłoś zdarzenie lotnicze</a></li>
+    <li class="pure-menu-item"><a href="{% url 'panel:smsreport-create' %}" class="pure-menu-link">Zgłoś dobrowolny raport SMS</a></li>
+    <li class="pure-menu-item"><a href="{% url 'panel:fueling-create' %}" class="pure-menu-link">Wpisz tankowanie</a></li>
+    {% if user.fbouser.pilot.employee %}
+        <li class="pure-menu-item"><a href="{% url 'panel:pilot-duties' user.fbouser.pilot.pk %}" class="pure-menu-link">Czas pracy</a></li>
+    {% endif %}
+    {% if user.fbouser.pilot %}
+        <li class="pure-menu-item"><a href="{% url 'panel:pilot-info' user.fbouser.pilot.pk %}" class="pure-menu-link">Mój profil</a></li>
+    {% else %}
+        <li class="pure-menu-item"><a href="{% url 'fbo:user-info' user.fbouser.pk %}" class="pure-menu-link">Mój profil</a></li>
+    {% endif %}
+{% endblock %}

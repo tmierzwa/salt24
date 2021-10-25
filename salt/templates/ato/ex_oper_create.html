@@ -1,0 +1,17 @@
+{% extends 'ato/create_template.html' %}
+
+{% block scripts %}
+
+    <script type="text/javascript">
+
+        $('select#id_operation').change(function()
+        {
+            $('input#id_time_allocated').val($('input#id_time_oper' + $(this).val()).val());
+            $('input#id_num_allocated').val($('input#id_num_oper' + $(this).val()).val());
+            $('input#id_solo').val(($('input#id_solo_oper' + $(this).val()).val()=='True'));
+            $('input#id_solo').prop('checked',($('input#id_solo_oper' + $(this).val()).val()=='True'))
+        });
+
+    </script>
+
+{% endblock %}

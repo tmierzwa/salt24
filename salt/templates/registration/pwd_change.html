@@ -1,0 +1,51 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}Zmiana hasła{% endblock %}
+
+{% block module %}SYSTEM ZARZĄDZANIA FIRMĄ{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="/admin" class="pure-menu-link">Administracja</a></li>
+{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 30px">
+
+        <h2>{{ header_text|default:'Zmiana hasła użytkownika'}}</h2>
+
+        <form class="pure-form pure-form-aligned" method="post" action="">
+
+            {% csrf_token %}
+            <table>
+            {{ form.non_field_errors }}
+
+            {% if form.old_password %}
+                <tr>
+                    <th>{{ form.old_password.label_tag }}</th>
+                    <td>{{ form.old_password.errors }}{{ form.old_password }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>{{ form.new_password1.label_tag }}</th>
+                <td>{{ form.new_password1.errors }}{{ form.new_password1 }}</td>
+            </tr>
+            <tr>
+                <th>Powtórz hasło:</th>
+                <td>{{ form.new_password2.errors }}{{ form.new_password2 }}</td>
+            </tr>
+            <tr>
+                <th></th>
+                <td>
+                    <button type="submit" class="pure-button" style="margin-right: 10px" value="Submit">Zmień</button>
+                    <a class="pure-button" href="javascript:history.go(-1)">Powrót</a>
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </td>
+            </tr>
+            </table>
+
+        </form>
+
+    </div>
+
+{% endblock %}

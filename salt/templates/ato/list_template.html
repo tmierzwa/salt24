@@ -1,0 +1,118 @@
+{% extends 'ato/ato_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready( function () {
+    $('#list_table').DataTable( {
+    {% if row_list|length <= 10 %}
+        "paging": false,
+        "lengthChange": false,
+        "info": false,
+        "searching": false,
+    {% endif %}
+        "order": [],
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych..."
+        }
+    });
+} );
+</script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Lista" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"panel/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u">
+        <h2>{{ header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if local_menu %}
+            <p class="local-menu">
+                {% for menu_item in local_menu %}
+                    {% if forloop.counter > 1 %}
+                        |
+                    {% endif %}
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            </p>
+        {%  endif %}
+
+        {% if row_list %}
+            <table id="list_table" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in header_list %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+            <tbody>
+            {% for row in row_list %}
+                <tr
+                {% if forloop.counter|divisibleby:"2"  %}
+                    class="alt"
+                {% endif %}
+                >
+                    {% for field in row.fields %}
+                        <td nowrap style="text-align: {{ field.just }}; background-color: {{ field.color }}">
+                            {% if field.view_link or field.edit_link or field.delete_link or field.report_link %}
+                                {% if field.view_link %}
+                                    <a href="{{ field.view_link }}"><img src="{% static 'images/view.png' %}" title='Pokaż'></a>
+                                    {% if field.edit_link or field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {%  endif %}
+                                {% if field.edit_link %}
+                                    <a href="{{ field.edit_link }}"><img src="{% static 'images/pen.png' %}" title='Zmień'></a>
+                                    {% if field.delete_link or field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.delete_link %}
+                                    <a href="{{ field.delete_link }}"><img src="{% static 'images/trash.png' %}" title='Usuń'></a>
+                                    {% if field.report_link %}
+                                        &nbsp;
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.report_link %}
+                                    <a href="{{ field.report_link }}"><img src="{% static 'images/report.png' %}" title='Karta'></a>
+                                {% endif %}
+                            {% else %}
+                                {% if field.bold or field.link %}<b>{% endif %}
+                                {% if field.link %}<a href="{{ field.link }}">
+                                {% elif field.email %}<a style="text-decoration: underline" href="mailto:{{ field.email }}" target="_top">{% endif %}
+                                    {{ field.value | default_if_none:"" | linebreaksbr | truncatechars:40 }}
+                                {% if field.email or field.link %}</a>{% endif %}
+                                {% if field.bold or field.link %}</b>{% endif %}
+                            {%  endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        {% else %}
+            <p class="info-text">{{ empty_text|default_if_none:"Brak obiektów." }}</p>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

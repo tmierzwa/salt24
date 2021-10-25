@@ -1,0 +1,22 @@
+{% extends 'panel/panel_template.html' %}
+
+{% block title %}Edycja PDT{% endblock %}
+
+{% block content %}
+
+    <div class="pure-u" style="margin-left: 20px">
+
+        <h2>Najpierw zamknij otwarty PDT dla {{ open_pdt.aircraft }}</h2>
+
+        <table>
+            <tr><td>Nr. otwartego PDT:</td><td style="padding: 5px 5px 5px 15px"><b> {{ open_pdt.pdt_ref|stringformat:"06d" }}</b></td></tr>
+            <tr><td>PDT otwarty przez:</td><td style="padding: 5px 5px 5px 15px"><b> {{ open_pdt.open_user }}</b></td></tr>
+            <tr><td>Data otwarcia PDT:</td><td style="padding: 5px 5px 5px 15px"><b> {{ open_pdt.open_time }}</b></td></tr>
+        </table>
+        <br>
+        <a class="pure-button" href="{% url 'panel:pdt-update' open_pdt.pk %}" class="pure-menu-link">Zamknij PDT</a>
+        <a class="pure-button" style="margin-left: 15px" href="javascript:history.go(-1)">Powrót</a>
+
+    </div>
+
+{% endblock %}

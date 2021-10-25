@@ -1,0 +1,75 @@
+{% extends 'camo/camo_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready( function () {
+    $('#list_table').DataTable( {
+    {% if row_list|length <= 10 %}
+        "paging": false,
+        "lengthChange": false,
+        "info": false,
+        "searching": false,
+    {% endif %}
+        "order": [],
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych..."
+        }
+    });
+} );
+</script>
+{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"camo/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u-5-6">
+
+        <h2>{{ title }}</h2>
+
+        <form class="pure-form pure-form-aligned" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table id="list_table" class="stripe hover cell-border compact">
+                <thead><tr>
+                    <th></th>
+                    {% for header in headers %}
+                        <th style="text-align: center">{{ header | linebreaksbr }}</th>
+                    {% endfor %}
+                </tr></thead>
+                <tbody>
+                    {% for field in form %}
+                        <tr>
+                        <td>{{ field }}</td>
+                        {{ field.label|safe }}
+                        </tr>
+                    {%  endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="pure-button" style="margin-right: 10px">Wczytaj</button>
+            <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+
+        </form>
+
+    </div>
+
+{% endblock %}

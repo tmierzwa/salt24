@@ -1,0 +1,147 @@
+{% extends 'fin/fin_template.html' %}
+
+{% load staticfiles %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+$(document).ready( function () {
+
+    $('#list_table').DataTable( {
+        "stateSave": true,
+        "processing": true,
+        "serverSide": true,
+        "ajax": "{% url 'fin:pdt-feed' %}",
+        "order": [],
+        "language": {
+            "paginate": {
+                "first": "Początek",
+                "last":"Koniec",
+                "previous": "<< ",
+                "next":" >>"
+            },
+            "search": "Wyszukaj:",
+            "zeroRecords": "Brak pasujących rekordów...",
+            "info": "Liczba rekordów _TOTAL_",
+            "infoEmpty": "Brak rekordów",
+            "infoFiltered": "(spośród _MAX_)",
+            "lengthMenu": "Pokaż _MENU_ rekordów",
+            "emptyTable": "Brak danych...",
+            "processing": "Czekaj..."
+        },
+        "columns": [
+            {data: 'aircraft', className: 'mytab_center'},
+            {data: 'pdt_ref',
+             render: function (data, type, row) {
+                        return '<a href="'+row.info_link+'">'+data+'</a>'
+                     },
+             className: 'mytab_center mytab_bold'},
+            {data: 'date', className: 'mytab_center'},
+            {data: 'flight_type', className: 'mytab_nowrap'},
+            {data: 'pic', className: 'mytab_nowrap'},
+            {data: 'sic', className: 'mytab_nowrap'},
+            {data: 'hours', className: 'mytab_center'},
+            {data: 'tth', className: 'mytab_center'}
+        ],
+
+        initComplete: function () {
+            this.api().columns([0,3,4,5]).every( function () {
+                var column = this;
+                var input = $('<input style="width: 100%; text-align:center" type="text" value="'+column.search()+'" />')
+                    .appendTo( $(column.footer()).empty() )
+                    .on( 'keyup change', function () {
+                        var val = $(this).val();
+
+                        column
+                            .search( val, true, false )
+                            .draw();
+                    } );
+            });
+
+            this.api().columns([1, 2]).every( function () {
+                var column = this;
+                var minval = column.search().split('^')[0];
+                if (!minval) minval = '';
+                var maxval = column.search().split('^')[1];
+                if (!maxval) maxval = '';
+                var input = $('<input id="min" style="width: 100%; text-align:center" type="text" value="'+minval+'" /><br>'+
+                              '<input id="max" style="margin-top: 5px; width: 100%; text-align:center" type="text" value="'+maxval+'" />')
+                    .appendTo( $(column.footer()).empty() )
+                    .on( 'keyup change', function () {
+                        var min = $(column.footer()).find('#min').val();
+                        var max = $(column.footer()).find('#max').val();
+
+                        column
+                            .search( min+'^'+max, true, false )
+                            .draw();
+                    } );
+            });
+        },
+
+        "footerCallback": function ( row, data, start, end, display ) {
+            var api = this.api();
+            var response = api.ajax.json();
+            if(response){
+                // Update footer
+                sum_minutes=Number(response['summary']['0']['sum_minutes']);
+                minutes = sum_minutes % 60;
+                hours = Math.floor(sum_minutes / 60);
+                hours_string = ((hours < 10) ? "0" : "") + String(hours) + ":" + ((minutes < 10) ? "0" : "") + String(minutes);
+                $( api.column( 6 ).footer() ).html(hours_string);
+                $( api.column( 7 ).footer() ).html(Number(response['summary']['0']['sum_tth']).toFixed(2));
+            }
+
+        }
+    });
+
+})
+</script>
+{% endblock %}
+
+{% block title %}{{ page_title|default_if_none:"Lista" }}{% endblock %}
+
+{% if submenu_template %}
+    {% block submenu %}
+        {% include submenu_template|default:"fin/empty_submenu.html" %}
+    {% endblock %}
+{% endif  %}
+
+{% block content %}
+
+    <div class="pure-u">
+
+        {% block presection %}{% endblock %}
+
+        <h2>{{ header_text|default_if_none:"Lista obiektów" }}</h2>
+
+        {% if local_menu %}
+            <p class="local-menu">
+                {% for menu_item in local_menu %}
+                    {% if forloop.counter > 1 %}
+                        |
+                    {% endif %}
+                    <a href="{{ menu_item.path }}">{{ menu_item.text }}</a>
+                {% endfor %}
+            </p>
+        {%  endif %}
+
+        <table id="list_table" class="stripe hover cell-border compact">
+            <thead><tr>
+                {% for header in header_list %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></thead>
+            <tfoot><tr>
+                {% for header in header_list %}
+                    <th style="width: {{ header.width|default_if_none:"auto" }}">{{ header.header | linebreaksbr }}</th>
+                {% endfor %}
+            </tr></tfoot>
+        </table>
+
+        {% block subsection %}{% endblock %}
+
+        <br>
+
+    </div>
+
+{% endblock %}

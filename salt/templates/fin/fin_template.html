@@ -1,0 +1,14 @@
+{% extends 'salt_template.html' %}
+
+{% block title %}FINANSE{% endblock %}
+
+{% block module %}FINANSE I PALIWO{% endblock %}
+
+{% block menu %}
+    <li class="pure-menu-item"><a href="{% url 'fin:tank-list' %}" class="pure-menu-link">Paliwo</a></li>
+    <li class="pure-menu-item"><a href="{% url 'fin:pdt-list' %}" class="pure-menu-link">PDTy</a></li>
+    <li class="pure-menu-item"><a href="{% url 'fin:contr-list' %}" class="pure-menu-link">Kontrahenci</a></li>
+    <li class="pure-menu-item"><a href="{% url 'fin:voucher-list' %}" class="pure-menu-link">Vouchery</a></li>
+    <li class="pure-menu-item"><a href="{% url 'fin:rentprice-list' %}" class="pure-menu-link">Cennik wynajmu</a></li>
+    <li class="pure-menu-item"><a href="{% url 'fin:package-list' %}" class="pure-menu-link">Pakiety wynajmu</a></li>
+{% endblock %}

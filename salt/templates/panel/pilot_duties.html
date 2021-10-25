@@ -1,0 +1,56 @@
+{% extends 'panel/list_template.html' %}
+
+{% load staticfiles %}
+
+{% block topsection %}
+
+    <div class="pure-u" style="padding-top: 10px">
+
+        <table id="list-table">
+            <tr>
+                <th></th>
+                <th>Czas<br>innych zadań</th>
+                <th>Czas<br>czynności lot.</th>
+                <th>Suma<br>czasu lotu</th>
+                <th>Liczba<br>lądowań</th>
+                <th>Suma<br>czasu pracy</th>
+
+            </tr>
+            <tr>
+                <th style="text-align: right">Ostatnie 24 godziny</th>
+                <td style="text-align: center">{{ d1_other_time }}</td>
+                <td style="text-align: center">{{ d1_duty_time }}</td>
+                <td style="text-align: center">{{ d1_block_time }}</td>
+                <td style="text-align: center">{{ d1_landings | default:"0" }}</td>
+                <td style="text-align: center">{{ d1_sum_time }}</td>
+            </tr>
+            <tr>
+                <th style="text-align: right">Bieżący miesiąc</th>
+                <td style="text-align: center">{{ m1_other_time }}</td>
+                <td style="text-align: center">{{ m1_duty_time }}</td>
+                <td style="text-align: center">{{ m1_block_time }}</td>
+                <td style="text-align: center">{{ m1_landings | default:"0" }}</td>
+                <td style="text-align: center">{{ m1_sum_time }}</td>
+            </tr>
+            <tr>
+                <th style="text-align: right">Ostatnie 4 miesiące</th>
+                <td style="text-align: center">{{ m4_other_time }}</td>
+                <td style="text-align: center">{{ m4_duty_time }}</td>
+                <td style="text-align: center">{{ m4_block_time }}</td>
+                <td style="text-align: center">{{ m4_landings | default:"0" }}</td>
+                <td style="text-align: center">{{ m4_sum_time }}</td>
+            </tr>
+            <tr>
+                <th style="text-align: right">Bieżący rok</th>
+                <td style="text-align: center">{{ y1_other_time }}</td>
+                <td style="text-align: center">{{ y1_duty_time }}</td>
+                <td style="text-align: center">{{ y1_block_time }}</td>
+                <td style="text-align: center">{{ y1_landings | default:"0" }}</td>
+                <td style="text-align: center">{{ y1_sum_time }}</td>
+            </tr>
+        </table>
+        <br>
+
+    </div>
+
+{% endblock %}
