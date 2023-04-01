@@ -7,6 +7,9 @@ from res.views import ResParamsList, ResParamsUpdate
 from res.views import ReservationCalendar, DutyCalendar, reservation_feed, reservation_move, duty_feed
 from res.views import ReservationListMobile
 
+
+app_name = "res"
+
 urlpatterns = [
 
     re_path(r'^reservation/list/$', ReservationList, name='reservation-list'),

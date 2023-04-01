@@ -15,8 +15,9 @@ from ato.views import CardEntryList, CardReport, CardEntryDetails, CardEntryCrea
 
 from ato.loaders import update_phases
 
-urlpatterns = [
+app_name = "ato"
 
+urlpatterns = [
     re_path(r'^$', TrainingInstList.as_view(), name='training-inst-list'),
     re_path(r'^trinst/details/(?P<pk>\d+)/$', TrainingInstDetails.as_view(), name='training-inst-details'),
     re_path(r'^trinst/create/$', TrainingInstCreate, name='training-inst-create'),

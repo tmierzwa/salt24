@@ -3,6 +3,9 @@ from django.contrib import admin
 from django.contrib.auth.views import LogoutView as logout, logout_then_login
 from salt.views import dispatcher, salt_login, salt_password_change, admin_password_change
 
+
+app_name = "salt"
+
 urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
 

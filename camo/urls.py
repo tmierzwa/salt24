@@ -27,6 +27,8 @@ from camo.loaders import update, check_history
 
 from camo.reports import ReportParts, ReportARC
 
+app_name = "camo"
+
 urlpatterns = [
     re_path(r'^$', AircraftList.as_view(), name='aircraft-list'),
     re_path(r'^aircraft/create/$', AircraftCreate, name='aircraft-create'),

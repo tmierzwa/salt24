@@ -20,6 +20,8 @@ from fin.views import FuelReport, FuelExport
 from fin.views import PDTList, PDT_feed
 from fin.loaders import update_contr
 
+app_name = "fin"
+
 urlpatterns = [
 
     re_path(r'^fueltank/list/$', FuelTanktList.as_view(), name='tank-list'),

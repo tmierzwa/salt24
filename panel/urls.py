@@ -18,6 +18,7 @@ from panel.views import PilotDutyReport, PilotDutyExport, PilotPlanReport, Pilot
 from panel.views import Report_PKBWL
 from panel.loaders import change_duties
 
+app_name = "panel"
 
 urlpatterns = [
 
