@@ -63,7 +63,8 @@ def admin_password_change(request, user_id):
 def dispatcher(request):
 
     params = Parameter.objects.last()
-    context = {'mobile': request.is_mobile}
+    # context = {'mobile': request.is_mobile}
+    context = {'mobile': False}
 
     if params:
         context['infopriority'] = params.info_priority
