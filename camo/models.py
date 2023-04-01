@@ -301,10 +301,10 @@ class ATA(models.Model):
 
 
 class Assignment(models.Model):
-    aircraft = models.ForeignKey(Aircraft)
-    part = models.ForeignKey(Part)
-    ata = models.ForeignKey(ATA)
-    super_ass = models.ForeignKey('Assignment', blank=True, null=True)
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    part = models.ForeignKey(Part, on_delete=models.CASCADE)
+    ata = models.ForeignKey(ATA, on_delete=models.CASCADE)
+    super_ass = models.ForeignKey('Assignment', blank=True, null=True, on_delete=models.CASCADE)
     description = models.CharField(max_length=200, blank=True, null=True)
     crs = models.CharField(max_length=200, blank=True, null=True)
     from_date = models.DateField()
@@ -328,7 +328,7 @@ class Assignment(models.Model):
 
 
 class POT_group(models.Model):
-    part = models.ForeignKey(Part, verbose_name='Powiązana część')
+    part = models.ForeignKey(Part, verbose_name='Powiązana część', on_delete=models.CASCADE)
     POT_ref = models.CharField(max_length=100, verbose_name='POT ref.')
     adsb_no = models.CharField(max_length=50, blank=True, null=True, verbose_name='Numer AD/SB')
     adsb_date = models.DateField(blank=True, null=True, verbose_name='Data AD/SB')
@@ -487,7 +487,7 @@ class POT_group(models.Model):
 
 
 class POT_event(models.Model):
-    POT_group = models.ForeignKey(POT_group)
+    POT_group = models.ForeignKey(POT_group, on_delete=models.CASCADE)
     POT_ref = models.CharField(max_length=100, verbose_name='POT Ref.')
     name = models.TextField(verbose_name='Nazwa czynności')
     done_crs = models.CharField(max_length=20, blank=True, null=True, verbose_name='Wykonano (CRS Ref.)')
@@ -616,7 +616,7 @@ class POT_event(models.Model):
 
 
 class Work_order(models.Model):
-    aircraft = models.ForeignKey(Aircraft)
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
     number = models.CharField(max_length=25)
     date = models.DateField()
     aso = models.CharField(max_length=100)
@@ -627,8 +627,8 @@ class Work_order(models.Model):
 
 
 class Work_order_line(models.Model):
-    work_order = models.ForeignKey(Work_order)
-    pot_group = models.ForeignKey(POT_group)
+    work_order = models.ForeignKey(Work_order, on_delete=models.CASCADE)
+    pot_group = models.ForeignKey(POT_group, on_delete=models.CASCADE)
     done = models.BooleanField(default=False)
     done_date = models.DateField(blank=True, null=True)
     done_hours = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
@@ -641,7 +641,7 @@ class Work_order_line(models.Model):
 
 
 class Modification(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
     description = models.CharField(max_length=200, verbose_name='Opis')
     done_date = models.DateField(verbose_name='Data wykonania')
     done_hours = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='TTH wykonania')
@@ -656,7 +656,7 @@ class Modification(models.Model):
 
 
 class WB_report(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
     description = models.CharField(max_length=200, verbose_name='Opis')
     doc_ref = models.CharField(max_length=20, blank=True, null=True, verbose_name='Numer dokumentu')
     unit = models.CharField(max_length=3, default='EU', choices=[('EU', 'EU'), ('USA', 'USA')], verbose_name='Jednostki')
@@ -677,7 +677,7 @@ class WB_report(models.Model):
 
 
 class MS_report(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
     ms_ref = models.CharField(max_length=20, verbose_name='Numer MS')
     fuselage = models.CharField(max_length=30, verbose_name='Numer płatowca')
     engine1 = models.CharField(max_length=30, verbose_name='Numer silnika L')
@@ -729,8 +729,8 @@ class MS_report(models.Model):
 
 
 class CAMO_operation(models.Model):
-    aircraft = models.ForeignKey(Aircraft)
-    pdt = models.OneToOneField('panel.PDT', blank=True, null=True, verbose_name='Powiązany PDT')
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    pdt = models.OneToOneField('panel.PDT', blank=True, null=True, verbose_name='Powiązany PDT', on_delete=models.CASCADE)
     pdt_ref = models.CharField(max_length=20, blank=True, null=True, verbose_name='Numer PDT')
     date = models.DateField(verbose_name='Data operacji')
     tth_start = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='Licznik początkowy')

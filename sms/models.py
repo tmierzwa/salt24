@@ -30,7 +30,7 @@ class SMSHazard(models.Model):
 
 
 class SMSHazardRev(models.Model):
-    hazard = models.ForeignKey(SMSHazard, verbose_name='Zarejestrowane zagrożenie')
+    hazard = models.ForeignKey(SMSHazard, verbose_name='Zarejestrowane zagrożenie', on_delete=models.CASCADE)
     rev_num = models.IntegerField(default=1, verbose_name='Numer wersji')
     rev_date = models.DateField(verbose_name='Data wersji')
     rev_last = models.BooleanField(default=True, verbose_name='Aktualna wersja')
@@ -54,7 +54,7 @@ class SMSRisk(models.Model):
     rev_num = models.IntegerField(default=1, verbose_name='Numer wersji')
     rev_date = models.DateField(verbose_name='Data wersji')
     rev_last = models.BooleanField(default=True, verbose_name='Aktualna wersja')
-    smshazard = models.ForeignKey(SMSHazard, verbose_name='Zarejestrowane zagrożenie')
+    smshazard = models.ForeignKey(SMSHazard, verbose_name='Zarejestrowane zagrożenie', on_delete=models.CASCADE)
     description = models.TextField(verbose_name='Szczegółowy opis natury ryzyka')
     init_probability = models.CharField(max_length=1, choices=[('5', '5 - Bardzo wysokie'),
                                                                ('4', '4 - Wysokie'),

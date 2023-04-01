@@ -21,8 +21,8 @@ class Module(models.Model):
 
 # Rezerwacja SP
 class Reservation(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
-    owner = models.ForeignKey(Pilot, related_name='res_owner_set', verbose_name='Właściciel rezerwacji')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
+    owner = models.ForeignKey(Pilot, related_name='res_owner_set', verbose_name='Właściciel rezerwacji', on_delete=models.CASCADE)
     participant = models.ForeignKey(Pilot, related_name='res_participant_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Uczestnik rezerwacji')
     start_time = models.DateTimeField(verbose_name='Termin rozpoczęcia')
     end_time = models.DateTimeField(verbose_name='Termin zakończenia')
@@ -36,7 +36,7 @@ class Reservation(models.Model):
     internal_remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi SALT')
     status = models.CharField(max_length=12, choices=[('Nowa', 'Nowa'), ('Potwierdzona', 'Potwierdzona'), ('Zrealizowana', 'Zrealizowana')],
                               default='Nowa', verbose_name='Status rezerwacji')
-    open_user = models.ForeignKey(FBOUser, related_name='res_open_by_set', verbose_name='Utworzona przez')
+    open_user = models.ForeignKey(FBOUser, related_name='res_open_by_set', verbose_name='Utworzona przez', on_delete=models.CASCADE)
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin otwarcia')
     change_user = models.ForeignKey(FBOUser, related_name='res_changed_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zmodyfikowana przez')
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')
@@ -127,11 +127,11 @@ class Reservation(models.Model):
 
 # Niedostępność
 class Blackout(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
     start_time = models.DateTimeField(verbose_name='Termin rozpoczęcia')
     end_time = models.DateTimeField(verbose_name='Termin zakończenia')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
-    open_user = models.ForeignKey(FBOUser, verbose_name='Utworzone przez')
+    open_user = models.ForeignKey(FBOUser, verbose_name='Utworzone przez', on_delete=models.CASCADE)
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin utworzenia')
 
     def __str__(self):
@@ -152,14 +152,14 @@ class ResourceFBO(models.Model):
 
 # Rezerwacja FBO
 class ReservationFBO(models.Model):
-    resource = models.ForeignKey(ResourceFBO, verbose_name='Rezerwowany zasób')
-    owner = models.ForeignKey(FBOUser, related_name='resfbo_owner_set', verbose_name='Właściciel rezerwacji')
+    resource = models.ForeignKey(ResourceFBO, verbose_name='Rezerwowany zasób', on_delete=models.CASCADE)
+    owner = models.ForeignKey(FBOUser, related_name='resfbo_owner_set', verbose_name='Właściciel rezerwacji', on_delete=models.CASCADE)
     participant = models.ForeignKey(FBOUser, related_name='resfbo_participant_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Uczestnik rezerwacji')
     start_time = models.DateTimeField(verbose_name='Termin rozpoczęcia')
     end_time = models.DateTimeField(verbose_name='Termin zakończenia')
     title = models.CharField(max_length=30, verbose_name='Tytuł rezerwacji')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
-    open_user = models.ForeignKey(FBOUser, related_name='resfbo_open_by_set', verbose_name='Utworzona przez')
+    open_user = models.ForeignKey(FBOUser, related_name='resfbo_open_by_set', verbose_name='Utworzona przez', on_delete=models.CASCADE)
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin otwarcia')
     change_user = models.ForeignKey(FBOUser, related_name='resfbo_changed_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zmodyfikowana przez')
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')

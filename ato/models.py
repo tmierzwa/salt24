@@ -27,7 +27,7 @@ class Training(models.Model):
 
 
 class Phase(models.Model):
-    training = models.ForeignKey(Training, verbose_name='Szkolenie')
+    training = models.ForeignKey(Training, verbose_name='Szkolenie', on_delete=models.CASCADE)
     code = models.CharField(max_length=12, verbose_name='Kod zadania/fazy')
     name = models.CharField(max_length=120, verbose_name='Nazwa zadania/fazy')
     description = models.TextField(blank=True, null=True, verbose_name='Opis zadania/fazy')
@@ -40,7 +40,7 @@ class Phase(models.Model):
 
 
 class Exercise(models.Model):
-    phase = models.ForeignKey(Phase, verbose_name='Zadanie/faza')
+    phase = models.ForeignKey(Phase, verbose_name='Zadanie/faza', on_delete=models.CASCADE)
     code = models.CharField(max_length=12, verbose_name='Kod ćwiczenia')
     name = models.CharField(max_length=150, verbose_name='Nazwa ćwiczenia')
     description = models.TextField(blank=True, null=True, verbose_name='Opis ćwiczenia')
@@ -73,9 +73,9 @@ class Instructor(models.Model):
 
 
 class Training_inst(models.Model):
-    training = models.ForeignKey(Training, verbose_name='Szkolenie')
-    student = models.ForeignKey(Student, verbose_name='Student')
-    instructor = models.ForeignKey(Instructor, verbose_name='Instruktor prowadzący')
+    training = models.ForeignKey(Training, verbose_name='Szkolenie', on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name='Student', on_delete=models.CASCADE)
+    instructor = models.ForeignKey(Instructor, verbose_name='Instruktor prowadzący', on_delete=models.CASCADE)
     start_date = models.DateField(verbose_name='Data rozpoczęcia')
     passed = models.CharField(max_length=3, choices=[('TAK','TAK'), ('NIE','NIE')], default='NIE', verbose_name='Ukończone')
     pass_date = models.DateField(blank=True, null=True, verbose_name='Data ukończenia')
@@ -121,7 +121,7 @@ class Training_inst(models.Model):
 
 
 class Phase_inst(models.Model):
-    training_inst = models.ForeignKey(Training_inst, verbose_name='Szkolenie')
+    training_inst = models.ForeignKey(Training_inst, verbose_name='Szkolenie', on_delete=models.CASCADE)
     code = models.CharField(max_length=12, verbose_name='Kod zadania/fazy')
     name = models.CharField(max_length=120, verbose_name='Nazwa zadania/fazy')
     description = models.TextField(blank=True, null=True, verbose_name='Opis zadania/fazy')
@@ -150,7 +150,7 @@ class Phase_inst(models.Model):
 
 
 class Exercise_inst(models.Model):
-    phase_inst = models.ForeignKey(Phase_inst, verbose_name='Zadanie/faza')
+    phase_inst = models.ForeignKey(Phase_inst, verbose_name='Zadanie/faza', on_delete=models.CASCADE)
     code = models.CharField(max_length=12, verbose_name='Kod ćwiczenia')
     name = models.CharField(max_length=150, verbose_name='Nazwa ćwiczenia')
     description = models.TextField(blank=True, null=True, verbose_name='Opis ćwiczenia')
@@ -173,8 +173,8 @@ class Exercise_inst(models.Model):
 
 
 class Exercise_oper(models.Model):
-    exercise_inst = models.ForeignKey(Exercise_inst, verbose_name='Cwiczenie')
-    operation = models.ForeignKey('panel.Operation', verbose_name='Operacja')
+    exercise_inst = models.ForeignKey(Exercise_inst, verbose_name='Cwiczenie', on_delete=models.CASCADE)
+    operation = models.ForeignKey('panel.Operation', verbose_name='Operacja', on_delete=models.CASCADE)
     solo = models.BooleanField(default=False, verbose_name='Lot solo')
     time_allocated = MyDurationField(default=datetime.timedelta(seconds=0), verbose_name='Czas ćwiczenia')
     num_allocated = models.IntegerField(default=0, verbose_name='Liczba powtórzeń ćwiczenia')
@@ -221,11 +221,11 @@ class Exercise_oper(models.Model):
 
 
 class Card_entry(models.Model):
-    training_inst = models.ForeignKey(Training_inst, verbose_name='Szkolenie')
-    instructor = models.ForeignKey(Instructor, verbose_name='Instruktor')
+    training_inst = models.ForeignKey(Training_inst, verbose_name='Szkolenie', on_delete=models.CASCADE)
+    instructor = models.ForeignKey(Instructor, verbose_name='Instruktor', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data lotów')
     pdt_num = models.CharField(max_length=12, blank=True, null=True, verbose_name='Numer PDT')
-    exercise_inst = models.ForeignKey(Exercise_inst, verbose_name='Cwiczenie')
+    exercise_inst = models.ForeignKey(Exercise_inst, verbose_name='Cwiczenie', on_delete=models.CASCADE)
     dual_time = MyDurationField(default=datetime.timedelta(seconds=0), verbose_name='Czas dwuster')
     dual_num = models.IntegerField(default=0, verbose_name='Liczba powtórzeń dwuster')
     solo_time = MyDurationField(default=datetime.timedelta(seconds=0), verbose_name='Czas solo')

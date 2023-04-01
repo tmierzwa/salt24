@@ -64,7 +64,7 @@ class FuelTank(models.Model):
 
 # Operacja dostawy paliwa
 class FuelDelivery(models.Model):
-    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa')
+    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data dostawy')
     provider = models.CharField(max_length=50, blank=True, null=True, verbose_name='Dostawca paliwa')
     document = models.CharField(max_length=30, blank=True, null=True, verbose_name='Dokument dostawy')
@@ -101,8 +101,8 @@ class FuelDelivery(models.Model):
 
 # Operacja wydania wewnętrznego paliwa
 class FuelTransfer(models.Model):
-    fueltank_from = models.ForeignKey(FuelTank, related_name='out_transfers', verbose_name='Zbiornik żródłowy')
-    fueltank_to = models.ForeignKey(FuelTank, related_name='in_transfers', verbose_name='Zbiornik docelowy')
+    fueltank_from = models.ForeignKey(FuelTank, related_name='out_transfers', verbose_name='Zbiornik żródłowy', on_delete=models.CASCADE)
+    fueltank_to = models.ForeignKey(FuelTank, related_name='in_transfers', verbose_name='Zbiornik docelowy', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data wydania wew.')
     document = models.CharField(max_length=30, blank=True, null=True, verbose_name='Dokument wydania wew.')
     fuel_volume = models.DecimalField(max_digits=6, decimal_places=1, verbose_name='Objętość paliwa (L)')
@@ -201,7 +201,7 @@ class FuelTransfer(models.Model):
 
 # Operacja korekty ilości paliwa
 class FuelCorrection(models.Model):
-    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa')
+    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data protokołu różnic')
     document = models.CharField(max_length=30, blank=True, null=True, verbose_name='Dokument protokołu różnic')
     fuel_volume = models.DecimalField(max_digits=6, decimal_places=1, verbose_name='Objętość różnicy (L)')
@@ -235,8 +235,8 @@ class FuelCorrection(models.Model):
 
 # Operacja tankowania paliwa do AC bez PDT
 class LocalFueling(models.Model):
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
-    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
+    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data tankowania')
     person = models.CharField(max_length=50, blank=True, null=True, verbose_name='Osoba tankująca')
     fuel_volume = models.DecimalField(max_digits=4, decimal_places=1, verbose_name='Objętość paliwa (L)')
@@ -286,8 +286,8 @@ class LocalFueling(models.Model):
 
 # Operacja tankowania paliwa do AC na PDT
 class PDTFueling(models.Model):
-    pdt = models.ForeignKey('panel.PDT', verbose_name='PDT')
-    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa')
+    pdt = models.ForeignKey('panel.PDT', verbose_name='PDT', on_delete=models.CASCADE)
+    fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa', on_delete=models.CASCADE)
     fuel_volume = models.DecimalField(max_digits=4, decimal_places=1, verbose_name='Objętość paliwa (L)')
 
     def save(self, *args, **kwargs):
@@ -337,7 +337,7 @@ class PDTFueling(models.Model):
 
 # Operacja tankowania paliwa poza SALT
 class RemoteFueling(models.Model):
-    pdt = models.ForeignKey('panel.PDT', verbose_name='PDT')
+    pdt = models.ForeignKey('panel.PDT', verbose_name='PDT', on_delete=models.CASCADE)
     location = models.CharField(max_length=30, blank=True, null=True, verbose_name='Lotnisko tankowania')
     fuel_volume = models.DecimalField(max_digits=4, decimal_places=1, verbose_name='Objętość paliwa (L)')
     document = models.CharField(max_length=30, blank=True, null=True, verbose_name='Faktura za tankowanie')
@@ -427,7 +427,7 @@ class Contractor(models.Model):
 
 # Operacja na rachunku
 class BalanceOperation(models.Model):
-    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent')
+    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data operacji')
     type = models.CharField(max_length=15, choices=[('Wpłata', 'Wpłata'),
                                                     ('Wypłata', 'Wypłata'),
@@ -499,7 +499,7 @@ class RentPackage(models.Model):
 
 # Pakiet godzin kupiony przez kontrahenta
 class SoldPackage(models.Model):
-    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent')
+    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent', on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data zakupu pakietu')
     package_id = models.CharField(max_length=20, verbose_name='Identyfikator pakietu')
     name = models.CharField(max_length=100, verbose_name='Nazwa pakietu')
@@ -515,7 +515,7 @@ class SoldPackage(models.Model):
 
 # Specjalna cena dla kontrahenta
 class SpecialPrice(models.Model):
-    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent')
+    contractor = models.ForeignKey(Contractor, verbose_name='Kontrahent', on_delete=models.CASCADE)
     ac_type = models.CharField(max_length=50, verbose_name='Typ SP')
     hour_price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Cena za godzinę")
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')

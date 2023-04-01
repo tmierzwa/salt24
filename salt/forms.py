@@ -3,7 +3,6 @@ from datetime import timedelta
 from django import forms
 from django.utils.dateparse import parse_duration
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
 from django.forms import Textarea
 
 from fbo.models import Parameter
@@ -30,7 +29,7 @@ def duration_string(duration):
 
 class MyDurationFormField(forms.Field):
     default_error_messages = {
-        'invalid': _('Enter a valid duration.'),
+        'invalid': 'Enter a valid duration.',
     }
 
     def prepare_value(self, value):

@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 from panel.models import Duty

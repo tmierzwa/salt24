@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import pytz, babel.dates
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -10,7 +11,7 @@ from openpyxl.styles import Alignment, PatternFill, fills, Border, borders, Side
 from openpyxl.writer.excel import save_virtual_workbook
 from django.utils import timezone
 from django import forms
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
@@ -1380,6 +1381,8 @@ def pdt_close (pdt, user, cleaned_data):
 @login_required()
 def PDTOpen(request):
 
+    # return render(request, 'panel/pdt_edit_blocked.html', {})
+
     if 'res' in request.GET:
         reservation_id = request.GET.get('res')
         try:
@@ -1495,6 +1498,8 @@ def PDTOpen(request):
 
 @login_required()
 def PDTUpdate(request, pk):
+
+    return render(request, 'panel/pdt_edit_blocked.html', {})
 
     # Weryfikacja czy wywołano z modułu CAMO
     camo = ('camo' in request.GET)

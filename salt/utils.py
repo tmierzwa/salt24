@@ -3,12 +3,12 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.core.mail import send_mail
 
-from smsapi.client import SmsAPI
-from smsapi.responses import ApiError
+from smsapi.client import SmsApiPlClient
+from smsapi.exception import SmsApiException
 
 def SendSMS (number, content):
     # Wysłanie SMS z użyciem bibliotek SMSAPI
-    api = SmsAPI()
+    api = SmsApiPlClient()
     api.reset()
 
     # autoryzacja za pomocą tokenu
@@ -26,7 +26,7 @@ def SendSMS (number, content):
         response = api.execute()
         result = not response.current['error']
 
-    except ApiError:
+    except SMTPException:
         result = False
 
     return result

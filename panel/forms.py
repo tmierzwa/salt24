@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
+import time
 
 from django import forms
 from django.forms import Textarea, TextInput, CharField, modelform_factory
@@ -166,6 +167,7 @@ class PDTEditForm(forms.ModelForm):
 
 
     def clean_aircraft(self):
+
         # Przekształca numer SP na kompletny obiekt
         aircraft_id = self.cleaned_data['aircraft']
         try:
@@ -176,6 +178,7 @@ class PDTEditForm(forms.ModelForm):
 
 
     def clean(self):
+
         cleaned_data = super(PDTEditForm, self).clean()
 
         # Jeśli jest to nowy PDT

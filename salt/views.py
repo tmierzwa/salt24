@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.shortcuts import render
-from django.contrib.auth.views import login, password_change
+from django.contrib.auth.views import LoginView as login, PasswordChangeView as password_change
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import update_session_auth_hash
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import UpdateView
@@ -63,9 +63,15 @@ def admin_password_change(request, user_id):
 def dispatcher(request):
 
     params = Parameter.objects.last()
-    context={'mobile': request.is_mobile}
-    context['infopriority'] = params.info_priority
-    context['info'] = params.info_body
+    context = {'mobile': request.is_mobile}
+
+    if params:
+        context['infopriority'] = params.info_priority
+        context['info'] = params.info_body
+    else:
+        context['infopriority'] = 0
+        context['info'] = ''
+
     context['infocontact'] = '\n<u>W razie problemów skontaktuj się z:</u>\n\n' +\
                              '<table><tr><td style="padding-right: 50px"><b>Agnieszka Pęksa</b></td>' + \
                              '<td><b>Michał Szamborski</b></td></tr>' + \

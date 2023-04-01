@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 from fin.models import Contractor, RentPackage, SoldPackage

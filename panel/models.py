@@ -168,7 +168,7 @@ class Pilot(models.Model):
 
 # Ratingi pilota
 class Rating(models.Model):
-    pilot = models.ForeignKey(Pilot, verbose_name='Pilot')
+    pilot = models.ForeignKey(Pilot, verbose_name='Pilot', on_delete=models.CASCADE)
     rating = models.CharField(max_length=50, verbose_name='Nazwa uprawnienia')
     valid_date = models.DateField(blank=True, null=True, verbose_name='Ważność uprawnienia')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
@@ -199,10 +199,10 @@ def FlightTypes():
 # Pokładowy dziennik techniczny
 class PDT(models.Model):
     pdt_ref = models.IntegerField(verbose_name='Numer PDT')
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
     flight_type = models.CharField(max_length=3, verbose_name='Rodzaj lotu')
     date = models.DateField(verbose_name='Data PDT')
-    pic = models.ForeignKey(Pilot, related_name='pdt_pic_set', verbose_name='Pierwszy pilot')
+    pic = models.ForeignKey(Pilot, related_name='pdt_pic_set', verbose_name='Pierwszy pilot', on_delete=models.CASCADE)
     sic = models.ForeignKey(Pilot, blank=True, null=True, on_delete=models.SET_NULL, related_name='pdt_sic_set', verbose_name='Drugi pilot')
     instructor = models.ForeignKey(Pilot, blank=True, null=True, on_delete=models.SET_NULL, related_name='pdt_instr_set', verbose_name='Instruktor nadzorujący')
     voucher = models.ForeignKey(Voucher, blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Voucher')
@@ -227,14 +227,13 @@ class PDT(models.Model):
                               choices=[('open', 'Otwarty'), ('closed', 'Zamknięty'), ('checked', 'Sprawdzony')],
                               default='open',
                               verbose_name='Status')
-    open_user = models.ForeignKey(FBOUser, related_name='pdt_open_by_set', verbose_name='Otwarty przez')
+    open_user = models.ForeignKey(FBOUser, related_name='pdt_open_by_set', verbose_name='Otwarty przez', null=True, on_delete=models.SET_NULL)
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Czas otwarcia')
     close_user = models.ForeignKey(FBOUser, related_name='pdt_closed_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zamknięty przez')
     close_time = models.DateTimeField(blank=True, null=True, verbose_name='Czas zamknięcia')
     check_user = models.ForeignKey(FBOUser, related_name='pdt_checked_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Sprawdzony przez')
     check_time = models.DateTimeField(blank=True, null=True, verbose_name='Czas sprawdzenia')
     next_pdt = models.OneToOneField('PDT', blank=True, null=True, on_delete=models.SET_NULL, related_name='prev_pdt', verbose_name='Następny PDT dla SP')
-
 
     def save(self, *args, **kwargs):
 
@@ -547,7 +546,7 @@ class PDT(models.Model):
 
 # Pojedyncza operacja na PDT
 class Operation(models.Model):
-    pdt = models.ForeignKey(PDT)
+    pdt = models.ForeignKey(PDT, on_delete=models.CASCADE)
     operation_no = models.IntegerField(blank=True, null=True, verbose_name='Nr. rejsu')
     pax = models.IntegerField(blank=True, null=True, verbose_name='Liczba pasażerow')
     bags = models.IntegerField(blank=True, null=True, verbose_name='Ciężar bagazu [kg]')
@@ -623,19 +622,19 @@ class Operation(models.Model):
 
 # Relacja pomiędzy pilotem a SP
 class PilotAircraft(models.Model):
-    pilot = models.ForeignKey(Pilot, verbose_name='Pilot')
-    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny')
+    pilot = models.ForeignKey(Pilot, verbose_name='Pilot', on_delete=models.CASCADE)
+    aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
 
 
 # Relacja pomiędzy pilotem a rodzajem lotu
 class PilotFlightType(models.Model):
-    pilot = models.ForeignKey(Pilot, verbose_name='Pilot')
+    pilot = models.ForeignKey(Pilot, verbose_name='Pilot', on_delete=models.CASCADE)
     flight_type = models.CharField(max_length=3, verbose_name='Rodzaj lotu')
 
 
 # Czas pracy / służby pilota
 class Duty(models.Model):
-    pilot = models.ForeignKey(Pilot)
+    pilot = models.ForeignKey(Pilot, on_delete=models.CASCADE)
     date = models.DateField(verbose_name='Data')
     company = models.CharField(max_length=10,
                               choices=[('salt', 'SALT'), ('other', 'Poza SALT')],

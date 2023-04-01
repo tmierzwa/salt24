@@ -2,7 +2,7 @@
 
 import datetime
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from ato.models import Training, Training_inst, Phase_inst, Exercise_inst
 

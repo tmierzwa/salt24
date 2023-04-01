@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill, fills, Border, borders, Side, Font
 from openpyxl.writer.excel import save_virtual_workbook
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
