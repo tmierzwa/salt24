@@ -1,0 +1,351 @@
+{% extends 'panel/panel_template.html' %}
+
+{% load staticfiles %}
+
+{% block title %}Edycja PDT{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'jquery.datetimepicker.min.css' %}" >
+    <script src="{% static 'scripts/jquery.datetimepicker.full.min.js' %}"></script>
+    <link href="{% static 'select2.min.css' %}" rel="stylesheet" />
+    <script src="{% static 'scripts/select2.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_pic').select2();
+            $('#id_sic').select2();
+            $('#id_instructor').select2();
+            $('#id_contractor').select2();
+            $('#id_training').select2();
+            $('#id_voucher').select2();
+
+            jQuery.datetimepicker.setLocale('pl');
+            picker_conf = {
+                format:'d.m.Y',
+                lang:'pl',
+                timepicker: false
+            };
+            $('#id_date').datetimepicker(picker_conf);
+        })
+    </script>
+
+    <style>
+        input#id_date {
+            width:100px;
+        }
+        input#id_fuel_after, select#id_flying {
+            width:70px;
+        }
+        input#id_ms, select#id_aircraft, input#id_pdt_ref {
+            width:100%;
+        }
+        span.select2, select#id_flight_type, input#id_service_remarks, select#id_instructor, input#id_ext_voucher {
+            width:500px !important;
+        }
+        input#id_remarks, input#id_failure_desc, select#id_training,  select#id_voucher {
+            width:100%;
+        }
+    </style>
+
+    <div class="pure-u" style="margin-left: 20px">
+
+        <form class="pure-form pure-form-aligned" action="" method="POST">
+            {% csrf_token %}
+
+            <div style="display: none">
+                {{ form.tth_start }}
+                {{ form.next_pdt }}
+                {{ form.ms_report }}
+            </div>
+
+            <div class="pdt_form_block">
+                <table>
+                    <tr>
+                        <td style="padding-bottom: 10px" class='pdt_form_label' nowrap>Status PDT:</td>
+                        <td style="padding-bottom: 12px">
+                            {% if not new_pdt %}
+                                <span style="font-size: 17px; padding: 2px 10px 2px 5px; background-color: {{ form.instance.status_color }}">{{ form.instance.status_name }}</span>
+                            {% else %}
+                                <span style="font-size: 17px; padding: 2px 10px 2px 5px; background-color: lightgray">Nowy</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='pdt_form_label' nowrap>{{ form.date.label }}:</td>
+                        <td>{{ form.date }}</td>
+                        <td class='pdt_form_label' nowrap>{{ form.aircraft.label }}:</td>
+                        <td>{{ form.aircraft }}</td>
+                        <td class='pdt_form_label'>{{ form.ms.label }}:</td>
+                        <td>{{ form.ms }}</td>
+                        <td class='pdt_form_label'>{{ form.pdt_ref.label }}:</td>
+                        <td>{{ form.pdt_ref }}</td>
+                    </tr>
+                    <tr>
+                        <td class='pdt_form_label'>{{ form.pic.label }}:</td>
+                        <td colspan="3">{{ form.pic }}</td>
+                        <td class='pdt_form_label'>{{ form.sic.label }}:</td>
+                        <td colspan="3">{{ form.sic }}</td>
+                    </tr>
+                    <tr>
+                        <td class='pdt_form_label'>{{ form.flight_type.label }}:</td>
+                        <td colspan="3">{{ form.flight_type }}</td>
+                        <td class='pdt_form_label'>{{ form.remarks.label }}:</td>
+                        <td colspan="3">{{ form.remarks }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="pdt_options" class="pdt_form_block">
+                <table width="100%">
+                    <tr>
+                        <td id="id_contractor_label" class='pdt_form_label' nowrap>{{ form.contractor.label }}:</td>
+                        <td>{{ form.contractor }}</td>
+                        <td id="id_training_label" class='pdt_form_label' nowrap>{{ form.training.label }}:</td>
+                        <td>{{ form.training }}</td>
+                        <td id="id_service_remarks_label" class='pdt_form_label' nowrap>{{ form.service_remarks.label }}:</td>
+                        <td>{{ form.service_remarks }}</td>
+                        <td id="id_instructor_label" class='pdt_form_label' nowrap>{{ form.instructor.label }}:</td>
+                        <td>{{ form.instructor }}</td>
+                    </tr>
+                    <tr>
+                        <td id="id_voucher_label" class='pdt_form_label'>{{ form.voucher.label }}:</td>
+                        <td>{{ form.voucher }}</td>
+                        <td id="id_ext_voucher_label" class='pdt_form_label'>{{ form.ext_voucher.label }}:</td>
+                        <td>{{ form.ext_voucher }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="pdt_form_block">
+
+                <div style="font-size:14px; margin-top: 0; margin-bottom: 12px">Operacje:</div>
+
+                    <table width="97%">
+                        <tr class="operation_row">
+                            <td class="operation_head">Lp.</td>
+                            <td class="operation_head">PAX</td>
+                            <td class="operation_head">BAGS</td>
+                            <td class="operation_head">Paliwo<br>uzup.</td>
+                            <td class="operation_head">Paliwo<br>do lotu</td>
+                            <td class="operation_head">Paliwo<br>zużyto</td>
+                            <td class="operation_head">Olej<br>uzup.</td>
+                            <td class="operation_head">Miejsce<br>startu</td>
+                            <td class="operation_head">Czas<br>Off-Block</td>
+                            <td class="operation_head">Licznik<br>początkowy</td>
+                            <td class="operation_head">Miejsce<br>lądowania</td>
+                            <td class="operation_head">Czas<br>On-Block</td>
+                            <td class="operation_head">Licznik<br>końcowy</td>
+                            <td class="operation_head">Liczba<br>lądowań</td>
+                            <td class="operation_head">Czas lotu</td>
+                            <td class="operation_head">Czas wg<br>licznika</td>
+                            <td class="operation_head">...</td>
+                        </tr>
+
+                        {% if form.instance.operation_set.all|length > 0 %}
+                            {% for operation in form.instance.operation_set.all %}
+                                <tr class="operation_row">
+                                    <td class="operation_field">{{ operation.operation_no }}</td>
+                                    <td class="operation_field">{{ operation.pax|default_if_none:'-' }}</td>
+                                    <td class="operation_field">{{ operation.bags|default_if_none:'-' }}</td>
+                                    <td class="operation_field">{{ operation.fuel_refill|default_if_none:'' }}</td>
+                                    <td class="operation_field">{{ operation.fuel_available|default_if_none:'' }}</td>
+                                    <td class="operation_field">{{ operation.fuel_used|default_if_none:'' }}</td>
+                                    <td class="operation_field">{{ operation.oil_refill|default_if_none:'-' }}</td>
+                                    <td class="operation_field">{{ operation.loc_start|default_if_none:'' }}</td>
+                                    <td class="operation_field">{{ operation.time_start|time:"H:i"  }}</td>
+                                    <td class="operation_field">{{ operation.tth_start|floatformat:2 }}</td>
+                                    <td class="operation_field">{{ operation.loc_end|default_if_none:'' }}</td>
+                                    <td class="operation_field">{{ operation.time_end|time:"H:i"  }}</td>
+                                    <td class="operation_field">{{ operation.tth_end|floatformat:2 }}</td>
+                                    <td class="operation_field">{{ operation.landings|floatformat:0 }}</td>
+                                    <td class="operation_field">{{ operation.hours.1|stringformat:'02d' }}:{{ operation.hours.2|stringformat:'02d' }}</td>
+                                    <td class="operation_field">{{ operation.tth|floatformat:2 }}</td>
+                                    <td class="operation_field" style="text-align: left; padding-right: 0">
+                                        &nbsp;<input type="image" src="{% static 'images/pen.png' %}" title='Zmień' name="_edit_oper_{{ operation.pk }}" alt="Submit" />
+                                        {% if operation == form.instance.operation_set.last %}
+                                            &nbsp;<input type="image" src="{% static 'images/trash.png' %}" title='Usuń' name="_del_oper_{{ operation.pk }}" alt="Submit" />
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if form.instance.operation_set.all|length > 1 %}
+                            <tr class="operation_row">
+                                <td colspan="3" class="operation_field pdt_gray" style="text-align: right; font-size: 12px">Razem:</td>
+                                {% if form.instance.operation_set.all %}
+                                    <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.fuel_refill__sum|default_if_none:'' }}</td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.fuel_used__sum|default_if_none:'' }}</td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.oil_refill__sum|floatformat:1 }}</td>
+                                    <td colspan="6" class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.landings_sum|default_if_none:'' }}</td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.hours_sum.1|stringformat:'02d' }}:{{ form.instance.hours_sum.2|stringformat:'02d' }}</td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.tth_sum|floatformat:2 }}</td>
+                                    <td class="operation_field pdt_gray"></td>
+                                {% else %}
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td colspan="6" class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                    <td class="operation_field pdt_gray"></td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
+                    </table>
+
+                {% if open_oper %}
+                    <button type="submit" class="pure-button" name="_close_oper_" value="{{ open_oper.pk }}" style="color: darkred; font-size: 12px">Zamknij operację</button>
+                {% else %}
+                    <button type="submit" class="pure-button" name='_new_oper_' style="color: darkred; font-size: 12px">Dodaj operację</button>
+                {% endif %}
+
+            </div>
+
+            <div class="pdt_form_block">
+                <table width="100%">
+                    <tr>
+                        <td style="width: 12%" class='pdt_form_label' nowrap>{{ form.fuel_after.label }}:</td>
+                        <td width='5%'>{{ form.fuel_after }}</td>
+                        <td width='10%' class='pdt_form_label' nowrap>{{ form.fuel_after_source.label }}:</td>
+                        <td>{{ form.fuel_after_source }}</td>
+                    </tr>
+                    <tr>
+                        <td class='pdt_form_label' id="id_failure_label">{{ form.failure_desc.label }}:</td>
+                        <td colspan="3">{{ form.failure_desc }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <table>
+                <tr><th></th><td>&nbsp;</td></tr>
+                {% for field in form %}
+                    {% if field.errors %}
+                        <tr><th></th><td>
+                        {{ field.errors }}
+                        </td></tr>
+                    {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    <tr><th></th><td style="padding-bottom: 0">{{ form.non_field_errors }}</td></tr>
+                {% endif %}
+                <tr><th></th><td>
+                {% if form.instance.status != 'closed' and form.instance.status != 'checked' %}
+                    <button type="submit" name="_close_ptd_" class="pure-button" style="margin-right: 10px" onclick="closePDT(event)">Zamknij PDT</button>
+                    {% if camo %}
+                        <button type="submit" name="_close_ptd_next_" class="pure-button" style="margin-right: 10px" onclick="closePDT(event)">Zamknij i otwórz kolejny</button>
+                    {% endif %}
+                    {% if not camo and form.instance.operation_set.all|length > 0 %}
+                        <button type="submit" class="pure-button" style="margin-right: 10px">Pozostaw otwarty</button>
+                    {% endif %}
+                {% else %}
+                    <button type="submit" class="pure-button" style="margin-right: 10px">Modyfikuj PDT</button>
+                {% endif %}
+                <a class="pure-button" href="javascript:history.go(-1)">Anuluj</a>
+            </table>
+
+            {% for field in form %}
+                {% if "_pdt_ref_" in field.html_name or "_ms_" in field.html_name %}
+                    {{ field }}
+                {% endif %}
+            {% endfor %}
+
+        </form>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var flight_type = document.querySelector('#id_flight_type');
+        var block = document.querySelector('#pdt_options');
+        var contractor = document.querySelector('#id_contractor_label');
+        var service_remarks = document.querySelector('#id_service_remarks_label');
+        var voucher = document.querySelector('#id_voucher_label');
+        var ext_voucher = document.querySelector('#id_ext_voucher_label');
+        var training = document.querySelector('#id_training_label');
+        var instructor = document.querySelector('#id_instructor_label');
+
+        function closePDT(e) {
+
+            {% if open_oper %}
+                if (!confirm('Ostatnia operacja nie została zamknięta!\nCzy na pewno zamknąć PDT?')) e.preventDefault();
+            {% endif %}
+
+            {% if form.instance.operation_set.all|length == 0 %}
+                if (!confirm('Czy chcesz zamknąć PDT bez żadnych operacji?')) e.preventDefault();
+            {% endif %}
+
+            if ($('#id_failure_desc').val()) {
+                if (!confirm('Czy potwierdzasz wpisaną usterkę?\nSpowoduje to zablokowanie statku powietrznego!')) e.preventDefault();
+            }
+        }
+
+        function set_controls(flight_type) {
+
+            block.style.display = 'none';
+            contractor.style.display = 'none';
+            contractor.nextElementSibling.style.display = 'none';
+            service_remarks.style.display = 'none';
+            service_remarks.nextElementSibling.style.display = 'none';
+            voucher.style.display = 'none';
+            voucher.nextElementSibling.style.display = 'none';
+            ext_voucher.style.display = 'none';
+            ext_voucher.nextElementSibling.style.display = 'none';
+            training.style.display = 'none';
+            training.nextElementSibling.style.display = 'none';
+            instructor.style.display = 'none';
+            instructor.nextElementSibling.style.display = 'none';
+
+            if (flight_type == '01' || flight_type == '02' || flight_type == '02H')  {
+                block.style.display = 'block';
+                contractor.style.display = 'table-cell';
+                contractor.nextElementSibling.style.display = 'table-cell';
+                service_remarks.style.display = 'table-cell';
+                service_remarks.nextElementSibling.style.display = 'table-cell';
+            }
+            else if (flight_type == '01A' || flight_type == '03D')  {
+                block.style.display = 'block';
+                voucher.style.display = 'table-cell';
+                voucher.nextElementSibling.style.display = 'table-cell';
+                ext_voucher.style.display = 'table-cell';
+                ext_voucher.nextElementSibling.style.display = 'table-cell';
+            }
+            else if (flight_type == '03A' || flight_type == '03B' || flight_type == '03C' || flight_type == '03E')  {
+                block.style.display = 'block';
+                training.style.display = 'table-cell';
+                training.nextElementSibling.style.display = 'table-cell';
+                instructor.style.display = 'table-cell';
+                instructor.nextElementSibling.style.display = 'table-cell';
+            }
+            else if (flight_type == '04')  {
+                block.style.display = 'block';
+                contractor.style.display = 'table-cell';
+                contractor.nextElementSibling.style.display = 'table-cell';
+                instructor.style.display = 'table-cell';
+                instructor.nextElementSibling.style.display = 'table-cell';
+            }
+        }
+
+        flight_type.addEventListener('change', function()
+        {
+            set_controls(flight_type.value)
+        });
+
+        set_controls(flight_type.value);
+
+        $('select#id_aircraft').change(function()
+        {
+            $('input#id_pdt_ref').val($('input#id__pdt_ref_' + $(this).val()).val());
+            $('input#id_ms').val($('input#id__ms_' + $(this).val()).val());
+        });
+
+    </script>
+
+{% endblock %}
