@@ -8,6 +8,9 @@ from sms.views import NCRList, NCRDetails, NCRCreate, NCRUpdate, NCRDelete, NCRR
 from sms.views import SMSHazardsExport, SMSEventsExport, SMSReportsExport, SMSFlightsExport
 from sms.views import NCRWarnings
 
+
+app_name = "sms"
+
 urlpatterns = [
    re_path(r'^$', HazardList.as_view(), name='hazard-list'),
 
