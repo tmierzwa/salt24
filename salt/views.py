@@ -16,9 +16,9 @@ from salt.forms import AdminPasswordChangeForm, ParameterChangeForm
 
 def class_view_decorator(function_decorator):
 
-    def simple_decorator(View):
-        View.dispatch = method_decorator(function_decorator)(View.dispatch)
-        return View
+    def simple_decorator(view):
+        view.dispatch = method_decorator(function_decorator)(view.dispatch)
+        return view
 
     return simple_decorator
 
@@ -73,12 +73,9 @@ def dispatcher(request):
         context['info'] = ''
 
     context['infocontact'] = '\n<u>W razie problemów skontaktuj się z:</u>\n\n' +\
-                             '<table><tr><td style="padding-right: 50px"><b>Agnieszka Pęksa</b></td>' + \
-                             '<td><b>Michał Szamborski</b></td></tr>' + \
-                             '<tr><td><a href="mailto:a.peksa@salt.aero">a.peksa@salt.aero</a></td>' +\
-                             '<td><a href="mailto:michal.szamborski@salt.aero">michal.szamborski@salt.aero</a></td></tr>' +\
-                             '<tr><td>509 054635</td>' +\
-                             '<td>601 282808</td></tr></table>'
+                             '<table><tr><td><b>Michał Szamborski</b></td></tr>' + \
+                             '<tr><td><a href="mailto:michal.szamborski@salt.aero">michal.szamborski@salt.aero</a></td></tr>' +\
+                             '<tr><td>601 282808</td></tr></table>'
     if context['mobile']:
         return render(request, 'mdispatcher.html', context)
     else:
@@ -111,12 +108,12 @@ class ParamsList (ListView):
         context['header_list'] = header_list
 
         row_list = []
-        object = self.object_list.last()
+        _object = self.object_list.last()
         for model_field in Parameter._meta.get_fields():
             fields = []
             if model_field.name != 'id':
                 fields.append({'name': model_field.name, 'value': model_field.verbose_name, 'bold': True})
-                fields.append({'name': model_field.name, 'value': getattr(object, model_field.name)})
+                fields.append({'name': model_field.name, 'value': getattr(_object, model_field.name)})
                 row_list.append({'fields': fields})
         context['row_list'] = row_list
         context['no_paging'] = True
