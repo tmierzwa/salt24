@@ -5,6 +5,7 @@ from fbo.views import PilotList, PilotCreate, PilotDelete
 from fbo.loaders import create_fbouser, update_duties, update_auth, new_params, orderpdt
 from salt.views import ParamsList, ParamsUpdate
 
+app_name = "fbo"
 
 urlpatterns = [
    re_path(r'^$', FBOUserList.as_view(), name='user-list'),
