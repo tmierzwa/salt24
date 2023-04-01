@@ -25,7 +25,7 @@ def class_view_decorator(function_decorator):
 
 # TODO - zablokować logowanie dla nieaktywnych
 def salt_login(request, *args, **kwargs):
-    if request.device.is_mobile:
+    if request.device['is_mobile']:
         kwargs['template_name'] = 'registration/mlogin.html'
     else:
         kwargs['template_name'] = 'registration/login.html'
@@ -63,7 +63,7 @@ def admin_password_change(request, user_id):
 def dispatcher(request):
 
     params = Parameter.objects.last()
-    context = {'mobile': request.device.is_mobile}
+    context = {'mobile': request.device['is_mobile']}
 
     if params:
         context['infopriority'] = params.info_priority

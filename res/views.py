@@ -345,7 +345,7 @@ class ReservationCreate (CreateView):
     form_class = ReservationForm
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mres_modify.html'
         else:
             template_name = 'res/create_template.html'
@@ -360,7 +360,7 @@ class ReservationCreate (CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(ReservationCreate, self).get_form_kwargs()
-        kwargs['is_mobile'] = self.request.is_mobile
+        kwargs['is_mobile'] = self.request.device['is_mobile']
         kwargs['user'] = self.request.user
         kwargs['res'] = self.request.GET.get('res')
         kwargs['start'] = self.request.GET.get('start')
@@ -379,7 +379,7 @@ class ReservationCreate (CreateView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -391,7 +391,7 @@ class ReservationUpdate (UpdateView):
     form_class = ReservationForm
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mres_modify.html'
         else:
             template_name = 'res/update_template.html'
@@ -407,7 +407,7 @@ class ReservationUpdate (UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(ReservationUpdate, self).get_form_kwargs()
-        kwargs['is_mobile'] = self.request.is_mobile
+        kwargs['is_mobile'] = self.request.device['is_mobile']
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -422,7 +422,7 @@ class ReservationUpdate (UpdateView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -433,7 +433,7 @@ class ReservationDelete (DeleteView):
     model = Reservation
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mres_delete.html'
         else:
             template_name = 'res/delete_template.html'
@@ -460,7 +460,7 @@ class ReservationDelete (DeleteView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -512,7 +512,7 @@ class ReservationFBOCreate (CreateView):
     form_class = ReservationFBOForm
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mresfbo_modify.html'
         else:
             template_name = 'res/create_template.html'
@@ -527,7 +527,7 @@ class ReservationFBOCreate (CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(ReservationFBOCreate, self).get_form_kwargs()
-        kwargs['is_mobile'] = self.request.is_mobile
+        kwargs['is_mobile'] = self.request.device['is_mobile']
         kwargs['user'] = self.request.user
         kwargs['res'] = self.request.GET.get('res')
         kwargs['start'] = self.request.GET.get('start')
@@ -545,7 +545,7 @@ class ReservationFBOCreate (CreateView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -557,7 +557,7 @@ class ReservationFBOUpdate (UpdateView):
     form_class = ReservationFBOForm
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mresfbo_modify.html'
         else:
             template_name = 'res/update_template.html'
@@ -573,7 +573,7 @@ class ReservationFBOUpdate (UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(ReservationFBOUpdate, self).get_form_kwargs()
-        kwargs['is_mobile'] = self.request.is_mobile
+        kwargs['is_mobile'] = self.request.device['is_mobile']
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -588,7 +588,7 @@ class ReservationFBOUpdate (UpdateView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -599,7 +599,7 @@ class ReservationFBODelete (DeleteView):
     model = ReservationFBO
 
     def get_template_names(self):
-        if self.request.is_mobile:
+        if self.request.device['is_mobile']:
             template_name = 'res/mres_delete.html'
         else:
             template_name = 'res/delete_template.html'
@@ -627,7 +627,7 @@ class ReservationFBODelete (DeleteView):
                                                             self.object.start_time.day])
         else:
             # Wróć do listy rezerwacji
-            if self.request.is_mobile:
+            if self.request.device['is_mobile']:
                 return reverse('res:mobile-res')
             else:
                 return reverse('res:reservation-list')
@@ -635,7 +635,7 @@ class ReservationFBODelete (DeleteView):
 
 @permission_required('res.res_user')
 def ReservationCalendar(request, year=None, month=None, day=None):
-    context={'mobile': request.is_mobile}
+    context={'mobile': request.device['is_mobile']}
     context['resources'] = ''
 
     if year and month and day:
@@ -703,7 +703,7 @@ def ReservationCalendar(request, year=None, month=None, day=None):
                                 % (aircraft.pk, aircraft, status, order, aircraft.type,
                                    aircraft.info.replace('\r','') if aircraft.info else '')
 
-    if request.is_mobile:
+    if request.device['is_mobile']:
         return render(request, 'res/mres_calendar.html', context)
     else:
         return render(request, 'res/res_calendar.html', context)
@@ -1059,7 +1059,7 @@ class ResParamsUpdate (UpdateView):
 
 @permission_required('res.res_user')
 def DutyCalendar(request, year=None, month=None, day=None):
-    context = {'mobile': request.is_mobile}
+    context = {'mobile': request.device['is_mobile']}
     context['resources'] = ''
 
     if year and month and day:
@@ -1070,7 +1070,7 @@ def DutyCalendar(request, year=None, month=None, day=None):
             context['resources'] += ','
         context['resources'] += "{id:'%s', title:'%s'}" % (pilot.pk, pilot)
 
-    if request.is_mobile:
+    if request.device['is_mobile']:
         return render(request, 'res/duty_calendar.html', context)
     else:
         return render(request, 'res/duty_calendar.html', context)
@@ -1097,13 +1097,13 @@ def reservation_feed(request):
                        (hasattr(request.user.fbouser, 'pilot') and (request.user.fbouser.pilot in (res.owner, res.participant))) or \
                        (res.open_user == request.user.fbouser):
                         editable = True
-                        if request.is_mobile:
+                        if request.device['is_mobile']:
                             update = True
                 notes = ('<b style="color: lightcoral">' + res.internal_remarks.replace('\r','').replace('\n', '<br>') + '</b>') \
                         if (res.internal_remarks and (request.user.has_perm('res.res_admin') or request.user.fbouser.infos)) else ''
                 notes = notes + ((('<br>' if notes else '') + res.remarks.replace('\r','').replace('\n', '<br>')) if res.remarks else '')
                 if res.aircraft.scheduled:
-                    if not request.is_mobile:
+                    if not request.device['is_mobile']:
                         url = '%s?cal=1' % (reverse('res:reservation-info', args=[res.pk]))
                     else:
                         if update:
@@ -1153,7 +1153,7 @@ def reservation_feed(request):
                                       'notes': '%s - %s' % (oper.loc_start, oper.loc_end),
                                       'color': oper.pdt.aircraft.color,
                                       'editable': False,
-                                      'url': ('' if request.is_mobile else reverse('panel:pdt-info', args=[oper.pdt.pk])),
+                                      'url': ('' if request.device['is_mobile'] else reverse('panel:pdt-info', args=[oper.pdt.pk])),
                                       })
 
             # Dodaj rezerwacje pozostałych zasobów z tego zakresu dat
@@ -1172,7 +1172,7 @@ def reservation_feed(request):
                                           'notes': res.remarks,
                                           'color': res.resource.color,
                                           'editable': False,
-                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.is_mobile
+                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.device['is_mobile']
                                                                else reverse('res:resfbo-info', args=[res.pk])),
                                           })
                         # Dodaj do INFOS uczestnika
@@ -1188,7 +1188,7 @@ def reservation_feed(request):
                                               'notes': res.remarks,
                                               'color': res.resource.color,
                                               'editable': False,
-                                              'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.is_mobile
+                                              'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.device['is_mobile']
                                                                    else reverse('res:resfbo-info', args=[res.pk])),
                                               })
                     elif res.resource.name == 'Dyżur':
@@ -1206,7 +1206,7 @@ def reservation_feed(request):
                                           'notes': res.remarks,
                                           'color': res.resource.color,
                                           'editable': False,
-                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.is_mobile
+                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.device['is_mobile']
                                                                else reverse('res:resfbo-info', args=[res.pk])),
                                           })
                     else:
@@ -1222,7 +1222,7 @@ def reservation_feed(request):
                                           'notes': res.remarks,
                                           'color': res.resource.color,
                                           'editable': False,
-                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.is_mobile
+                                          'url': '%s?cal=1' % (reverse('res:resfbo-update', args=[res.pk]) if request.device['is_mobile']
                                                                else reverse('res:resfbo-info', args=[res.pk])),
                                           })
         response = json.dumps(data_list)

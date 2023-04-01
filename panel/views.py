@@ -2270,7 +2270,7 @@ def MobilePDTOpen1(request):
     pdt_ref = request.session.get('pdt_ref', None)
     remarks = request.session.get('remarks', None)
 
-    form = CheckOutFormOpen(request.POST or None, pilot=request.user.fbouser.pilot, is_mobile=request.is_mobile,
+    form = CheckOutFormOpen(request.POST or None, pilot=request.user.fbouser.pilot, is_mobile=request.device['is_mobile'],
                             initial={'pdt_date':pdt_date, 'flight_type':flight_type, 'aircraft':aircraft_id, 'pdt_ref':pdt_ref, 'remarks':remarks})
 
     # wspólne zmienne kontekstowe
@@ -2326,16 +2326,16 @@ def MobilePDTOpen2 (request):
 
     # wybór właściwego formularza dla typu lotu
     if flight_type in ('01', '02', '02H'):
-        form = CheckOutFormServices(request.POST or None, flight_type=flight_type, is_mobile=request.is_mobile,
+        form = CheckOutFormServices(request.POST or None, flight_type=flight_type, is_mobile=request.device['is_mobile'],
                                     initial={'contractors': contractor_id, 'service_remarks': service_remarks})
     elif flight_type in ('01A','03D'):
-        form = CheckOutFormVouchers(request.POST or None, is_mobile=request.is_mobile,
+        form = CheckOutFormVouchers(request.POST or None, is_mobile=request.device['is_mobile'],
                                     initial={'vouchers': voucher_id, 'ext_voucher': ext_voucher})
     elif flight_type in ('03A', '03B', '03C', '03E'):
-        form = CheckOutFormTrainings(request.POST or None, is_mobile=request.is_mobile, user=request.user.fbouser,
+        form = CheckOutFormTrainings(request.POST or None, is_mobile=request.device['is_mobile'], user=request.user.fbouser,
                                      initial={'trainings': training_id})
     elif flight_type == '04':
-        form = CheckOutFormRent(request.POST or None, is_mobile=request.is_mobile,
+        form = CheckOutFormRent(request.POST or None, is_mobile=request.device['is_mobile'],
                                 initial={'instructor': instructor_id})
     else:
         form = None
@@ -2430,7 +2430,7 @@ def MobilePDTOpen3 (request):
     else:
         student = None
 
-    form = CheckOutFormCrew(request.POST or None, student=student, is_mobile=request.is_mobile,
+    form = CheckOutFormCrew(request.POST or None, student=student, is_mobile=request.device['is_mobile'],
                             initial={'pic': pic_id, 'sic': sic_id})
 
     # wspólne zmienne kontekstowe
@@ -2559,7 +2559,7 @@ def MobileOperationOpen (request, pdt_id):
     else:
         pax = None
 
-    form = OperationOpenForm(request.POST or None, pdt=pdt, is_mobile=request.is_mobile, user=request.user,
+    form = OperationOpenForm(request.POST or None, pdt=pdt, is_mobile=request.device['is_mobile'], user=request.user,
                              initial={'fuel_available': int(fuel_available), 'loc_start': loc_start, 'fuel_source': fuel_source})
 
     # wspólne zmienne kontekstowe
@@ -2609,7 +2609,7 @@ def MobileOperationClose (request, operation_id):
 
     operation = get_object_or_404(Operation, pk=operation_id)
 
-    form = OperationCloseForm(request.POST or None, operation=operation, is_mobile=request.is_mobile,
+    form = OperationCloseForm(request.POST or None, operation=operation, is_mobile=request.device['is_mobile'],
                               initial={'loc_start': operation.loc_start, 'tth_start': operation.tth_start,
                                        'fuel_used': 0, 'landings': 1, 'cycles': 0})
 
@@ -2659,7 +2659,7 @@ def MobilePDTClose (request, pdt_id):
     else:
         fuel_source = None
 
-    form = CheckInForm(request.POST or None, pdt=pdt, is_mobile=request.is_mobile,
+    form = CheckInForm(request.POST or None, pdt=pdt, is_mobile=request.device['is_mobile'],
                        initial={'fuel_after_source': fuel_source, 'fuel_after': 0, 'remarks': pdt.remarks})
 
     # wspólne zmienne kontekstowe
@@ -2691,7 +2691,7 @@ def MobilePDTClose (request, pdt_id):
 @login_required()
 def PanelFuelingCreate (request):
 
-    form = PanelFuelingForm(request.POST or None, is_mobile=request.is_mobile, user=request.user.fbouser)
+    form = PanelFuelingForm(request.POST or None, is_mobile=request.device['is_mobile'], user=request.user.fbouser)
 
     # wspólne zmienne kontekstowe
     context = {}
@@ -2713,12 +2713,12 @@ def PanelFuelingCreate (request):
         fueling.save()
 
         # przejście do kolejnego formularza
-        if request.is_mobile:
+        if request.device['is_mobile']:
             return HttpResponseRedirect(reverse('dispatcher'))
         else:
             return HttpResponseRedirect(reverse('fbo:user-info', args=[request.user.fbouser.pk]))
 
-    if request.is_mobile:
+    if request.device['is_mobile']:
         return render(request, 'panel/mfueling.html', context)
     else:
         return render(request, 'panel/create_template.html', context)
