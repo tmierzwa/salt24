@@ -16,7 +16,7 @@ urlpatterns = [
     re_path(r'^res/', include('res.urls')),
 
     re_path(r'^login/$', salt_login, name='login'),
-    re_path(r'^logout/$', logout, {'next_page': 'dispatcher'}, name='logout'),
+    re_path(r'^logout/$', logout.as_view(), {'next_page': 'dispatcher'}, name='logout'),
     re_path(r'^password/$', salt_password_change, {'post_change_redirect': 'dispatcher'}, name='pwd-change'),
     re_path(r'^adminpwd/(?P<user_id>\d+)/$', admin_password_change, name='admin-pwd-change'),
     re_path(r'^$', dispatcher, name='dispatcher'),
