@@ -12,6 +12,10 @@ from camo.models import Aircraft, CAMO_operation, MS_report
 from fin.models import Voucher, Contractor, FuelTank
 from ato.models import Training_inst, Instructor
 
+class FastManager(models.Manager):
+    def get_queryset(self):
+        return super(FastManager, self).get_queryset().select_related()
+
 # Funkcja określająca porządek PDT
 def pdt_order(pdt1, pdt2, order):
 
@@ -93,6 +97,8 @@ class FBOUser(models.Model):
                                                (1, 'Tworzenie'),
                                                (2, 'Zarządzanie')], default=1, verbose_name='Moduł RES')
 
+    objects = FastManager()
+
     def save(self, *args, **kwargs):
         res = super(FBOUser, self).save(*args, **kwargs)
 
@@ -162,6 +168,8 @@ class Pilot(models.Model):
     employee = models.BooleanField(default=False, verbose_name='Kontrola czasu pracy')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return self.fbouser.__str__()
 
@@ -172,6 +180,8 @@ class Rating(models.Model):
     rating = models.CharField(max_length=50, verbose_name='Nazwa uprawnienia')
     valid_date = models.DateField(blank=True, null=True, verbose_name='Ważność uprawnienia')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return self.rating
@@ -234,6 +244,8 @@ class PDT(models.Model):
     check_user = models.ForeignKey(FBOUser, related_name='pdt_checked_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Sprawdzony przez')
     check_time = models.DateTimeField(blank=True, null=True, verbose_name='Czas sprawdzenia')
     next_pdt = models.OneToOneField('PDT', blank=True, null=True, on_delete=models.SET_NULL, related_name='prev_pdt', verbose_name='Następny PDT dla SP')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
 
@@ -567,6 +579,8 @@ class Operation(models.Model):
     cycles = models.IntegerField(default=0, blank=True, null=True, verbose_name='Liczba cykli')
     status = models.CharField(max_length=10, choices=[('open', 'Otwarta'), ('closed', 'Zamknięta')], default='open', verbose_name='Status')
 
+    objects = FastManager()
+
     class Meta:
         ordering = ['operation_no']
 
@@ -625,12 +639,14 @@ class PilotAircraft(models.Model):
     pilot = models.ForeignKey(Pilot, verbose_name='Pilot', on_delete=models.CASCADE)
     aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)
 
+    objects = FastManager()
 
 # Relacja pomiędzy pilotem a rodzajem lotu
 class PilotFlightType(models.Model):
     pilot = models.ForeignKey(Pilot, verbose_name='Pilot', on_delete=models.CASCADE)
     flight_type = models.CharField(max_length=3, verbose_name='Rodzaj lotu')
 
+    objects = FastManager()
 
 # Czas pracy / służby pilota
 class Duty(models.Model):
@@ -651,6 +667,8 @@ class Duty(models.Model):
     landings = models.IntegerField(blank=True, null=True, verbose_name='Liczba lądowań')
     time_factor = models.DecimalField(max_digits=3, decimal_places=2, default=1, verbose_name='Mnożnik czasu')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def comp_str(self):
         if self.company == 'other':

@@ -1499,7 +1499,7 @@ def PDTOpen(request):
 @login_required()
 def PDTUpdate(request, pk):
 
-    return render(request, 'panel/pdt_edit_blocked.html', {})
+    # return render(request, 'panel/pdt_edit_blocked.html', {})
 
     # Weryfikacja czy wywołano z modułu CAMO
     camo = ('camo' in request.GET)

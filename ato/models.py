@@ -7,6 +7,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from salt.models import MyDurationField
 
 
+class FastManager(models.Manager):
+    def get_queryset(self):
+        return super(FastManager, self).get_queryset().select_related()
+
+
 class Module(models.Model):
 
     class Meta:
@@ -35,6 +40,8 @@ class Phase(models.Model):
     min_time_instr = MyDurationField(blank=True, null=True, verbose_name='Min. czas z instr.')
     min_time_solo = MyDurationField(blank=True, null=True, verbose_name='Min. czas solo')
 
+    objects = FastManager()
+
     def __str__(self):
         return "%s / %s" % (self.training.code, self.code)
 
@@ -51,6 +58,8 @@ class Exercise(models.Model):
     min_num_instr = models.IntegerField(blank=True, null=True, verbose_name='Min. liczba powtórzeń z instr.')
     min_num_solo  = models.IntegerField(blank=True, null=True, verbose_name='Min. liczba powtórzeń solo')
 
+    objects = FastManager()
+
     def __str__(self):
         return "%s / %s" % (self.phase, self.code)
 
@@ -58,6 +67,8 @@ class Exercise(models.Model):
 class Student(models.Model):
     pilot = models.OneToOneField('panel.Pilot', on_delete=models.CASCADE, verbose_name='Pilot')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return self.pilot.__str__()
@@ -67,6 +78,8 @@ class Instructor(models.Model):
     pilot = models.OneToOneField('panel.Pilot', on_delete=models.CASCADE, verbose_name='Pilot')
     restrictions = models.CharField(max_length=3, choices=[('TAK','TAK'), ('NIE','NIE')], default='NIE', verbose_name='Restrykcje')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return self.pilot.__str__()
@@ -81,6 +94,8 @@ class Training_inst(models.Model):
     pass_date = models.DateField(blank=True, null=True, verbose_name='Data ukończenia')
     open =  models.BooleanField(default=True, verbose_name='Czy otwarte')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return u'%s dla %s' % (self.training.code, self.student)
@@ -131,6 +146,8 @@ class Phase_inst(models.Model):
     passed = models.CharField(max_length=3, choices=[('TAK','TAK'), ('NIE','NIE')], default='NIE', verbose_name='Zaliczenie')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return "%s / %s" % (self.training_inst.training.code, self.code)
 
@@ -168,6 +185,8 @@ class Exercise_inst(models.Model):
     passed = models.CharField(max_length=3, choices=[('TAK','TAK'), ('NIE','NIE')], default='NIE', verbose_name='Zaliczenie')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return "%s / %s" % (self.phase_inst, self.code)
 
@@ -179,6 +198,8 @@ class Exercise_oper(models.Model):
     time_allocated = MyDurationField(default=datetime.timedelta(seconds=0), verbose_name='Czas ćwiczenia')
     num_allocated = models.IntegerField(default=0, verbose_name='Liczba powtórzeń ćwiczenia')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return "Operacja z dnia: %s, %s - %s" % (self.operation.pdt.date, self.operation.loc_start, self.operation.loc_end)
@@ -233,6 +254,8 @@ class Card_entry(models.Model):
     passed = models.IntegerField(choices=[(0, 'Kontynuacja'), (1, 'Zaliczenie')], default=0, verbose_name="Zaliczenie")
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
     internal_remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi dla instruktorów')
+
+    objects = FastManager()
 
     def __str__(self):
         return "Wpis z dnia %s" % self.date

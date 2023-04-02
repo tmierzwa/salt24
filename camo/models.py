@@ -4,6 +4,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 
 
+class FastManager(models.Manager):
+    def get_queryset(self):
+        return super(FastManager, self).get_queryset().select_related()
+
+
 class Module(models.Model):
 
     class Meta:
@@ -49,6 +54,8 @@ class Aircraft(models.Model):
     scheduled = models.BooleanField(default=True, verbose_name='Podlega rezerwacjom')
     info = models.TextField(blank=True, null=True, verbose_name='Informacje dla pilotów')
     color = models.CharField(max_length=7, default='#ccffcc', verbose_name='Kolor wyświetlania')
+
+    objects = FastManager()
 
     def configuration(self):
         # Funkcja zwracająca aktywne przypisania #
@@ -209,6 +216,8 @@ class Part(models.Model):
     landings_count = models.IntegerField(default=0, verbose_name='Suma lądowań')
     cycles_count = models.IntegerField(default=0, verbose_name='Suma cykli')
 
+    objects = FastManager()
+
     def months_count(self, ask_date=date.today()):
         # Funkcja zwracająca wiek częsci w miesiącach od daty produkcji #
         months = 0
@@ -317,6 +326,8 @@ class Assignment(models.Model):
     to_cycles = models.IntegerField(blank=True, null=True)
     current = models.BooleanField(default=False)
 
+    objects = FastManager()
+
     def install_tth(self):
         return self.part.hours_count - (self.aircraft.hours_count - self.from_hours)
 
@@ -363,6 +374,8 @@ class POT_group(models.Model):
     done_cycles = models.IntegerField(blank=True, null=True, verbose_name='Wykonano (cykle)')
     done_aso = models.CharField(max_length=100, blank=True, null=True, verbose_name="Wykonano (ASO)")
     remarks = models.CharField(max_length=500, blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def next_hours(self):
         if self.due_hours and self.applies:
@@ -496,6 +509,8 @@ class POT_event(models.Model):
     done_landings = models.IntegerField(blank=True, null=True, verbose_name='Wykonano (lądowania)')
     done_cycles = models.IntegerField(blank=True, null=True, verbose_name='Wykonano (cykle)')
 
+    objects = FastManager()
+
     def next_hours(self):
         if self.POT_group.due_hours:
             if self.done_hours:
@@ -622,6 +637,8 @@ class Work_order(models.Model):
     aso = models.CharField(max_length=100)
     open = models.BooleanField(default=True)
 
+    objects = FastManager()
+
     def __str__(self):
         return self.number
 
@@ -635,6 +652,8 @@ class Work_order_line(models.Model):
     done_landings = models.IntegerField(blank=True, null=True)
     done_cycles = models.IntegerField(blank=True, null=True)
     done_crs = models.CharField(max_length=20, blank=True, null=True)
+
+    objects = FastManager()
 
     def __str__(self):
         return str(self.pk)
@@ -650,6 +669,8 @@ class Modification(models.Model):
     aso = models.CharField(max_length=100, verbose_name='Organizacja')
     done_crs = models.CharField(max_length=20, verbose_name='Numer CRS')
     remarks = models.CharField(max_length=500, blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return self.description
@@ -672,6 +693,8 @@ class WB_report(models.Model):
     done_doc = models.CharField(max_length=20, blank=True, null=True, verbose_name='Numer CRS')
     remarks = models.CharField(max_length=500, blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return self.description
 
@@ -693,6 +716,8 @@ class MS_report(models.Model):
     next_landings = models.IntegerField(blank=True, null=True, verbose_name='Ważne do liczby lądowań')
     next_cycles = models.IntegerField(blank=True, null=True, verbose_name='Ważne do liczby cykli')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
         res = super(MS_report, self).save(*args, **kwargs)
@@ -738,6 +763,8 @@ class CAMO_operation(models.Model):
     landings = models.IntegerField(default=0, verbose_name='Liczba lądowań')
     cycles = models.IntegerField(default=0, verbose_name='Liczba cykli')
     remarks = models.CharField(max_length=350, blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return '%s/%s' % (self.aircraft, self.tth_end)
