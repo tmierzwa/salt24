@@ -1075,9 +1075,14 @@ def DutyCalendar(request, year=None, month=None, day=None):
         return render(request, 'res/duty_calendar.html', context)
 
 
+# Funkcja pomocnicza do sprawdzenia, czy zapytanie jest Ajax
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 # Pobranie listy rezerwacji poprzez Ajax
 def reservation_feed(request):
-    if request.is_ajax():
+    if is_ajax(request):
         data_list = []
         try:
             start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]))
@@ -1232,7 +1237,7 @@ def reservation_feed(request):
 
 # Zapisanie zmian w rezerwacji przez Ajax
 def reservation_move(request):
-    if request.is_ajax():
+    if is_ajax(request):
         reservation_id = request.POST['reservation'][2:]
         new_resource = request.POST['newResource']
         new_start = request.POST['newStart']
@@ -1265,7 +1270,7 @@ def reservation_move(request):
 
 # Pobranie listy pozycji czasu pracy poprzez Ajax
 def duty_feed(request):
-    if request.is_ajax():
+    if is_ajax(request):
         data_list = []
         try:
             start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]))
