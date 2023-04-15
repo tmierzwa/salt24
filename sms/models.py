@@ -50,6 +50,8 @@ class SMSHazardRev(models.Model):
     control = models.TextField(blank=True, null=True, verbose_name='Wykonanie / kontrola')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return '%s rev. %d' % (self.hazard.hazard_ref, self.rev_num)
 
@@ -84,6 +86,8 @@ class SMSRisk(models.Model):
                                                          ('C', 'C - Średnia'),
                                                          ('B', 'B - Mała'),
                                                          ('A', 'A - Bardzo mała')], verbose_name='Szczątkowa dotkliwość')
+
+    objects = FastManager()
 
     def prob_str(self):
         probs = {'5':'5 - Bardzo wysokie', '4': '4 - Wysokie', '3': '3 - Średnie',
@@ -157,6 +161,8 @@ class SMSEvent(models.Model):
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
     reported_by = models.ForeignKey('panel.FBOUser', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zgłaszający użytkownik')
 
+    objects = FastManager()
+
     def __str__(self):
         return 'Zdarzenie %s / %s' % (self.aircraft, str(self.event_date))
 
@@ -173,6 +179,8 @@ class SMSFailure(models.Model):
     smshazard = models.ForeignKey(SMSHazard, blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zagrożenie w rejestrze')
     findings = models.TextField(blank=True, null=True, verbose_name='Wnioski i zalecenia ogólne')
 
+    objects = FastManager()
+
     def __str__(self):
         return 'Usterka %s/%s' % (self.aircraft, str(self.failure_date))
 
@@ -186,6 +194,8 @@ class SMSReport(models.Model):
     findings = models.TextField(blank=True, null=True, verbose_name='Wnioski i zalecenia')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
     reported_by = models.ForeignKey('panel.FBOUser', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zgłoszajacy użytkownik')
+
+    objects = FastManager()
 
     def __str__(self):
         return 'Dobrowolny raport z dnia %s' % str(self.report_date)
@@ -207,6 +217,8 @@ class NCR(models.Model):
     ncr_user2 = models.ForeignKey(FBOUser, related_name='ncr_user2_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Osoba odpowiedzialna 2')
     done_date = models.DateField(blank=True, null=True, verbose_name='Data usunięcia')
     check_date = models.DateField(blank=True, null=True, verbose_name='Data audytu sprawdzającego')
+
+    objects = FastManager()
 
     def left_days(self):
         if self.done_date:
