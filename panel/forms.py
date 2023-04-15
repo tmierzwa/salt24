@@ -124,7 +124,7 @@ class PDTEditForm(forms.ModelForm):
                 forms.CharField(initial=ms_valid, widget=forms.HiddenInput(), required=False)
 
         # Szkolenia tylko aktywne
-        self.fields['training'].queryset = Training_inst.objects.filter(open=True).order_by('student')
+        self.fields['training'].queryset = Training_inst.objects.select_related().filter(open=True).order_by('student')
 
         # Ustaw szkolenie na podstawie SIC lub PIC
         if not self.instance.pk and kwargs['initial']['flight_type'] in ['03A', '03B', '03C', '03E']:
@@ -207,8 +207,8 @@ class OperationEditForm(forms.ModelForm):
 
     class Meta:
         model = Operation
-        fields = ['operation_no', 'pax', 'bags', 'fuel_refill', 'fuel_source', 'fuel_available',
-                  'oil_refill', 'trans_oil_refill', 'hydr_oil_refill', 'loc_start', 'loc_end', 'tth_start', 'tth_end',
+        fields = ['operation_no', 'fuel_refill', 'fuel_source', 'fuel_available',
+                  'oil_refill', 'loc_start', 'loc_end', 'tth_start', 'tth_end',
                   'time_start', 'time_end', 'fuel_used', 'landings', 'cycles', 'status']
         localized_fields = ['tth_start', 'tth_end']
 

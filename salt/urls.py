@@ -1,6 +1,6 @@
 from django.urls import include, re_path
 from django.contrib import admin
-from django.contrib.auth.views import LoginView as login, LogoutView as logout, logout_then_login
+from django.contrib.auth.views import LoginView as login, LogoutView as logout
 from salt.views import dispatcher, salt_login, salt_password_change, admin_password_change
 
 

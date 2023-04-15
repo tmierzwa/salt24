@@ -125,9 +125,9 @@ def PanelHome (request):
     # Jeśli jest pilotem
     if hasattr(request.user.fbouser, 'pilot'):
         flight_list = PDT.objects.filter(Q(pic=request.user.fbouser.pilot) | Q(sic=request.user.fbouser.pilot) |
-                                         Q(open_user=request.user.fbouser) | Q(close_user=request.user.fbouser)).order_by('-date', '-pk')[:100]
+                                         Q(open_user=request.user.fbouser) | Q(close_user=request.user.fbouser)).order_by('-date', '-pk')[:50]
     else:
-        flight_list = PDT.objects.filter(Q(open_user=request.user.fbouser) | Q(close_user=request.user.fbouser)).order_by('-date', '-pk')[:100]
+        flight_list = PDT.objects.filter(Q(open_user=request.user.fbouser) | Q(close_user=request.user.fbouser)).order_by('-date', '-pk')[:50]
 
     # Lokalne menu
     local_menu = []
@@ -171,7 +171,7 @@ def PanelHome (request):
                        'link': reverse('panel:pdt-info', args=[object.pk]), 'just': 'center'})
         fields.append({'name': 'flight_type', 'value': object.flight_type_name()})
         fields.append({'name': 'tth', 'value': '%.1f' % object.tth_sum(), 'just': 'center'})
-        fields.append({'name': 'tth', 'value': '%02.d:%02.d' % (object.hours_sum()[1], object.hours_sum()[2]), 'just': 'center'})
+        fields.append({'name': 'time', 'value': '%02.d:%02.d' % (object.hours_sum()[1], object.hours_sum()[2]), 'just': 'center'})
         fields.append({'name': 'landings', 'value': object.landings_sum(), 'just': 'center'})
         fields.append({'name': 'status', 'value': object.status_name(), 'color': object.status_color()})
         fields.append({'name': 'change', 'report_link': reverse('panel:pdt-info', args=[object.pk])})
@@ -1683,14 +1683,10 @@ def OperationOpen (request, pdt_id):
             aircraft.save()
 
         # zapis nowej operacji
-        operation = Operation(pdt=pdt, operation_no=operation_no, pax=form.cleaned_data['pax'],
-                              bags=form.cleaned_data['bags'],
+        operation = Operation(pdt=pdt, operation_no=operation_no,
                               fuel_refill=form.cleaned_data['fuel_refill'],
                               fuel_source=form.cleaned_data['fuel_source'],
                               fuel_available=form.cleaned_data['fuel_available'],
-                              oil_refill=form.cleaned_data['oil_refill'],
-                              trans_oil_refill=form.cleaned_data['trans_oil_refill'],
-                              hydr_oil_refill=form.cleaned_data['hydr_oil_refill'],
                               fuel_used=form.cleaned_data['fuel_used'], loc_start=form.cleaned_data['loc_start'],
                               tth_start=form.cleaned_data['tth_start'], time_start=form.cleaned_data['time_start'],
                               loc_end=form.cleaned_data['loc_end'], tth_end=form.cleaned_data['tth_end'],

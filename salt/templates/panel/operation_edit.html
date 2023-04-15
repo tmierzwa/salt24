@@ -43,16 +43,6 @@
 
             <div class="pdt_form_block">
                 <table>
-                    {% if form.pdt.flight_type == '01' or form.pdt.flight_type == '01A' %}
-                        <tr>
-                            <td class='oper_form_label' nowrap>{{ form.pax.label }}:</td>
-                            <td>{{ form.pax }}</td>
-                            <td class='oper_form_label' nowrap>{{ form.bags.label }}:</td>
-                            <td>{{ form.bags }}</td>
-                            <td class='oper_form_label' nowrap></td>
-                            <td></td>
-                        </tr>
-                    {% endif %}
                     <tr>
                         <td class='oper_form_label'>{{ form.fuel_refill.label }}:</td>
                         <td>{{ form.fuel_refill }}</td>
@@ -64,10 +54,10 @@
                     <tr>
                         <td class='oper_form_label'>{{ form.oil_refill.label }}:</td>
                         <td>{{ form.oil_refill }}</td>
-                        <td class='oper_form_label'>{{ form.trans_oil_refill.label }}:</td>
-                        <td>{{ form.trans_oil_refill }}</td>
-                        <td class='oper_form_label'>{{ form.hydr_oil_refill.label }}:</td>
-                        <td>{{ form.hydr_oil_refill }}</td>
+                        <td class='oper_form_label'></td>
+                        <td></td>
+                        <td class='oper_form_label'></td>
+                        <td></td>
                     </tr>
                     {% if form.do_pfi %}
                         <tr>
@@ -123,29 +113,15 @@
                         <td>{{ form.tth_end }}</td>
                     </tr>
                     <tr>
-                        <td class='oper_form_label'>{{ form.fuel_used.label }}:</td>
-                        <td>{{ form.fuel_used }}</td>
-                        <td class='oper_form_label'>Czas operacji:</td>
-                        <td><input id="id_oper_time" name="oper_time" type="text" disabled></td>
-                        <td class='oper_form_label'>TTH operacji:</td>
-                        <td><input id="id_oper_tth" name="oper_tth" type="text" disabled></td>
-                    </tr>
-                    <tr>
                         <td class='oper_form_label'>{{ form.landings.label }}:</td>
                         <td>{{ form.landings }}</td>
-                        {% if form.pdt.aircraft.use_cycles %}
-                            <td class='oper_form_label'>{{ form.cycles.label }}:</td>
-                            <td>{{ form.cycles }}</td>
-                        {% else %}
-                            <td class='oper_form_label'></td>
-                            <td></td>
-                        {% endif %}
-                        <td class='oper_form_label'></td>
-                        <td></td>
+                        <td class='oper_form_label'>Czas pracy:</td>
+                        <td><input id="id_oper_tth" name="oper_tth" type="text" disabled></td>
+                        <td class='oper_form_label'>Czas lotu:</td>
+                        <td><input id="id_oper_time" name="oper_time" type="text" disabled></td>
                     </tr>
                 </table>
             </div>
-
 
             <table>
                 <tr><th></th><td>&nbsp;</td></tr>

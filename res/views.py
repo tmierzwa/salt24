@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
-from django.utils.timezone import localtime, get_current_timezone
+from django.utils.timezone import localtime, get_current_timezone, make_aware
 from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -52,8 +52,8 @@ def reservation_check(reservation, fbouser):
     # sprawdzenie czy można otworzyć PDT
     open_pdt = (reservation.status in ('Nowa', 'Potwierdzona')) and \
                hasattr(fbouser, 'pilot') and \
-               (datetime.now(tz=pytz.utc) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))) and \
-               (datetime.now(tz=pytz.utc) < reservation.end_time + timedelta(days=1)) and \
+               (datetime.now(tz=pytz.timezone('CET')) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))) and \
+               (datetime.now(tz=pytz.timezone('CET')) < reservation.end_time + timedelta(days=1)) and \
                (reservation.aircraft.status == 'flying') and \
                reservation.aircraft.airworthy() and \
                not fbouser.open_pdt() and \
@@ -69,12 +69,12 @@ def reservation_msg(reservation, fbouser):
         res_msg = 'Rezerwacja została anulowana.'
     elif not (hasattr(fbouser, 'pilot')):
         res_msg = 'Zalogowany użytkownik nie jest pilotem.'
-    elif not (datetime.now(tz=pytz.utc) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))):
+    elif not (datetime.now(tz=pytz.timezone('CET')) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))):
         if reservation.aircraft.helicopter:
             res_msg = 'Do rozpoczęcia rezerwacji pozostało ponad 3 godziny.'
         else:
             res_msg = 'Do rozpoczęcia rezerwacji pozostała ponad godzina.'
-    elif not ((datetime.now(tz=pytz.utc) < reservation.end_time + timedelta(days=1))):
+    elif not ((datetime.now(tz=pytz.timezone('CET')) < reservation.end_time + timedelta(days=1))):
         res_msg = 'Od zakończenia rezerwacji minęła ponad doba.'
     elif not ((reservation.aircraft.status == 'flying')):
         res_msg = 'Statek powietrzny jest niesprawny.'
@@ -102,20 +102,22 @@ def ReservationList(request):
     else:
         # Jeśli jest pilotem
         if hasattr(request.user.fbouser, 'pilot'):
-            # Wybierz te które utworzyłeś lub jesteś właścicielem
+            # Wybierz te, które utworzyłeś lub jesteś właścicielem
             query_ac = Reservation.objects.filter(Q(owner=request.user.fbouser.pilot) | Q(participant=request.user.fbouser.pilot) | Q(open_user=request.user.fbouser)).\
                     exclude(end_time__lt = this_day).exclude(status = 'Zrealizowana').order_by('start_time')
         else:
             # Pozostałe przypadki
             query_ac = Reservation.objects.none()
 
-        # Wybierz te które utworzyłeś lub jesteś właścicielem
+        # Wybierz te, które utworzyłeś lub jesteś właścicielem
         query_fbo = ReservationFBO.objects.filter(Q(owner=request.user.fbouser) | Q(participant=request.user.fbouser) | Q(open_user=request.user.fbouser)).\
                     exclude(end_time__lt = this_day).order_by('start_time')
 
     # lista rezerwacji na podstawie query_ac i query_fbo
     object_list = []
     for res in query_ac:
+        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
+        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append({'res': res, 'pk':res.pk, 'resource':res.aircraft, 'start_time': res.start_time,
                             'end_time': res.end_time, 'owner': res.owner, 'participant': res.participant,
                             'title': FlightTypes()[res.planned_type] if res.planned_type else '',
@@ -123,6 +125,8 @@ def ReservationList(request):
                             'loc_end': res.loc_end, 'remarks': res.remarks, 'internal_remarks': res.internal_remarks,
                             'status': res.status, 'fbo': False})
     for res in query_fbo:
+        res.start_time = make_aware(res.start_time)
+        res.end_time = make_aware(res.end_time)
         object_list.append({'res': res, 'pk':res.pk, 'resource':res.resource, 'start_time': res.start_time,
                             'end_time': res.end_time, 'owner': res.owner, 'participant': res.participant,
                             'title': res.title, 'planned_time': None, 'loc_start': '', 'loc_stop': '', 'loc_end': '',
@@ -214,6 +218,8 @@ def ReservationListMobile(request):
     # lista rezerwacji na podstawie query_ac i query_fbo
     object_list = []
     for res in query_ac:
+        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
+        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append(
             {'res': res, 'pk': res.pk, 'resource': res.aircraft, 'start_time': res.start_time, 'end_time': res.end_time,
              'owner': res.owner.fbouser, 'participant': res.participant.fbouser if res.participant else None,
@@ -222,6 +228,8 @@ def ReservationListMobile(request):
              'loc_end': res.loc_end, 'remarks': res.remarks, 'internal_remarks': res.internal_remarks,
              'status': res.status, 'fbo': False})
     for res in query_fbo:
+        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
+        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append(
             {'res': res, 'pk': res.pk, 'resource': res.resource, 'start_time': res.start_time, 'end_time': res.end_time,
              'owner': res.owner, 'participant': res.participant, 'title': res.title,
@@ -807,8 +815,8 @@ class BlackoutCreate (CreateView):
                 if cleaned_data['end_time'] <= cleaned_data['start_time']:
                     raise forms.ValidationError("Termin rozpoczęcia musi być wcześniejszy niż zakończenia!")
 
-                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month, cleaned_data['start_time'].day, tzinfo=pytz.utc)
-                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month, cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.utc)
+                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month, cleaned_data['start_time'].day, tzinfo=pytz.timezone('CET'))
+                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month, cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.timezone('CET'))
                 overlap = False
                 for res in Reservation.objects.filter(aircraft=cleaned_data['aircraft']).exclude(start_time__gt=end).exclude(end_time__lt=start):
                     if (res.start_time >= cleaned_data['start_time'] and res.start_time < cleaned_data['end_time']) or \
@@ -854,8 +862,8 @@ class BlackoutUpdate (UpdateView):
                 if cleaned_data['end_time'] <= cleaned_data['start_time']:
                     raise forms.ValidationError("Termin rozpoczęcia musi być wcześniejszy niż zakończenia!")
 
-                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month,cleaned_data['start_time'].day, tzinfo=pytz.utc)
-                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month,cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.utc)
+                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month,cleaned_data['start_time'].day, tzinfo=pytz.timezone('CET'))
+                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month,cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.timezone('CET'))
                 overlap = False
                 for res in Reservation.objects.filter(aircraft=cleaned_data['aircraft']).exclude(start_time__gt=end).exclude(end_time__lt=start).exclude(pk=self.instance.id):
                     if (res.start_time >= cleaned_data['start_time'] and res.start_time < cleaned_data['end_time']) or \
@@ -1081,13 +1089,13 @@ def reservation_feed(request):
     if request.is_ajax():
         data_list = []
         try:
-            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.utc)
-            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.utc)
+            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.timezone('CET'))
+            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.timezone('CET'))
         except:
             start = end = None
 
         if start and end:
-            today = datetime(year=date.today().year, month=date.today().month, day=date.today().day, tzinfo=pytz.utc)
+            today = datetime(year=date.today().year, month=date.today().month, day=date.today().day, tzinfo=pytz.timezone('CET'))
             # Dodaj rezerwacje AC z tego zakresu dat
             for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = start):
                 editable = False
@@ -1269,14 +1277,14 @@ def duty_feed(request):
     if request.is_ajax():
         data_list = []
         try:
-            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.utc)
-            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.utc)
+            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.timezone('CET'))
+            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.timezone('CET'))
         except:
             start = end = None
 
         if start and end:
             # Dodaj rezerwacje AC z wybranego zakresu dat
-            for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = max(start, datetime.now(tz=pytz.utc)-timedelta(seconds=30*60))):
+            for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = max(start, datetime.now(tz=pytz.timezone('CET'))-timedelta(seconds=30*60))):
                 notes = ('<b style="color: lightcoral">' + res.internal_remarks.replace('\r','').replace('\n', '<br>') + '</b>') \
                         if (res.internal_remarks and request.user.has_perm('res.res_admin')) else ''
                 notes = notes + ((('<br>' if notes else '') + res.remarks.replace('\r','').replace('\n', '<br>')) if res.remarks else '')

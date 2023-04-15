@@ -124,21 +124,18 @@
                     <table width="97%">
                         <tr class="operation_row">
                             <td class="operation_head">Lp.</td>
-                            <td class="operation_head">PAX</td>
-                            <td class="operation_head">BAGS</td>
                             <td class="operation_head">Paliwo<br>uzup.</td>
                             <td class="operation_head">Paliwo<br>do lotu</td>
-                            <td class="operation_head">Paliwo<br>zużyto</td>
                             <td class="operation_head">Olej<br>uzup.</td>
                             <td class="operation_head">Miejsce<br>startu</td>
-                            <td class="operation_head">Czas<br>Off-Block</td>
+                            <td class="operation_head">Czas<br>Off-block</td>
                             <td class="operation_head">Licznik<br>początkowy</td>
                             <td class="operation_head">Miejsce<br>lądowania</td>
-                            <td class="operation_head">Czas<br>On-Block</td>
+                            <td class="operation_head">Czas<br>On-block</td>
                             <td class="operation_head">Licznik<br>końcowy</td>
                             <td class="operation_head">Liczba<br>lądowań</td>
+                            <td class="operation_head">Czas pracy</td>
                             <td class="operation_head">Czas lotu</td>
-                            <td class="operation_head">Czas wg<br>licznika</td>
                             <td class="operation_head">...</td>
                         </tr>
 
@@ -146,11 +143,8 @@
                             {% for operation in form.instance.operation_set.all %}
                                 <tr class="operation_row">
                                     <td class="operation_field">{{ operation.operation_no }}</td>
-                                    <td class="operation_field">{{ operation.pax|default_if_none:'-' }}</td>
-                                    <td class="operation_field">{{ operation.bags|default_if_none:'-' }}</td>
                                     <td class="operation_field">{{ operation.fuel_refill|default_if_none:'' }}</td>
                                     <td class="operation_field">{{ operation.fuel_available|default_if_none:'' }}</td>
-                                    <td class="operation_field">{{ operation.fuel_used|default_if_none:'' }}</td>
                                     <td class="operation_field">{{ operation.oil_refill|default_if_none:'-' }}</td>
                                     <td class="operation_field">{{ operation.loc_start|default_if_none:'' }}</td>
                                     <td class="operation_field">{{ operation.time_start|time:"H:i"  }}</td>
@@ -159,8 +153,8 @@
                                     <td class="operation_field">{{ operation.time_end|time:"H:i"  }}</td>
                                     <td class="operation_field">{{ operation.tth_end|floatformat:2 }}</td>
                                     <td class="operation_field">{{ operation.landings|floatformat:0 }}</td>
-                                    <td class="operation_field">{{ operation.hours.1|stringformat:'02d' }}:{{ operation.hours.2|stringformat:'02d' }}</td>
                                     <td class="operation_field">{{ operation.tth|floatformat:2 }}</td>
+                                    <td class="operation_field">{{ operation.hours.1|stringformat:'02d' }}:{{ operation.hours.2|stringformat:'02d' }}</td>
                                     <td class="operation_field" style="text-align: left; padding-right: 0">
                                         &nbsp;<input type="image" src="{% static 'images/pen.png' %}" title='Zmień' name="_edit_oper_{{ operation.pk }}" alt="Submit" />
                                         {% if operation == form.instance.operation_set.last %}
