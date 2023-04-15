@@ -44,6 +44,8 @@ class Reservation(models.Model):
     change_user = models.ForeignKey(FBOUser, related_name='res_changed_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zmodyfikowana przez')
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')
 
+    objects = FastManager()
+
     def __str__(self):
         return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
 
@@ -137,6 +139,8 @@ class Blackout(models.Model):
     open_user = models.ForeignKey(FBOUser, verbose_name='Utworzone przez', on_delete=models.CASCADE)
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin utworzenia')
 
+    objects = FastManager()
+
     def __str__(self):
         return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
 
@@ -166,6 +170,8 @@ class ReservationFBO(models.Model):
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin otwarcia')
     change_user = models.ForeignKey(FBOUser, related_name='resfbo_changed_by_set', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='Zmodyfikowana przez')
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')
+
+    objects = FastManager()
 
     def __str__(self):
         return '%s %s - %s' % (self.resource, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
