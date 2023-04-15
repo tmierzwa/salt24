@@ -17,6 +17,11 @@ class Module(models.Model):
     module = models.BooleanField()
 
 
+class FastManager(models.Manager):
+    def get_queryset(self):
+        return super(FastManager, self).get_queryset().select_related()
+
+
 # Rezerwacja SP
 class Reservation(models.Model):
     aircraft = models.ForeignKey(Aircraft, verbose_name='Statek powietrzny', on_delete=models.CASCADE)

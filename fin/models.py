@@ -13,6 +13,11 @@ class Module(models.Model):
     module = models.BooleanField()
 
 
+class FastManager(models.Manager):
+    def get_queryset(self):
+        return super(FastManager, self).get_queryset().select_related()
+
+
 # Zbiornik paliwa
 class FuelTank(models.Model):
     tank_ref = models.CharField(max_length=10, verbose_name='Symbol zbiornika')
@@ -72,6 +77,8 @@ class FuelDelivery(models.Model):
     liter_price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Cena za litr (PLN)')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
         try:
@@ -108,6 +115,8 @@ class FuelTransfer(models.Model):
     fuel_volume = models.DecimalField(max_digits=6, decimal_places=1, verbose_name='Objętość paliwa (L)')
     liter_price = models.FloatField(verbose_name='Średnia cena za litr (PLN)')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
@@ -207,6 +216,8 @@ class FuelCorrection(models.Model):
     fuel_volume = models.DecimalField(max_digits=6, decimal_places=1, verbose_name='Objętość różnicy (L)')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
         try:
@@ -241,6 +252,8 @@ class LocalFueling(models.Model):
     person = models.CharField(max_length=50, blank=True, null=True, verbose_name='Osoba tankująca')
     fuel_volume = models.DecimalField(max_digits=4, decimal_places=1, verbose_name='Objętość paliwa (L)')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
@@ -289,6 +302,8 @@ class PDTFueling(models.Model):
     pdt = models.ForeignKey('panel.PDT', verbose_name='PDT', on_delete=models.CASCADE)
     fueltank = models.ForeignKey(FuelTank, verbose_name='Zbiornik paliwa', on_delete=models.CASCADE)
     fuel_volume = models.DecimalField(max_digits=4, decimal_places=1, verbose_name='Objętość paliwa (L)')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
@@ -345,6 +360,8 @@ class RemoteFueling(models.Model):
     total_price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True, verbose_name='Wartość paliwa (PLN)')
     remarks  = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
         try:
@@ -399,6 +416,8 @@ class Voucher(models.Model):
     done_date = models.DateField(blank=True, null=True, verbose_name='Data realizacji')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return "%s / %s" % (self.voucher_code, self.description)
 
@@ -420,6 +439,8 @@ class Contractor(models.Model):
     spo_balance = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name='Saldo usług')
     debet_allowed = models.BooleanField(default=False, verbose_name='Zgoda na debet')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return '%s - %s' % (self.contractor_id, self.name)
@@ -448,6 +469,8 @@ class BalanceOperation(models.Model):
     aoc_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name='Kwota operacji (AOC)')
     spo_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name='Kwota operacji (SPO)')
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def save(self, *args, **kwargs):
         # sprawdź czy nowa operacja czy zmiana istniejącej #
@@ -509,6 +532,8 @@ class SoldPackage(models.Model):
     hour_price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Cena za godzinę")
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
 
+    objects = FastManager()
+
     def __str__(self):
         return self.package_id
 
@@ -519,6 +544,8 @@ class SpecialPrice(models.Model):
     ac_type = models.CharField(max_length=50, verbose_name='Typ SP')
     hour_price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Cena za godzinę")
     remarks = models.TextField(blank=True, null=True, verbose_name='Uwagi')
+
+    objects = FastManager()
 
     def __str__(self):
         return 'Cena na %s dla %s' % (self.ac_type, self.contractor)

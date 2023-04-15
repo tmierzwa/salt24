@@ -96,7 +96,7 @@ def ReservationList(request):
 
     if request.user.has_perm('res.res_admin'):
         # Jeśli jest administratorem rezerwacji
-        query_ac = Reservation.objects.exclude(end_time__lt = this_day).exclude(status = 'Zrealizowana').order_by('start_time')
+        query_ac = Reservation.objects.exclude(end_time__lt=this_day).exclude(status='Zrealizowana').order_by('start_time')
         query_fbo = ReservationFBO.objects.exclude(end_time__lt=this_day).order_by('start_time')
     else:
         # Jeśli jest pilotem
