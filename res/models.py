@@ -1,8 +1,6 @@
 import babel.dates
 from django.db import models
-from django.utils.timezone import localtime
 from django.core.exceptions import ObjectDoesNotExist
-
 from salt.models import MyDurationField
 from salt.utils import SendMessage
 
@@ -42,19 +40,19 @@ class Reservation(models.Model):
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')
 
     def __str__(self):
-        return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(localtime(self.start_time)), '{:%Y-%m-%d %H:%M}'.format(localtime(self.end_time)))
+        return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
 
     def save(self, *args, **kwargs):
 
         send_to = []
 
-        # Sprawdzenie czy rezerwacja już istnieje
+        # Sprawdzenie, czy rezerwacja już istnieje
         try:
             existing = Reservation.objects.get(pk=self.pk)
         except ObjectDoesNotExist:
             existing = None
 
-        # Skomponowanie wiadomosci
+        # Skomponowanie wiadomości
         if existing:
             if existing.aircraft != self.aircraft or existing.owner != self.owner or \
                existing.participant != self.participant or existing.start_time != self.start_time or \
@@ -70,8 +68,8 @@ class Reservation(models.Model):
                     send_to.append(self.participant.fbouser)
 
             message = 'Rezerwacja %s z twoim udziałem rozpoczynająca się w %s o %s została zmieniona przez %s.' % \
-                      (self.aircraft, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                       localtime(self.start_time).strftime("%H:%M"), self.change_user.__str__())
+                      (self.aircraft, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                       self.start_time.strftime("%H:%M"), self.change_user.__str__())
         else:
             if self.owner and self.owner.fbouser != self.open_user:
                 send_to.append(self.owner.fbouser)
@@ -79,8 +77,8 @@ class Reservation(models.Model):
                 send_to.append(self.participant.fbouser)
 
             message = 'Rezerwacja %s z twoim udziałem rozpoczynająca się w %s o %s została dodana przez %s.' % \
-                      (self.aircraft, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                       localtime(self.start_time).strftime("%H:%M"), self.open_user.__str__())
+                      (self.aircraft, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                       self.start_time.strftime("%H:%M"), self.open_user.__str__())
 
         # Zmiana rezerwacji
         res = super(Reservation, self).save(*args, **kwargs)
@@ -95,7 +93,7 @@ class Reservation(models.Model):
 
         send_to = []
 
-        # Skomponowanie wiadomosci
+        # Skomponowanie wiadomości
         if self.owner and self.owner.fbouser != self.change_user:
             send_to.append(self.owner.fbouser)
         if self.participant and self.participant.fbouser != self.change_user:
@@ -110,8 +108,8 @@ class Reservation(models.Model):
             remarks = " Uwagi: %s" % self.remarks
 
         message = 'Rezerwacja %s rozpoczynająca się w %s o %s została usunięta przez %s.' % \
-                  (self.aircraft, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                   localtime(self.start_time).strftime("%H:%M"), self.change_user.__str__())
+                  (self.aircraft, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                   self.start_time.strftime("%H:%M"), self.change_user.__str__())
         message += people
         message += remarks
 
@@ -135,7 +133,7 @@ class Blackout(models.Model):
     open_time = models.DateTimeField(auto_now_add=True, verbose_name='Termin utworzenia')
 
     def __str__(self):
-        return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(localtime(self.start_time)), '{:%Y-%m-%d %H:%M}'.format(localtime(self.end_time)))
+        return '%s %s - %s' % (self.aircraft, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
 
 
 # Zasób FBO
@@ -143,7 +141,7 @@ class ResourceFBO(models.Model):
     name = models.CharField(unique=True, max_length=20, verbose_name='Nazwa zasobu')
     description = models.TextField(blank=True, null=True, verbose_name='Opis zasobu')
     scheduled = models.BooleanField(default=True, verbose_name='Podlega rezerwacjom')
-    info = models.TextField(blank=True, null=True, verbose_name='Informacje dla użytkownków')
+    info = models.TextField(blank=True, null=True, verbose_name='Informacje dla użytkowników')
     color = models.CharField(max_length=7, default='#cdcdcd', verbose_name='Kolor wyświetlania')
 
     def __str__(self):
@@ -165,19 +163,19 @@ class ReservationFBO(models.Model):
     change_time = models.DateTimeField(auto_now=True, verbose_name='Termin ostatniej modyfikacji')
 
     def __str__(self):
-        return '%s %s - %s' % (self.resource, '{:%Y-%m-%d %H:%M}'.format(localtime(self.start_time)), '{:%Y-%m-%d %H:%M}'.format(localtime(self.end_time)))
+        return '%s %s - %s' % (self.resource, '{:%Y-%m-%d %H:%M}'.format(self.start_time), '{:%Y-%m-%d %H:%M}'.format(self.end_time))
 
     def save(self, *args, **kwargs):
 
         send_to = []
 
-        # Sprawdzenie czy rezerwacja już istnieje
+        # Sprawdzenie, czy rezerwacja już istnieje
         try:
             existing = ReservationFBO.objects.get(pk=self.pk)
         except ObjectDoesNotExist:
             existing = None
 
-        # Skomponowanie wiadomosci
+        # Skomponowanie wiadomości
         if existing:
             if existing.resource != self.resource or existing.owner != self.owner or \
                existing.participant != self.participant or existing.start_time != self.start_time or \
@@ -191,8 +189,8 @@ class ReservationFBO(models.Model):
                     send_to.append(self.participant)
 
             message = 'Rezerwacja %s z twoim udziałem rozpoczynająca się w %s o %s została zmieniona przez %s.' % \
-                      (self.resource, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                       localtime(self.start_time).strftime("%H:%M"), self.change_user.__str__())
+                      (self.resource, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                       self.start_time.strftime("%H:%M"), self.change_user.__str__())
         else:
             if self.owner and self.owner != self.open_user:
                 send_to.append(self.owner)
@@ -200,8 +198,8 @@ class ReservationFBO(models.Model):
                 send_to.append(self.participant)
 
             message = 'Rezerwacja %s z twoim udziałem rozpoczynająca się w %s o %s została dodana przez %s.' % \
-                      (self.resource, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                       localtime(self.start_time).strftime("%H:%M"), self.open_user.__str__())
+                      (self.resource, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                       self.start_time.strftime("%H:%M"), self.open_user.__str__())
 
         # Zmiana rezerwacji
         res = super(ReservationFBO, self).save(*args, **kwargs)
@@ -217,15 +215,15 @@ class ReservationFBO(models.Model):
 
         send_to = []
 
-        # Skomponowanie wiadomosci
+        # Skomponowanie wiadomości
         if self.owner and self.owner != self.change_user:
             send_to.append(self.owner)
         if self.participant and self.participant != self.change_user:
             send_to.append(self.participant)
 
         message = 'Rezerwacja %s z twoim udziałem rozpoczynająca się w %s o %s została usunięta przez %s.' % \
-                  (self.resource, babel.dates.format_date(localtime(self.start_time), "EEE d MMMM", locale='pl_PL'),
-                   localtime(self.start_time).strftime("%H:%M"), self.change_user.__str__())
+                  (self.resource, babel.dates.format_date(self.start_time, "EEE d MMMM", locale='pl_PL'),
+                   self.start_time.strftime("%H:%M"), self.change_user.__str__())
 
         # Usunięcie rezerwacji
         res = super(ReservationFBO, self).delete(*args, **kwargs)

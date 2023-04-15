@@ -1,4 +1,4 @@
-import json, pytz, babel.dates
+import json, babel.dates
 from datetime import datetime, timedelta, date
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill, fills, Border, borders, Side, Font
@@ -7,7 +7,6 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
-from django.utils.timezone import localtime, get_current_timezone, make_aware
 from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -22,23 +21,23 @@ from django.template.response import TemplateResponse, HttpResponse
 from django.utils.decorators import method_decorator
 def class_view_decorator(function_decorator):
 
-    def simple_decorator(View):
-        View.dispatch = method_decorator(function_decorator)(View.dispatch)
-        return View
+    def simple_decorator(view):
+        view.dispatch = method_decorator(function_decorator)(view.dispatch)
+        return view
 
     return simple_decorator
 
 from salt.forms import duration_string
 from res.forms import ReservationForm, ReservationFBOForm
 
-from panel.models import FBOUser, FlightTypes, Pilot, PilotAircraft, PilotFlightType, Operation, Duty
+from panel.models import FBOUser, FlightTypes, Pilot, PilotAircraft, Operation, Duty
 from res.models import ResourceFBO, Reservation, ReservationFBO, Blackout
 from camo.models import Aircraft
 
 
 def reservation_open_limit(reservation):
 
-    # limit czasu na jaki można otworzyć PDT przed rozpoczęciem rezerwacji
+    # limit czasu, na jaki można otworzyć PDT przed rozpoczęciem rezerwacji
     if reservation.aircraft.helicopter:
         open_limit = 60 * 60 * 3
     else:
@@ -49,11 +48,11 @@ def reservation_open_limit(reservation):
 
 def reservation_check(reservation, fbouser):
 
-    # sprawdzenie czy można otworzyć PDT
+    # sprawdzenie, czy można otworzyć PDT
     open_pdt = (reservation.status in ('Nowa', 'Potwierdzona')) and \
                hasattr(fbouser, 'pilot') and \
-               (datetime.now(tz=pytz.timezone('CET')) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))) and \
-               (datetime.now(tz=pytz.timezone('CET')) < reservation.end_time + timedelta(days=1)) and \
+               (datetime.now() > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))) and \
+               (datetime.now() < reservation.end_time + timedelta(days=1)) and \
                (reservation.aircraft.status == 'flying') and \
                reservation.aircraft.airworthy() and \
                not fbouser.open_pdt() and \
@@ -64,19 +63,19 @@ def reservation_check(reservation, fbouser):
 
 def reservation_msg(reservation, fbouser):
 
-    # Generacja komunikatu dlaczego nie można otworzyć PDT
+    # Generacja komunikatu, dlaczego nie można otworzyć PDT
     if not (reservation.status in ('Nowa', 'Potwierdzona')):
         res_msg = 'Rezerwacja została anulowana.'
     elif not (hasattr(fbouser, 'pilot')):
         res_msg = 'Zalogowany użytkownik nie jest pilotem.'
-    elif not (datetime.now(tz=pytz.timezone('CET')) > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))):
+    elif not (datetime.now() > reservation.start_time - timedelta(seconds=reservation_open_limit(reservation))):
         if reservation.aircraft.helicopter:
             res_msg = 'Do rozpoczęcia rezerwacji pozostało ponad 3 godziny.'
         else:
             res_msg = 'Do rozpoczęcia rezerwacji pozostała ponad godzina.'
-    elif not ((datetime.now(tz=pytz.timezone('CET')) < reservation.end_time + timedelta(days=1))):
+    elif not (datetime.now() < reservation.end_time + timedelta(days=1)):
         res_msg = 'Od zakończenia rezerwacji minęła ponad doba.'
-    elif not ((reservation.aircraft.status == 'flying')):
+    elif not (reservation.aircraft.status == 'flying'):
         res_msg = 'Statek powietrzny jest niesprawny.'
     elif not (reservation.aircraft.airworthy()):
         res_msg = 'Statek powietrzny nie ma ważnego MS.'
@@ -116,8 +115,6 @@ def ReservationList(request):
     # lista rezerwacji na podstawie query_ac i query_fbo
     object_list = []
     for res in query_ac:
-        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
-        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append({'res': res, 'pk':res.pk, 'resource':res.aircraft, 'start_time': res.start_time,
                             'end_time': res.end_time, 'owner': res.owner, 'participant': res.participant,
                             'title': FlightTypes()[res.planned_type] if res.planned_type else '',
@@ -125,8 +122,6 @@ def ReservationList(request):
                             'loc_end': res.loc_end, 'remarks': res.remarks, 'internal_remarks': res.internal_remarks,
                             'status': res.status, 'fbo': False})
     for res in query_fbo:
-        res.start_time = make_aware(res.start_time)
-        res.end_time = make_aware(res.end_time)
         object_list.append({'res': res, 'pk':res.pk, 'resource':res.resource, 'start_time': res.start_time,
                             'end_time': res.end_time, 'owner': res.owner, 'participant': res.participant,
                             'title': res.title, 'planned_time': None, 'loc_start': '', 'loc_stop': '', 'loc_end': '',
@@ -169,9 +164,9 @@ def ReservationList(request):
         days_length = (object['end_time'].date() - object['start_time'].date()).days
         fields.append({'name': 'resource', 'value': object['resource'],
                        'link': reverse(('res:resfbo-info' if object['fbo'] else 'res:reservation-info'), args=[object['pk']]), 'just': 'center'})
-        fields.append({'name': 'date', 'value': babel.dates.format_date(localtime(object['start_time']), "EEE d MMMM", locale='pl_PL')})
-        fields.append({'name': 'time', 'value': "%s - %s" % (localtime(object['start_time']).strftime("%H:%M"),
-                                                             localtime(object['end_time']).strftime("%H:%M") + (' (+%d)' % days_length if days_length else ''))})
+        fields.append({'name': 'date', 'value': babel.dates.format_date(object['start_time'], "EEE d MMMM", locale='pl_PL')})
+        fields.append({'name': 'time', 'value': "%s - %s" % (object['start_time'].strftime("%H:%M"),
+                                                             object['end_time'].strftime("%H:%M") + (' (+%d)' % days_length if days_length else ''))})
         fields.append({'name': 'owner', 'value': object['owner']})
         fields.append({'name': 'participant', 'value': object['participant']})
         fields.append({'name': 'title', 'value': object['title']})
@@ -218,8 +213,6 @@ def ReservationListMobile(request):
     # lista rezerwacji na podstawie query_ac i query_fbo
     object_list = []
     for res in query_ac:
-        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
-        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append(
             {'res': res, 'pk': res.pk, 'resource': res.aircraft, 'start_time': res.start_time, 'end_time': res.end_time,
              'owner': res.owner.fbouser, 'participant': res.participant.fbouser if res.participant else None,
@@ -228,8 +221,6 @@ def ReservationListMobile(request):
              'loc_end': res.loc_end, 'remarks': res.remarks, 'internal_remarks': res.internal_remarks,
              'status': res.status, 'fbo': False})
     for res in query_fbo:
-        res.start_time = make_aware(res.start_time, pytz.timezone('CET'))
-        res.end_time = make_aware(res.end_time, pytz.timezone('CET'))
         object_list.append(
             {'res': res, 'pk': res.pk, 'resource': res.resource, 'start_time': res.start_time, 'end_time': res.end_time,
              'owner': res.owner, 'participant': res.participant, 'title': res.title,
@@ -257,9 +248,9 @@ def ReservationListMobile(request):
     for object in object_list:
         days_length = (object['end_time'].date() - object['start_time'].date()).days
         fields = {}
-        fields['line1'] = "<b>%s</b>, %s-%s" % (babel.dates.format_date(localtime(object['start_time']), "EEE d MMMM", locale='pl_PL'),
-                                           localtime(object['start_time']).strftime("%H:%M"),
-                                           localtime(object['end_time']).strftime("%H:%M") + (' (+%d)' % days_length if days_length else ''))
+        fields['line1'] = "<b>%s</b>, %s-%s" % (babel.dates.format_date(object['start_time'], "EEE d MMMM", locale='pl_PL'),
+                                           object['start_time'].strftime("%H:%M"),
+                                           object['end_time'].strftime("%H:%M") + (' (+%d)' % days_length if days_length else ''))
         fields['line2'] = "<span style='color: darkred'><b>%s</b></span>, %s" % (object['resource'], object['title'])
         fields['line3'] = (object['owner'].__str__() if object['owner'] != request.user.fbouser else '')
         if object['participant']:
@@ -312,7 +303,7 @@ class ReservationInfo (DetailView):
                 local_menu.append({'text': 'Usuń', 'path': '%s%s' % (reverse('res:reservation-delete', args=[self.object.pk]), '?cal=1' if calendar else '')})
         context['local_menu'] = local_menu
 
-        # Sprawdzenie czy na podstawie rezerwacji użytkownik może otworzyć PDT
+        # Sprawdzenie, czy na podstawie rezerwacji użytkownik może otworzyć PDT
         if reservation_check(self.object, self.request.user.fbouser):
             context['pdt_link'] = '%s?res=%d' % (reverse('panel:pdt-open'), self.object.pk)
         else:
@@ -320,8 +311,8 @@ class ReservationInfo (DetailView):
 
         field_list = []
         field_list.append({'header': 'Statek powietrzny', 'value': self.object.aircraft, 'bold': True})
-        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.start_time))})
-        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.end_time))})
+        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.start_time)})
+        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.end_time)})
         field_list.append({'header': 'Właściciel rezerwacji', 'value': self.object.owner})
         if self.object.participant:
             field_list.append({'header': 'Uczestnik rezerwacji', 'value': self.object.participant})
@@ -339,9 +330,9 @@ class ReservationInfo (DetailView):
         if (self.request.user.has_perm('res.res_admin') or self.request.user.fbouser.infos) and self.object.internal_remarks:
             field_list.append({'header': 'Uwagi SALT', 'value': self.object.internal_remarks})
         field_list.append({'header': 'Status', 'value': self.object.status})
-        field_list.append({'header': 'Otwarta przez', 'value': '%s - %s' % (self.object.open_user, localtime(self.object.open_time).strftime('%y/%m/%d %X'))})
+        field_list.append({'header': 'Otwarta przez', 'value': '%s - %s' % (self.object.open_user, self.object.open_time.strftime('%y/%m/%d %X'))})
         if self.object.change_user:
-            field_list.append({'header': 'Zmieniona przez', 'value': '%s - %s' % (self.object.change_user, localtime(self.object.change_time).strftime('%y/%m/%d %X'))})
+            field_list.append({'header': 'Zmieniona przez', 'value': '%s - %s' % (self.object.change_user, self.object.change_time.strftime('%y/%m/%d %X'))})
 
         context['field_list'] = field_list
         return context
@@ -498,17 +489,17 @@ class ReservationFBOInfo (DetailView):
 
         field_list = []
         field_list.append({'header': 'Zasób', 'value': self.object.resource, 'bold': True})
-        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.start_time))})
-        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.end_time))})
+        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.start_time)})
+        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.end_time)})
         field_list.append({'header': 'Właściciel rezerwacji', 'value': self.object.owner})
         if self.object.participant:
             field_list.append({'header': 'Uczestnik rezerwacji', 'value': self.object.participant})
         field_list.append({'header': 'Tytuł rezerwacji', 'value': self.object.title})
         if self.object.remarks:
             field_list.append({'header': 'Uwagi', 'value': self.object.remarks})
-        field_list.append({'header': 'Otwarta przez', 'value': '%s - %s' % (self.object.open_user, localtime(self.object.open_time).strftime('%y/%m/%d %X'))})
+        field_list.append({'header': 'Otwarta przez', 'value': '%s - %s' % (self.object.open_user, self.object.open_time.strftime('%y/%m/%d %X'))})
         if self.object.change_user:
-            field_list.append({'header': 'Zmieniona przez', 'value': '%s - %s' % (self.object.change_user, localtime(self.object.change_time).strftime('%y/%m/%d %X'))})
+            field_list.append({'header': 'Zmieniona przez', 'value': '%s - %s' % (self.object.change_user, self.object.change_time.strftime('%y/%m/%d %X'))})
 
         context['field_list'] = field_list
         return context
@@ -752,8 +743,8 @@ class BlackoutList (ListView):
         for object in self.object_list:
             fields = []
             fields.append({'name': 'aircraft', 'value': object.aircraft, 'link': reverse('res:blackout-info', args=[object.pk]), 'just': 'center'})
-            fields.append({'name': 'start_time', 'value': localtime(object.start_time).strftime("%y/%m/%d %H:%M")})
-            fields.append({'name': 'end_time', 'value': localtime(object.end_time).strftime("%y/%m/%d %H:%M")})
+            fields.append({'name': 'start_time', 'value': object.start_time.strftime("%y/%m/%d %H:%M")})
+            fields.append({'name': 'end_time', 'value': object.end_time.strftime("%y/%m/%d %H:%M")})
             fields.append({'name': 'remarks', 'value': object.remarks})
             fields.append({'name': 'change', 'view_link': reverse('res:reservation-cal-day', args=[object.start_time.year,object.start_time.month,object.start_time.day]),
                            'edit_link': reverse('res:blackout-update', args=[object.pk]), 'delete_link': reverse('res:blackout-delete', args=[object.pk])})
@@ -782,10 +773,10 @@ class BlackoutInfo (DetailView):
 
         field_list = []
         field_list.append({'header': 'Statek powietrzny', 'value': self.object.aircraft, 'bold': True})
-        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.start_time))})
-        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(localtime(self.object.end_time))})
+        field_list.append({'header': 'Termin rozpoczęcia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.start_time)})
+        field_list.append({'header': 'Termin zakończenia', 'value': '{:%Y-%m-%d %H:%M}'.format(self.object.end_time)})
         field_list.append({'header': 'Uwagi', 'value': self.object.remarks})
-        field_list.append({'header': 'Utworzona przez', 'value': '%s - %s' % (self.object.open_user, localtime(self.object.open_time).strftime('%y/%m/%d %X'))})
+        field_list.append({'header': 'Utworzona przez', 'value': '%s - %s' % (self.object.open_user, self.object.open_time.strftime('%y/%m/%d %X'))})
 
         context['field_list'] = field_list
         return context
@@ -815,8 +806,8 @@ class BlackoutCreate (CreateView):
                 if cleaned_data['end_time'] <= cleaned_data['start_time']:
                     raise forms.ValidationError("Termin rozpoczęcia musi być wcześniejszy niż zakończenia!")
 
-                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month, cleaned_data['start_time'].day, tzinfo=pytz.timezone('CET'))
-                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month, cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.timezone('CET'))
+                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month, cleaned_data['start_time'].day)
+                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month, cleaned_data['end_time'].day, hour=23, minute=59)
                 overlap = False
                 for res in Reservation.objects.filter(aircraft=cleaned_data['aircraft']).exclude(start_time__gt=end).exclude(end_time__lt=start):
                     if (res.start_time >= cleaned_data['start_time'] and res.start_time < cleaned_data['end_time']) or \
@@ -862,13 +853,13 @@ class BlackoutUpdate (UpdateView):
                 if cleaned_data['end_time'] <= cleaned_data['start_time']:
                     raise forms.ValidationError("Termin rozpoczęcia musi być wcześniejszy niż zakończenia!")
 
-                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month,cleaned_data['start_time'].day, tzinfo=pytz.timezone('CET'))
-                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month,cleaned_data['end_time'].day, hour=23, minute=59, tzinfo=pytz.timezone('CET'))
+                start = datetime(cleaned_data['start_time'].year, cleaned_data['start_time'].month,cleaned_data['start_time'].day)
+                end = datetime(cleaned_data['end_time'].year, cleaned_data['end_time'].month,cleaned_data['end_time'].day, hour=23, minute=59)
                 overlap = False
                 for res in Reservation.objects.filter(aircraft=cleaned_data['aircraft']).exclude(start_time__gt=end).exclude(end_time__lt=start).exclude(pk=self.instance.id):
-                    if (res.start_time >= cleaned_data['start_time'] and res.start_time < cleaned_data['end_time']) or \
-                            (res.end_time > cleaned_data['start_time'] and res.end_time <= cleaned_data['end_time']) or \
-                            (cleaned_data['start_time'] >= res.start_time and cleaned_data['end_time'] <= res.end_time):
+                    if (cleaned_data['start_time'] <= res.start_time < cleaned_data['end_time']) or \
+                        (cleaned_data['start_time'] < res.end_time <= cleaned_data['end_time']) or \
+                        (cleaned_data['start_time'] >= res.start_time and cleaned_data['end_time'] <= res.end_time):
                         overlap = True
                         break
                 if overlap:
@@ -1052,7 +1043,7 @@ class ResParamsUpdate (UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ResParamsUpdate, self).get_context_data(**kwargs)
         context['page_title'] = 'Parametry'
-        context['header_text'] = 'Modyfikacja parametrów rezewacji dla %s' % self.object
+        context['header_text'] = 'Modyfikacja parametrów rezerwacji dla %s' % self.object
         return context
 
     def get_form_class(self, **kwargs):
@@ -1089,13 +1080,13 @@ def reservation_feed(request):
     if request.is_ajax():
         data_list = []
         try:
-            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.timezone('CET'))
-            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.timezone('CET'))
+            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]))
+            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59)
         except:
             start = end = None
 
         if start and end:
-            today = datetime(year=date.today().year, month=date.today().month, day=date.today().day, tzinfo=pytz.timezone('CET'))
+            today = datetime(year=date.today().year, month=date.today().month, day=date.today().day)
             # Dodaj rezerwacje AC z tego zakresu dat
             for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = start):
                 editable = False
@@ -1122,8 +1113,8 @@ def reservation_feed(request):
                                       'resourceId': str(res.aircraft.pk),
                                       'title': res.owner.fbouser.second_name +
                                                ('/%s' % res.participant.fbouser.second_name if res.participant else ''),
-                                      'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                      'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                      'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                      'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                       'type': (FlightTypes()[res.planned_type] if res.planned_type else 'nieokreślony'),
                                       'notes': notes,
                                       'color': res.aircraft.color,
@@ -1139,15 +1130,15 @@ def reservation_feed(request):
                     data_list.append({'id': 'bl' + str(blackout.pk),
                                       'resourceId': str(blackout.aircraft.pk),
                                       'title': 'Blokada %s' % blackout.aircraft,
-                                      'start': localtime(blackout.start_time).strftime("%Y-%m-%d %H:%M"),
-                                      'end': localtime(blackout.end_time).strftime("%Y-%m-%d %H:%M"),
+                                      'start': blackout.start_time.strftime("%Y-%m-%d %H:%M"),
+                                      'end': blackout.end_time.strftime("%Y-%m-%d %H:%M"),
                                       'notes': blackout.remarks,
                                       'color': 'lightcoral',
                                       'editable': False,
                                       'rendering': 'background'
                                       })
 
-            # Dodaj PDTy z tego zakresu dat
+            # Dodaj PDT-y z tego zakresu dat
             for oper in Operation.objects.filter(pdt__date__gte=start, pdt__date__lte=end):
                 if oper.time_start and oper.time_end and oper.pdt.aircraft.scheduled:
                     data_list.append({'id': 'op' + str(oper.pk),
@@ -1172,8 +1163,8 @@ def reservation_feed(request):
                         data_list.append({'id': 'fb1' + str(res.pk),
                                           'resourceId': 'infos' if res.owner == request.user.fbouser else ('usr%s' % str(res.owner.pk)),
                                           'title': res.title,
-                                          'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                          'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                          'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                          'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                           'owner': res.owner.__str__(),
                                           'participant': res.participant.__str__() if res.participant else '',
                                           'type': res.title,
@@ -1188,8 +1179,8 @@ def reservation_feed(request):
                             data_list.append({'id': 'fb2' + str(res.pk),
                                               'resourceId': 'infos' if res.participant == request.user.fbouser else ('usr%s' % str(res.participant.pk)),
                                               'title': res.title,
-                                              'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                              'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                              'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                              'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                               'owner': res.owner.__str__(),
                                               'participant': res.participant.__str__(),
                                               'type': res.title,
@@ -1204,10 +1195,10 @@ def reservation_feed(request):
                         data_list.append({'id': 'fb1' + str(res.pk),
                                           'resourceId': 'fbo'+str(res.resource.pk),
                                           'title': res.title,
-                                          'subtitle': localtime(res.start_time).strftime("%H:%M") + " - " + localtime(res.end_time).strftime("%H:%M"),
+                                          'subtitle': res.start_time.strftime("%H:%M") + " - " + res.end_time.strftime("%H:%M"),
                                           'allDay': True,
-                                          'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                          'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                          'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                          'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                           'owner': res.owner.__str__(),
                                           'participant': res.participant.__str__() if res.participant else '',
                                           'type': res.title,
@@ -1222,8 +1213,8 @@ def reservation_feed(request):
                         data_list.append({'id': 'fbo' + str(res.pk),
                                           'resourceId': 'fbo'+str(res.resource.pk),
                                           'title': res.title,
-                                          'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                          'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                          'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                          'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                           'owner': res.owner.__str__(),
                                           'participant': res.participant.__str__() if res.participant else '',
                                           'type': res.title,
@@ -1258,8 +1249,8 @@ def reservation_move(request):
             res = Reservation.objects.get(pk=reservation_id)
             if res:
                 res.aircraft = Aircraft.objects.get(pk=new_resource)
-                res.start_time = get_current_timezone().localize(datetime.strptime(new_start, '%Y-%m-%dT%H:%M:%S'))
-                res.end_time = get_current_timezone().localize(datetime.strptime(new_end, '%Y-%m-%dT%H:%M:%S'))
+                res.start_time = datetime.strptime(new_start, '%Y-%m-%dT%H:%M:%S')
+                res.end_time = datetime.strptime(new_end, '%Y-%m-%dT%H:%M:%S')
                 if res.planned_time > new_duration:
                     res.planned_time = new_duration
                 res.change_user = request.user.fbouser
@@ -1277,14 +1268,14 @@ def duty_feed(request):
     if request.is_ajax():
         data_list = []
         try:
-            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]), tzinfo=pytz.timezone('CET'))
-            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59, tzinfo=pytz.timezone('CET'))
+            start = datetime(year=int(request.GET['start'][0:4]), month=int(request.GET['start'][5:7]), day=int(request.GET['start'][8:10]))
+            end = datetime(year=int(request.GET['end'][0:4]), month=int(request.GET['end'][5:7]), day=int(request.GET['end'][8:10]), hour=23, minute=59)
         except:
             start = end = None
 
         if start and end:
             # Dodaj rezerwacje AC z wybranego zakresu dat
-            for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = max(start, datetime.now(tz=pytz.timezone('CET'))-timedelta(seconds=30*60))):
+            for res in Reservation.objects.exclude(start_time__gt = end).exclude(end_time__lt = max(start, datetime.now()-timedelta(seconds=30*60))):
                 notes = ('<b style="color: lightcoral">' + res.internal_remarks.replace('\r','').replace('\n', '<br>') + '</b>') \
                         if (res.internal_remarks and request.user.has_perm('res.res_admin')) else ''
                 notes = notes + ((('<br>' if notes else '') + res.remarks.replace('\r','').replace('\n', '<br>')) if res.remarks else '')
@@ -1293,8 +1284,8 @@ def duty_feed(request):
                     data_list.append({'id': 'ro' + str(res.pk),
                                       'resourceId': str(res.owner_id),
                                       'title': res.aircraft.__str__(),
-                                      'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                      'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                      'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                      'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                       'type': (FlightTypes()[res.planned_type] if res.planned_type else 'nieokreślony'),
                                       'notes': notes,
                                       'color': res.aircraft.color,
@@ -1308,8 +1299,8 @@ def duty_feed(request):
                     data_list.append({'id': 'rp' + str(res.pk),
                                       'resourceId': str(res.participant_id),
                                       'title': res.aircraft.__str__(),
-                                      'start': localtime(res.start_time).strftime("%Y-%m-%d %H:%M"),
-                                      'end': localtime(res.end_time).strftime("%Y-%m-%d %H:%M"),
+                                      'start': res.start_time.strftime("%Y-%m-%d %H:%M"),
+                                      'end': res.end_time.strftime("%Y-%m-%d %H:%M"),
                                       'type': (FlightTypes()[res.planned_type] if res.planned_type else 'nieokreślony'),
                                       'notes': notes,
                                       'color': res.aircraft.color,
@@ -1495,10 +1486,10 @@ def PortExport (min_date, max_date, rep_type):
                 ws['B%d' % row] = "MTOW"
                 ws['C%d' % row] = res.aircraft.mtow
                 ws['L%d' % row] = "Czas LT"
-                ws['M%d' % row] = ("%s" % localtime(res.end_time).time())[:5]
+                ws['M%d' % row] = ("%s" % res.end_time.time())[:5]
                 ws['N%d' % row] = "Czas LT"
                 if route_type != 2:
-                    ws['O%d' % row] = ("%s" % localtime(res.start_time).time())[:5]
+                    ws['O%d' % row] = ("%s" % res.start_time.time())[:5]
                 else:
                     ws['O%d' % row] = ""
                 row += 1
@@ -1561,7 +1552,7 @@ def PortExport (min_date, max_date, rep_type):
             for (res, route_type) in reservations:
                 # Nowy arkusz dla każdego lotu
                 ws = wb.create_sheet("%s " % res.aircraft.registration +
-                                     ("%s" % localtime(res.start_time).time())[:5].replace(":","") +
+                                     ("%s" % res.start_time.time())[:5].replace(":","") +
                                      (" DEP" if route_type == 0 else " ARR"))
 
                 # Informacje nagłówkowe
@@ -1691,7 +1682,7 @@ def PortExport (min_date, max_date, rep_type):
             )
             email.attach('SALT EPMO.xlsx', output.getvalue(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-            # wysłanie emaila i wyczysczenie cache
+            # wysłanie emaila i wyczyszczenie cache
             res = email.send(fail_silently=True)
             output.close()
 
