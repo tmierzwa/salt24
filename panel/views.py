@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import time
-import pytz, babel.dates
+import babel.dates
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from django.utils.timezone import localtime
 from decimal import Decimal
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill, fills, Border, borders, Side, Font
@@ -22,7 +20,6 @@ from django.forms import Textarea, TextInput, Form, ChoiceField, DateField
 from django.forms.widgets import TimeInput
 from django.contrib.auth.decorators import permission_required, user_passes_test, login_required
 from django.contrib.admin.widgets import AdminDateWidget
-from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import Sum, Q
 from django_datatables_view.base_datatable_view import BaseDatatableView
@@ -61,7 +58,7 @@ def PanelHome (request):
 
     # Jeśli jest pilotem
     if hasattr(request.user.fbouser, 'pilot'):
-        # Wybierz te które utworzyłeś lub jesteś właścicielem
+        # Wybierz te, które utworzyłeś lub jesteś właścicielem
         query_ac = Reservation.objects.filter(
             Q(owner=request.user.fbouser.pilot) | Q(participant=request.user.fbouser.pilot) | Q(open_user=request.user.fbouser)). \
             exclude(end_time__lt=this_day).exclude(status='Zrealizowana').order_by('start_time')
@@ -99,10 +96,10 @@ def PanelHome (request):
         days_length = (res.end_time.date() - res.start_time.date()).days
         fields.append({'name': 'resource', 'value': res.aircraft,
                        'link': reverse('res:reservation-info', args=[res.pk]), 'just': 'center'})
-        fields.append({'name': 'date', 'value': babel.dates.format_date(localtime(res.start_time), "EEE dd.MM", locale='pl_PL'),
+        fields.append({'name': 'date', 'value': babel.dates.format_date(res.start_time, "EEE dd.MM", locale='pl_PL'),
                        'just': 'center'})
-        fields.append({'name': 'time', 'value': "%s - %s" % (localtime(res.start_time).strftime("%H:%M"),
-                                                             localtime(res.end_time).strftime("%H:%M") + (
+        fields.append({'name': 'time', 'value': "%s - %s" % (res.start_time.strftime("%H:%M"),
+                                                             res.end_time.strftime("%H:%M") + (
                                                                  ' (+%d)' % days_length if days_length else ''))})
         fields.append({'name': 'owner', 'value': res.owner.__str__()[:20]})
         fields.append({'name': 'participant', 'value': res.participant.__str__()[:20] if res.participant else ''})
@@ -1625,7 +1622,7 @@ def OperationOpen (request, pdt_id):
         tth_start = last_operation.tth_end
         operation_no = last_operation.operation_no + 1
     else:
-        # Na podstawie ostatniej operacji ostatniego PDTa
+        # Na podstawie ostatniej operacji ostatniego PDT-a
         prev_pdt = pdt.aircraft.pdt_set.exclude(pk=pdt.pk).order_by('pk').last()
         if prev_pdt:
             prev_operation = prev_pdt.operation_set.order_by('operation_no').last()
@@ -1644,7 +1641,7 @@ def OperationOpen (request, pdt_id):
     else:
         fuel_source = None
 
-    # Odczytanie lisczby pasażerów z rezerwacji
+    # Odczytanie liczby pasażerów z rezerwacji
     if pdt.flight_type in ('01', '01A') and pdt.reservation:
         pax = len(list(filter(None, pdt.reservation.pax.split(sep="\r\n"))))
     else:
@@ -2240,7 +2237,7 @@ def MobilePDTOpen1(request):
         request.session.pop('service_remarks', None)
         request.session.pop('remarks', None)
 
-        # Ustawienie zmienny sesyjnych na podstawie rezewacji
+        # Ustawienie zmienny sesyjnych na podstawie rezerwacji
         if reservation:
             request.session['pdt_date'] = reservation.start_time.date()
             request.session['aircraft_id'] = reservation.aircraft_id
@@ -2530,7 +2527,7 @@ def MobileOperationOpen (request, pdt_id):
         tth_start = last_operation.tth_end
         operation_no = last_operation.operation_no + 1
     else:
-        # Na podstawie ostatniej operacji ostatniego PDTa
+        # Na podstawie ostatniej operacji ostatniego PDT-a
         prev_pdt = pdt.aircraft.pdt_set.exclude(pk=pdt.pk).order_by('pk').last()
         if prev_pdt:
             prev_operation = prev_pdt.operation_set.order_by('operation_no').last()
@@ -2549,7 +2546,7 @@ def MobileOperationOpen (request, pdt_id):
     else:
         fuel_source = None
 
-    # Odczytanie lisczby pasażerów z rezerwacji
+    # Odczytanie liczby pasażerów z rezerwacji
     if pdt.flight_type in ('01', '01A') and pdt.reservation:
         pax = len(list(filter(None, pdt.reservation.pax.split(sep="\r\n"))))
     else:
@@ -2816,7 +2813,7 @@ class PanelSMSReportUpdate (UpdateView):
     def get_context_data(self, **kwargs):
         context = super(PanelSMSReportUpdate, self).get_context_data(**kwargs)
         context['page_title'] = 'Aktualizacja raportu'
-        context['header_text'] = 'Aktualizacja dobrowolonego raportu SMS'
+        context['header_text'] = 'Aktualizacja dobrowolnego raportu SMS'
         context['type'] = 'reports'
         context['submenu_template'] = 'panel/user_submenu.html'
         context['fbouser'] = self.object.reported_by
