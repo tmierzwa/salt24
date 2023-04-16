@@ -1740,15 +1740,15 @@ def OperationUpdate(request, pk):
             aircraft.save()
 
         # zapis zmian w operacji
-        operation.pax = form.cleaned_data['pax']
-        operation.bags = form.cleaned_data['bags']
+        operation.pax = None
+        operation.bags = None
         operation.fuel_refill = form.cleaned_data['fuel_refill']
         operation.fuel_source = form.cleaned_data['fuel_source']
         operation.fuel_available = form.cleaned_data['fuel_available']
         operation.fuel_used = form.cleaned_data['fuel_used']
         operation.oil_refill = form.cleaned_data['oil_refill']
-        operation.trans_oil_refill = form.cleaned_data['trans_oil_refill']
-        operation.hydr_oil_refill = form.cleaned_data['hydr_oil_refill']
+        operation.trans_oil_refill = None
+        operation.hydr_oil_refill = None
         operation.loc_start = form.cleaned_data['loc_start']
         operation.time_start = form.cleaned_data['time_start']
         operation.tth_start = form.cleaned_data['tth_start']
@@ -1756,7 +1756,7 @@ def OperationUpdate(request, pk):
         operation.time_end = form.cleaned_data['time_end']
         operation.tth_end = form.cleaned_data['tth_end']
         operation.landings = form.cleaned_data['landings']
-        operation.cycles = form.cleaned_data['cycles']
+        operation.cycles = None
 
         operation.full_clean()
         operation.save()

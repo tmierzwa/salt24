@@ -8,25 +8,16 @@ from smsapi.exception import SmsApiException
 
 def SendSMS (number, content):
     # Wysłanie SMS z użyciem bibliotek SMSAPI
-    api = SmsApiPlClient()
-    api.reset()
+    api = SmsApiPlClient(access_token=settings.SMS_TOKEN)
 
     # autoryzacja za pomocą tokenu
     api.auth_token = settings.SMS_TOKEN
 
     try:
-        api.service('sms').action('send')
+        response = api.sms.send(to=number, message=content, encoding='utf-8')
+        result = (response.count == 1)
 
-        api.set_content(content)
-        api.set_to(number)
-        api.set_encoding('utf-8')
-        api.set_normalize()
-        # api.set_from('SALT Aviation')
-
-        response = api.execute()
-        result = not response.current['error']
-
-    except SMTPException:
+    except SmsApiException as e:
         result = False
 
     return result

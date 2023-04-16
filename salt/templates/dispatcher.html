@@ -44,7 +44,6 @@
             <div class="info-priority">{{ infopriority|default:""|linebreaks }}</div>
             <div class="info-body">{{ info|safe|linebreaks|default_if_none:"Brak aktualnych informacji." }}</div>
             <div class="info-body"><a href="/static/files/SALT24.pdf"> >>> Instrukcja systemu <<< </a></div>
-            <div class="info-body"><a href="http://34.244.74.106/"> >>> Samouczek systemu <<< </a></div>
             <div class="info-body">{{ infocontact|safe|linebreaks }}</div>
         </div>
     {% endif %}

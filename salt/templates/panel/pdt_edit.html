@@ -167,21 +167,17 @@
 
                         {% if form.instance.operation_set.all|length > 1 %}
                             <tr class="operation_row">
-                                <td colspan="3" class="operation_field pdt_gray" style="text-align: right; font-size: 12px">Razem:</td>
+                                <td class="operation_field pdt_gray" style="text-align: center; font-size: 12px">Razem:</td>
                                 {% if form.instance.operation_set.all %}
                                     <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.fuel_refill__sum|default_if_none:'' }}</td>
                                     <td class="operation_field pdt_gray"></td>
-                                    <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.fuel_used__sum|default_if_none:'' }}</td>
                                     <td class="operation_field pdt_gray">{{ form.instance.pdt_sum.oil_refill__sum|floatformat:1 }}</td>
                                     <td colspan="6" class="operation_field pdt_gray"></td>
                                     <td class="operation_field pdt_gray">{{ form.instance.landings_sum|default_if_none:'' }}</td>
-                                    <td class="operation_field pdt_gray">{{ form.instance.hours_sum.1|stringformat:'02d' }}:{{ form.instance.hours_sum.2|stringformat:'02d' }}</td>
                                     <td class="operation_field pdt_gray">{{ form.instance.tth_sum|floatformat:2 }}</td>
+                                    <td class="operation_field pdt_gray">{{ form.instance.hours_sum.1|stringformat:'02d' }}:{{ form.instance.hours_sum.2|stringformat:'02d' }}</td>
                                     <td class="operation_field pdt_gray"></td>
                                 {% else %}
-                                    <td class="operation_field pdt_gray"></td>
-                                    <td class="operation_field pdt_gray"></td>
-                                    <td class="operation_field pdt_gray"></td>
                                     <td class="operation_field pdt_gray"></td>
                                     <td class="operation_field pdt_gray"></td>
                                     <td class="operation_field pdt_gray"></td>
